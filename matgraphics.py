@@ -160,3 +160,41 @@ class Canvas:
         for _x in range(x, x + width):
             for _y in range(y, y + height):
                 self.draw_pixel(_x, _y, r, g, b)
+
+    def draw_line(self, x_start: int, y_start: int, x_end: int, y_end: int, r: int, g: int, b: int):
+        """
+        good ole bresenham
+
+        :param x_start:
+        :param y_start:
+        :param x_end:
+        :param y_end: must be larger than
+        :param r:
+        :param g:
+        :param b:
+        :return:
+        """
+        # ensure start is smaller than end
+        if y_start > y_end:
+            y_start, y_end = y_end, y_start
+        if x_start > x_end:
+            x_start, x_end = x_end, x_start
+
+        delta_x = x_end - x_start
+
+        # handle vertical lines
+        if delta_x == 0:
+            for y in range(y_start, y_end):
+                self.draw_pixel(x_start, y, r, g, b)
+        else:
+            delta_y = y_end - y_start
+            delta_error = abs(delta_y / delta_x)
+            error = delta_error - 0.5
+            y = y_start
+
+            for x in range(x_start, x_end + 1):
+                self.draw_pixel(x, y, r, g, b)
+                error += delta_error
+                if error >= 0.5:
+                    y += 1
+                    error -= 1

@@ -23,6 +23,12 @@ def test_pixel_index_conversion():
             print(str(x) + "," + str(y) + "=" + str(c.get_pixel_index(x, y)))
 
 
+def test_canvas_line():
+    c = Canvas(10, 10)
+
+    c.draw_line(0, 0, 9, 5, 255, 255, 255)
+    print(repr(c))
+
 def test_canvas_pixel_line():
     c = Canvas(10, 10)
 
