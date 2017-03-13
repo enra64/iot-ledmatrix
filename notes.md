@@ -8,5 +8,11 @@ is, by the way, that the arduino gets confused if you send data too quickly)
 # todo
 * server broadcasting, forwarding etc
 
+# working
+* matserial
+
+# untested
+* matgraphics
+
 # thanks
 * [dbader](https://dbader.org/blog/monochrome-font-rendering-with-freetype-and-python)
