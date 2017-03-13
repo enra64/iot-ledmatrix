@@ -53,7 +53,7 @@ class MatrixSerial:
         response = self.serial.read(3)
 
         if response != b'SAM':
-            raise MatrixProtocolException("Handshake failed: Arduino did not answer correctly, got " + str(response))
+            raise MatrixProtocolException("Handshake failed: expected b'SAM', got " + str(response))
 
     def get_led_count(self) -> int:
         """ Query the number of leds this serial connection is configured for """
@@ -101,5 +101,5 @@ class MatrixSerial:
 
         # check acknowledgement char correctness
         if ack != b'k':
-            raise MatrixProtocolException("No acknowledgement received by arduino after connection, got " + str(ack))
+            raise MatrixProtocolException("No acknowledgement received, expected b'k', got " + str(ack))
 

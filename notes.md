@@ -16,3 +16,6 @@ is, by the way, that the arduino gets confused if you send data too quickly)
 
 # thanks
 * [dbader](https://dbader.org/blog/monochrome-font-rendering-with-freetype-and-python)
+
+# to self
+* default arguments will be created on import o.O, so dont default-argument a MatrixSerial...

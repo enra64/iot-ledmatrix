@@ -26,48 +26,36 @@ class Canvas:
         # "init" font
         self.font = None
 
-    def get_buffer(self):
-        return self.data_buffer
+    def get_pixel_index(self, x, y):
+        # dont ask
+        return self.__get_pixel_index(x, y)
 
-    def set_font(self, path: str, size: int):
-        """Load a font to be used for rendering text"""
-        self.font = Font(path, size)
+    def __get_pixel_index(self, x, y):
+        """convert an xy coordinate into an index that can be used to access our buffer. function may be made swappable
+        to support different led chaining methods
 
-    def clear(self):
-        """ Zero all colors to black """
-        self.data_buffer = bytearray(self.buffer_length)
-
-    def draw_pixel(self, x: int, y: int, r: int, g: int, b: int):
-        """
-        Set a pixel to a color. Most basic canvas function. The matrix is assumed to be set up in a zig-zag, as follows:
-        1) the bottom left pixel is the pixel with index 0
-        2) the bottom right pixel has index width-1, the pixel above that has index width
-        3) the pixel above the bottom left pixel has index 2 * width - 1
-
-        the lower area indices thus look like this for a 10x10 matrix:
-
+        Currently, the chaining is assumed to be in a zig-zag, as follows:
+        +----+----+----+----+----+----+----+----+----+----+
+        | 99 | 98 | 97 | 96 | 95 | 94 | 93 | 92 | 91 | 90 |
+        +----+----+----+----+----+----+----+----+----+----+
+        | 80 | 81 | 82 | 83 | 84 | 85 | 86 | 87 | 88 | 89 |
+        +----+----+----+----+----+----+----+----+----+----+
+        | 79 | 78 | 77 | 76 | 75 | 74 | 73 | 72 | 71 | 70 |
+        +----+----+----+----+----+----+----+----+----+----+
+        | 60 | 61 | 62 | 63 | 64 | 65 | 66 | 67 | 68 | 69 |
+        +----+----+----+----+----+----+----+----+----+----+
+        | 59 | 58 | 57 | 56 | 55 | 54 | 53 | 52 | 51 | 50 |
+        +----+----+----+----+----+----+----+----+----+----+
+        | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47 | 48 | 49 |
+        +----+----+----+----+----+----+----+----+----+----+
+        | 39 | 38 | 37 | 36 | 35 | 34 | 33 | 32 | 31 | 30 |
         +----+----+----+----+----+----+----+----+----+----+
         | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 |
         +----+----+----+----+----+----+----+----+----+----+
         | 19 | 18 | 17 | 16 | 15 | 14 | 13 | 12 | 11 | 10 |
         +----+----+----+----+----+----+----+----+----+----+
         | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 8  | 9  |
-        +----+----+----+----+----+----+----+----+----+----+
-
-        :param x: x position of pixel; counted from zero beginning on the left, must be smaller than the canvas width
-        :param y: y position of pixel; y is zero for the top row of pixels, must be smaller than the canvas height
-        :param r: red value from 0 to 255
-        :param g: green value from 0 to 255
-        :param b: blue value from 0 to 255
-        """
-
-        # check input
-        assert 0 < x < self.width, "x coordinate out of valid range!"
-        assert 0 < y < self.height, "y coordinate out of valid range!"
-        assert 0 < r < 256, "r out of valid range [0, 255]"
-        assert 0 < g < 256, "g out of valid range [0, 255]"
-        assert 0 < b < 256, "b out of valid range [0, 255]"
-
+        +----+----+----+----+----+----+----+----+----+----+ """
         # this variable will have the final index
         index = 0
 
@@ -82,9 +70,59 @@ class Canvas:
             index += (self.height - y) * self.width
             index -= (x + 1)
 
-        self.data_buffer[index * 3 + 0] = r
-        self.data_buffer[index * 3 + 0] = g
-        self.data_buffer[index * 3 + 0] = b
+        return index
+
+    def __get_color_pixel_index(self, x, y, color):
+        return self.get_pixel_index(x, y) * 3 + color
+
+    def __repr__(self):
+        """Will print an '#' for each pixel that is red > 0, and a '.' elsewhere"""
+        result = ""
+        for y in range(self.height):
+            for x in range(self.width):
+                if self.data_buffer[self.__get_color_pixel_index(x, y, 0)] > 0:
+                    result += "#"
+                else:
+                    result += "."
+            result += "\n"
+        return result
+
+    def get_buffer(self):
+        return self.data_buffer
+
+    def set_font(self, path: str, size: int):
+        """Load a font to be used for rendering text"""
+        self.font = Font(path, size)
+
+    def clear(self):
+        """ Zero all colors to black """
+        self.data_buffer = bytearray(self.buffer_length)
+
+    def draw_pixel(self, x: int, y: int, r: int, g: int, b: int):
+        """
+        Set a pixel to a color. Most basic canvas function.
+
+        :param x: x position of pixel; counted from zero beginning on the left, must be smaller than the canvas width
+        :param y: y position of pixel; y is zero for the top row of pixels, must be smaller than the canvas height
+        :param r: red value from 0 to 255
+        :param g: green value from 0 to 255
+        :param b: blue value from 0 to 255
+        """
+
+        # check input
+        assert 0 <= x < self.width, "x coordinate out of valid range! " + str(x)
+        assert 0 <= y < self.height, "y coordinate out of valid range! " + str(y)
+        assert 0 <= r < 256, "r out of valid range [0, 255] " + str(r)
+        assert 0 <= g < 256, "g out of valid range [0, 255] " + str(g)
+        assert 0 <= b < 256, "b out of valid range [0, 255] " + str(b)
+
+        # translate position to index
+        index = self.__get_color_pixel_index(x, y, 0)
+
+        # update data in position
+        self.data_buffer[index + 0] = r
+        self.data_buffer[index + 1] = g
+        self.data_buffer[index + 2] = b
 
     def draw_text(self, text, x, y, r, g, b):
         """Rather unoptimized function to draw fonts onto the canvas. Feel free to optimize"""
@@ -119,6 +157,6 @@ class Canvas:
             canvas_x += 1
 
     def draw_rect(self, x, y, width, height, r, g, b):
-        for _x in range(x, width - x):
-            for _y in range(y, height - y):
+        for _x in range(x, x + width):
+            for _y in range(y, y + height):
                 self.draw_pixel(_x, _y, r, g, b)

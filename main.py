@@ -1,21 +1,16 @@
-from matserial import MatrixProtocolException, MatrixSerial
+import iot_ledmatrix_component_tests
+from matserial import MatrixSerial
 
-def red_display_test(serial: MatrixSerial):
-    # "red" color specification
-    r = [255, 0, 0]
-
-    # construct test data showing red on all leds
-    red_test_data = bytearray()
-    for i in range(0, serial.get_led_count()):
-        red_test_data.extend(r)
-
-    print(str(red_test_data))
-
-    while(True):
-        serial.update(red_test_data)
-
-
-if __name__ == "__main__":
+def test_all():
     ser = MatrixSerial("/dev/ttyUSB0", 156, connect=True)
 
-    red_display_test(ser)
+    #iot_ledmatrix_component_tests.red_display_test(ser)
+    iot_ledmatrix_component_tests.test_canvas_draw_pixel_line(ser)
+    # iot_ledmatrix_component_tests.test_canvas_pixel_line()
+    # iot_ledmatrix_component_tests.test_pixel_index_conversion()
+    #iot_ledmatrix_component_tests.test_canvas_rect()
+
+if __name__ == "__main__":
+    test_all()
+
+
