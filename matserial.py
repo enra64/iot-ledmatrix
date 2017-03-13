@@ -25,6 +25,8 @@ class MatrixSerial:
         # init buffer
         self.buffer = bytearray(led_count * 3)
 
+        self.was_connected = False
+
         # convenience function for immediately connecting
         if connect:
             self.connect()
@@ -40,6 +42,8 @@ class MatrixSerial:
         :raises: MatrixProtocolException if the arduino does not shake hands
         :
         """
+        self.was_connected = True
+
         # begin serial connection
         self.serial = serial.Serial(self.interface, self.baud, timeout=timeout)
 
@@ -54,6 +58,9 @@ class MatrixSerial:
 
         if response != b'SAM':
             raise MatrixProtocolException("Handshake failed: expected b'SAM', got " + str(response))
+
+    def stop(self):
+        self.serial.close()
 
     def get_led_count(self) -> int:
         """ Query the number of leds this serial connection is configured for """

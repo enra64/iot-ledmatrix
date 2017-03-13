@@ -30,6 +30,9 @@ class ScriptRunner:
         self.abort.set()
         self.process.join()
 
+    def on_data(self, data):
+        self.script.on_data(data)
+
     def __init__(self, script:str, canvas: Canvas):
         module = import_module('scripts.' + script)
         self.script = getattr(module, script)()
@@ -42,7 +45,7 @@ class ScriptHandler:
     def __init__(self, canvas: Canvas):
         self.current_script_runner = None
         self.canvas = canvas
-        self.currently_running_script = False
+        self.is_script_running = False
 
     def start_script(self, script_name: str):
         """Will load the class in the scripts/ folder that has the given name in the file with the same name.
@@ -51,14 +54,17 @@ class ScriptHandler:
         self.__start_current_script()
 
     def script_running(self):
-        return self.currently_running_script
+        return self.is_script_running
+
+    def on_data(self, data):
+        self.current_script_runner.on_data(data)
 
     def __start_current_script(self):
-        if self.currently_running_script:
+        if self.is_script_running:
             self.stop_current_script()
         self.current_script_runner.start()
-        self.currently_running_script = True
+        self.is_script_running = True
 
     def stop_current_script(self):
         self.current_script_runner.stop()
-        self.currently_running_script = False
+        self.is_script_running = False
