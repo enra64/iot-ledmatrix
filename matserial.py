@@ -1,0 +1,105 @@
+import serial, time
+
+class MatrixProtocolException(Exception):
+    """Exception raised when the arduino did not follow the communication protocol as expected"""
+    pass
+
+
+class MatrixSerial:
+    """This class handles the communication with the arduino"""
+
+    def __init__(self, interface: str, led_count: int, baud: int = 115200, connect: bool = False):
+        """
+        Create new MatrixSerial, immediately connecting to the arduino.
+
+        :param interface the device name
+        :param led_count: number of leds to use
+        :param baud: baud rate to be used
+        :param fps the maximum fps to use for updating
+        """
+        # store serial config
+        self.interface = interface
+        self.baud = baud
+        self.serial = None
+
+        # init buffer
+        self.buffer = bytearray(led_count * 3)
+
+        # convenience function for immediately connecting
+        if connect:
+            self.connect()
+
+    def connect(self, timeout:float = 2):
+        """
+        connect to the arduino given the current configuration
+
+        :param timeout: the number of seconds after which the connection attempt will be aborted
+        :return: true if the handshake was completed successfully, false otherwise
+        :raises: ValueError Will be raised when parameter are out of range, e.g. baud rate, data bits.
+        :raises: SerialException In case the device can not be found or can not be configured.
+        :raises: MatrixProtocolException if the arduino does not shake hands
+        :
+        """
+        # begin serial connection
+        self.serial = serial.Serial(self.interface, self.baud, timeout=timeout)
+
+        # wait for arduino reset
+        time.sleep(2)
+
+        # begin handshake
+        self.serial.write(b'hello')
+
+        # wait for response
+        response = self.serial.read(3)
+
+        if response != b'SAM':
+            raise MatrixProtocolException("Handshake failed: Arduino did not answer correctly, got " + str(response))
+
+    def get_led_count(self) -> int:
+        """ Query the number of leds this serial connection is configured for """
+        # btw: // enforces integer division
+        return len(self.buffer) // 3
+
+    def get_buffer_length(self) -> int:
+        """ Query the length of the buffer required to send data to the arduino """
+        return len(self.buffer)
+
+    @staticmethod
+    def current_time_ms() -> int:
+        """Helper function. Returns a timestamp in ms"""
+        return int(round(time.time() * 1000))
+
+    def update(self, data: bytearray):
+        """
+        Update the data sent to the connected arduino
+        :param data: a bytearray containing the new data, of len
+        :raises: MatrixProtocolException if the arduino did not acknowledge the updated data
+        """
+        # ensure correct data length
+        assert len(data) == len(self.buffer), "bad data length! len(data) should be " + str(len(self.buffer))
+
+        # copy buffer
+        self.buffer[:] = data
+
+        # trigger internal draw call
+        self.__draw()
+
+    def __draw(self):
+        """
+        Draw the current buffer content by sending it to the arduino as-is
+        :raises: MatrixProtocolException if the arduino did not acknowledge a sent buffer
+        """
+
+        # we need to wait some time before writing the next set of data. testing required for better accuracy
+        time.sleep(0.009)
+
+        # write out internal buffer to arduino
+        self.serial.write(self.buffer)
+
+        # read arduino acknowledgement char
+        ack = self.serial.read(1)
+
+        # check acknowledgement char correctness
+        if ack != b'k':
+            raise MatrixProtocolException("No acknowledgement received by arduino after connection, got " + str(ack))
+
