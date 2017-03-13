@@ -10,7 +10,8 @@ def test_all():
     #iot_ledmatrix_component_tests.test_pixel_index_conversion()
     #iot_ledmatrix_component_tests.test_canvas_rect()
     #iot_ledmatrix_component_tests.test_canvas_line()
-    iot_ledmatrix_component_tests.test_script_handler()
+    #iot_ledmatrix_component_tests.test_script_handler()
+    iot_ledmatrix_component_tests.test_canvas_font()
 
 if __name__ == "__main__":
     test_all()

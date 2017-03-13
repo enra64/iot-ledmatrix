@@ -152,9 +152,12 @@ class Canvas:
         font_y = 0
         for canvas_x in range(x, render_width):
             for canvas_y in range(y, render_height):
-                self.draw_pixel(rendered_text.get_pixel_index_inverted(font_x, font_y), canvas_x, canvas_y, r, g, b)
-                canvas_y += 1
-            canvas_x += 1
+                pixel_enabled = rendered_text.is_enabled(font_x, font_y)
+                if pixel_enabled:
+                    self.draw_pixel(canvas_x, canvas_y, r, g, b)
+                font_y += 1
+            font_x += 1
+            font_y = 0
 
     def draw_rect(self, x, y, width, height, r, g, b):
         for _x in range(x, x + width):

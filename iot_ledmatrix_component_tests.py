@@ -54,8 +54,9 @@ def test_canvas_rect():
 
 def test_canvas_font():
     c = Canvas(10, 10)
-    c.set_font("helvetica.otf", 8)
-    c.draw_text("h", 2, 2, 255, 255, 255)
+    c.set_font("helvetica.otf", 13)
+    c.draw_text("h", 0, 0, 255, 255, 255)
+    print(repr(c))
 
 
 def test_canvas_draw_pixel_line(serial):

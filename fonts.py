@@ -51,13 +51,16 @@ class Bitmap(object):
             rows += '\n'
         return rows
 
-    def __get_pixel_index_non_inverted(self, x, y):
+    def get_pixel_index_non_inverted(self, x, y):
         """Custom function returning single pixel index. Does _not_ align to matgraphics.canvas coordinate space"""
         return y * self.width + x
 
     def get_pixel_index_inverted(self, x, y):
         """Custom function returning a single pixel index. Coordinate space is vertically flipped to align to canvas definition"""
-        return self.__get_pixel_index_non_inverted(x, self.height - 1 - y)
+        return self.get_pixel_index_non_inverted(x, self.height - 1 - y)
+
+    def is_enabled(self, x, y):
+        return self.pixels[y * self.width + x]
 
     def bitblt(self, src, x, y):
         """Copy all pixels from `src` into this bitmap"""
