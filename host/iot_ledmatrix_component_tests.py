@@ -1,5 +1,6 @@
 import time
 
+from broadcast_receiver import BroadcastReceiver
 from matgraphics import Canvas
 from matserial import MatrixSerial
 from script_handler import ScriptHandler
@@ -66,6 +67,12 @@ def test_canvas_draw_pixel_line(serial):
         for i in range(c.width):
             c.draw_pixel(i, 0, 255, 0, 0)
             serial.update(c.get_buffer())
+
+def test_broadcast_receiver():
+    receiver = BroadcastReceiver()
+    receiver.start()
+    time.sleep(200)
+    receiver.stop()
 
 
 # begin script handler testing

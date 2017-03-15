@@ -1,11 +1,10 @@
 package de.oerntec.matledcontrol.networking;
 
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -39,25 +38,19 @@ public abstract class DiscoveryThread extends Thread {
     private NetworkDevice mSelfDeviceId;
 
     /**
+     * The port at which some server should be listening
+     */
+    private int mLocalDiscoveryPort;
+
+    /**
      * Create a new DiscoveryThread when you already know your command- and data port, for example for use in a server
      * announcing where to connect.
      *
      * @param selfName         the discovery thread will announce this name to other devices seeking partners in the network
-     * @param localCommandPort a command server must be listening on this port to receive further communication
      * @param localDataPort    a data server should be listening here to receive further communication
      */
-    public DiscoveryThread(String selfName, int localCommandPort, int localDataPort) {
-        mSelfDeviceId = new NetworkDevice(selfName, localCommandPort, localDataPort);
-    }
-
-    /**
-     * Create a new DiscoveryThread. Only use this constructor if you do not yet know your command- and data port (!),
-     * most probably when you want to implement a client, as a server not responding with a valid command port is useless.
-     *
-     * @param selfName the discovery thread will announce this name to other devices seeking partners in the network
-     */
-    public DiscoveryThread(String selfName) {
-        mSelfDeviceId = new NetworkDevice(selfName);
+    public DiscoveryThread(String selfName, int localDataPort) {
+        mSelfDeviceId = new NetworkDevice(selfName, localDataPort);
     }
 
     /**
@@ -77,14 +70,11 @@ public abstract class DiscoveryThread extends Thread {
      * @param targetPort at which discoveryPort the message should arrive on targetHost
      * @throws IOException if the identification message could not be sent
      */
-    public void sendSelfIdentification(InetAddress targetHost, int targetPort) throws IOException {
-        // create a new object output stream
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ObjectOutputStream os = new ObjectOutputStream(outputStream);
+    public void sendSelfIdentification(InetAddress targetHost, int targetPort) throws IOException, JSONException {
+        JSONObject deviceJson = mSelfDeviceId.toJson();
+        deviceJson.put("message_type", "discovery");
 
-        // write the object into a byte buffer
-        os.writeObject(mSelfDeviceId);
-        byte[] data = outputStream.toByteArray();
+        byte[] data = deviceJson.toString().getBytes("utf-8");
 
         // create an UDP packet from the byte buffer and send it to the desired host/discoveryPort combination
         DatagramPacket sendPacket = new DatagramPacket(data, data.length, targetHost, targetPort);
@@ -119,25 +109,24 @@ public abstract class DiscoveryThread extends Thread {
      */
     protected void listen() throws IOException {
         // wait for a message on our socket
-        byte[] recvBuf = new byte[1024];
+        byte[] recvBuf = new byte[4096];
         DatagramPacket receivePacket = new DatagramPacket(recvBuf, recvBuf.length);
         mSocket.receive(receivePacket);
 
         // initialise an ObjectInputStream
-        ByteArrayInputStream input = new ByteArrayInputStream(recvBuf);
-        ObjectInputStream oinput = new ObjectInputStream(input);
 
         NetworkDevice identification;
         try {
             // create the NetworkDevice describing our remote partner
-            identification = (NetworkDevice) oinput.readObject();
+            identification = NetworkDevice.fromJsonString(new String(receivePacket.getData()));
             identification.address = receivePacket.getAddress().getHostAddress();
 
             // notify sub-class
             onDiscovery(identification);
 
             // if the cast to NetworkDevice fails, this message was not sent by the discovery system, and may be ignored
-        } catch (ClassNotFoundException ignored) {
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
@@ -180,18 +169,10 @@ public abstract class DiscoveryThread extends Thread {
         mSocket = socket;
 
         // update our local discoveryPort; this is the only definitive source
-        mSelfDeviceId.discoveryPort = socket.getLocalPort();
-    }
+        mLocalDiscoveryPort = socket.getLocalPort();
 
-    /**
-     * Call this to set the ports that will be sent as the current devices ports
-     *
-     * @param commandPort the port where we will listen for commands
-     * @param dataPort    the port where we will listen for data (if server)
-     */
-    public void setPorts(int commandPort, int dataPort) {
-        mSelfDeviceId.commandPort = commandPort;
-        mSelfDeviceId.dataPort = dataPort;
+        // update self device id so the server can respond to our discovery address
+        mSelfDeviceId.discoveryPort = mLocalDiscoveryPort;
     }
 
     /**

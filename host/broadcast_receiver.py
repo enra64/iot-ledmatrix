@@ -27,21 +27,27 @@ class BroadcastReceiver:
         # until the parents stop is called
         while not self.abort.is_set():
             # wait for incoming request
-            received, source_address = receiver_socket.recvfrom(4096)
+            try:
+                received, source_address = receiver_socket.recvfrom(4096)
 
-            # decode the incoming message
-            json_recv = json.loads(received)
-            if json_recv['message_type'] == "discovery":
-                # answer with our own server identification
-                response_port = json_recv['data_port']
-                response_socket = socket(AF_INET, SOCK_DGRAM)
-                response_socket.sendto(self.self_description, (source_address, response_port))
+                # decode the incoming message
+                json_recv = json.loads(received)
+                if json_recv['message_type'] == "discovery":
+                    # answer with our own server identification
+                    response_port = json_recv['discovery_port']
+                    response_socket = socket(AF_INET, SOCK_DGRAM)
+                    response_socket.sendto(self.self_description.encode('utf-8'), (source_address[0], response_port))
+
+            # we want to continue looping after each timeout (except if abort flag is set)
+            except timeout:
+                continue
+
 
         receiver_socket.close()
 
     def start(self):
         """start the receiver thread"""
-        threading.Thread(target=self.__wait)
+        threading.Thread(target=self.__wait).start()
 
     def stop(self):
         """stop the receiver thread"""

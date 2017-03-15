@@ -1,5 +1,7 @@
 package de.oerntec.matledcontrol.networking;
 
+import org.json.JSONException;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
@@ -95,7 +97,7 @@ class Broadcaster extends TimerTask {
         try {
             for (InetAddress address : mBroadcastAddresses)
                 mDiscoveryThread.sendSelfIdentification(address, mRemotePort);
-        } catch (IOException e) {
+        } catch (IOException | JSONException e) {
             mExceptionListener.onException(this, e, "Discovery: Broadcaster: Exception when trying to broadcast");
         }
     }

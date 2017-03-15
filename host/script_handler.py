@@ -35,7 +35,7 @@ class ScriptRunner:
 
     def __init__(self, script:str, canvas: Canvas):
         module = import_module('scripts.' + script)
-        self.script = getattr(module, script)()
+        self.script = getattr(module, script)(canvas)
         self.process = threading.Thread(target=self.runner, args={canvas,})
         self.abort = threading.Event()
         self.last_exec = 0

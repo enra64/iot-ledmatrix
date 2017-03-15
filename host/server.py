@@ -20,7 +20,7 @@ class Server:
     def __wait(self):
         """Wait continuously for discovery requests"""
         # config and bind waiting socket
-        receiver_socket = socket(AF_INET, SOCK_DGRAM)
+        receiver_socket = socket(AF_INET, SOCK_STREAM)
         receiver_socket.bind(('', self.data_port))
         receiver_socket.settimeout(.5)
 

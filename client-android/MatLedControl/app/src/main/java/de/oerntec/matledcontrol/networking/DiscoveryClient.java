@@ -58,8 +58,8 @@ public class DiscoveryClient extends DiscoveryThread {
      * @param remotePort the port the discovery server listens on
      * @param selfName   the name this device should announce itself as
      */
-    public DiscoveryClient(OnDiscoveryListener listener, ExceptionListener exceptionListener, int remotePort, String selfName) throws IOException {
-        super(selfName);
+    public DiscoveryClient(OnDiscoveryListener listener, ExceptionListener exceptionListener, int remotePort, int localDataPort, String selfName) throws IOException {
+        super(selfName, localDataPort);
 
         // name thread
         setName("DiscoveryClient");

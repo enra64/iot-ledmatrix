@@ -1,10 +1,6 @@
 package de.oerntec.matledcontrol;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -13,8 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
@@ -29,12 +26,12 @@ import de.oerntec.matledcontrol.networking.OnDiscoveryListener;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link DiscoeveryFragment.OnFragmentInteractionListener} interface
+ * {@link DiscoveryFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link DiscoeveryFragment#newInstance} factory method to
+ * Use the {@link DiscoveryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DiscoeveryFragment extends Fragment implements OnDiscoveryListener, ExceptionListener {
+public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, ExceptionListener {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_DEVICE_NAME = "param1";
     private static final String ARG_SERVER_DISCOVERY_PORT = "param2";
@@ -42,12 +39,17 @@ public class DiscoeveryFragment extends Fragment implements OnDiscoveryListener,
     private String mDeviceName;
     private int mServerDiscoveryPort;
 
-    private OnFragmentInteractionListener mListener;
+    private DiscoveryFragmentInteractionListener mListener;
 
     /**
-     * The button we use for discovery
+     * ProgressBar hinting at running discovery
      */
-    Button mStartDiscoveryButton;
+    ProgressBar mDiscoveryProgressBar;
+
+    /**
+     * TextView hinting at running discovery
+     */
+    TextView mDiscoveryTextView;
 
     /**
      * The ListView we use to display available servers
@@ -67,17 +69,18 @@ public class DiscoeveryFragment extends Fragment implements OnDiscoveryListener,
     /**
      * Required empty public constructor
      */
-    public DiscoeveryFragment() {
+    public DiscoveryFragment() {
     }
 
     /**
-     * Use this factory to create a new {@link DiscoeveryFragment}.
+     * Use this factory to create a new {@link DiscoveryFragment}.
      * @param deviceName name of this device
      * @param discoveryPort the discovery port the server is listening on
-     * @return new instance of {@link DiscoeveryFragment}
+     * @return new instance of {@link DiscoveryFragment}
      */
-    public static DiscoeveryFragment newInstance(String deviceName, int discoveryPort) {
-        DiscoeveryFragment fragment = new DiscoeveryFragment();
+    @SuppressWarnings("unused")
+    public static DiscoveryFragment newInstance(String deviceName, int discoveryPort) {
+        DiscoveryFragment fragment = new DiscoveryFragment();
         Bundle args = new Bundle();
         args.putString(ARG_DEVICE_NAME, deviceName);
         args.putInt(ARG_SERVER_DISCOVERY_PORT, discoveryPort);
@@ -91,42 +94,39 @@ public class DiscoeveryFragment extends Fragment implements OnDiscoveryListener,
         if (getArguments() != null) {
             mDeviceName = getArguments().getString(ARG_DEVICE_NAME);
             mServerDiscoveryPort = getArguments().getInt(ARG_SERVER_DISCOVERY_PORT);
-
-
-            mPossibleConnections.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    if(mServerList.size() <= i)
-                        return;
-
-                    NetworkDevice server = new NetworkDevice(mServerList.get(i).name, mServerList.get(i).discoveryPort, mServerList.get(i).dataPort, mServerList.get(i).address);
-
-                    mListener.onServerClicked(server);
-
-                    // stop the discovery server
-                    mDiscovery.close();
-                }
-            });
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mPossibleConnections.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                mListener.onServerClicked(mServerList.get(i));
+            }
+        });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View inflated = inflater.inflate(R.layout.fragment_discoevery, container, false);
+        View inflated = inflater.inflate(R.layout.fragment_discovery, container, false);
         mPossibleConnections = (ListView) inflated.findViewById(R.id.discovery_fragment_server_list);
+        mDiscoveryProgressBar = (ProgressBar) inflated.findViewById(R.id.discovery_fragment_progress_bar);
+        mDiscoveryTextView = (TextView) inflated.findViewById(R.id.discovery_fragment_searching_text);
         return inflated;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof DiscoveryFragmentInteractionListener) {
+            mListener = (DiscoveryFragmentInteractionListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement DiscoveryFragmentInteractionListener");
         }
     }
 
@@ -153,9 +153,10 @@ public class DiscoeveryFragment extends Fragment implements OnDiscoveryListener,
                 try {
                     // create discovery client
                     mDiscovery = new DiscoveryClient(
-                            DiscoeveryFragment.this,
-                            DiscoeveryFragment.this,
+                            DiscoveryFragment.this,
+                            DiscoveryFragment.this,
                             mServerDiscoveryPort,
+                            54122,
                             mDeviceName);
                     // this is a network problem
                 } catch (IOException e) {
@@ -169,7 +170,13 @@ public class DiscoeveryFragment extends Fragment implements OnDiscoveryListener,
 
             // start discovery
             mDiscovery.start();
+            setDiscoveringHintEnabled(true);
         }
+    }
+
+    private void setDiscoveringHintEnabled(boolean enable) {
+        mDiscoveryProgressBar.setVisibility(enable ? View.VISIBLE : View.GONE);
+        mDiscoveryTextView.setVisibility(enable ? View.VISIBLE : View.GONE);
     }
 
     /**
@@ -178,8 +185,13 @@ public class DiscoeveryFragment extends Fragment implements OnDiscoveryListener,
     private void stopDiscovery() {
         if (mDiscovery != null)
             mDiscovery.close();
+        setDiscoveringHintEnabled(false);
     }
 
+    /**
+     * Called by the ServerList in DiscoveryClient when a new server has responded
+     * @param servers list of current servers
+     */
     @Override
     public void onServerListUpdated(List<NetworkDevice> servers) {
         mServerList = servers;             //save server names and ips for further use
@@ -221,7 +233,7 @@ public class DiscoeveryFragment extends Fragment implements OnDiscoveryListener,
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface OnFragmentInteractionListener {
+    public interface DiscoveryFragmentInteractionListener {
         /**
          * Called when the user tapped on a server
          * @param server identification of the clicked server
