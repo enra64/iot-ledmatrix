@@ -12,4 +12,11 @@
     <string name="simple_drawing">Simple Drawing</string>
     <string name="choose_server">Choose Server</string>
     <string name="searching_for_matrices">Searching for Matrices</string>
+    <string name="connect_to_matrix">Connect to matrix?</string>
+    <string name="connect_to_matrix_message">The matrix will be automatically connected to whenever available.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="error_occurred">An error occurred!</string>
+    <string name="ok">Ok</string>
+    <string name="sp_last_connected_matrix">last_connected_matrix</string>
 </resources>

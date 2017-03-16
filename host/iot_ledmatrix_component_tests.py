@@ -6,6 +6,8 @@ from matserial import MatrixSerial
 from script_handler import ScriptHandler
 
 # begin serial test
+from server import Server
+
 
 def red_display_test(serial: MatrixSerial):
     """draw red to all pixels without using canvas; mostly a MatrixSerial test"""
@@ -68,14 +70,32 @@ def test_canvas_draw_pixel_line(serial):
             c.draw_pixel(i, 0, 255, 0, 0)
             serial.update(c.get_buffer())
 
+
 def test_broadcast_receiver():
-    receiver = BroadcastReceiver()
+    receiver = BroadcastReceiver(name="test_broadcast_receiver")
     receiver.start()
     time.sleep(200)
     receiver.stop()
 
 
-# begin script handler testing
+def test_broadcast_receiver_and_server():
+    receiver = BroadcastReceiver(name="test_broadcast_receiver_and_server")
+    receiver.start()
+
+    server = Server(
+        lambda data, source: print("got " + data + " from " + str(source)),
+        lambda data, source: print("got " + data + " from " + str(source))
+    )
+    server.start()
+
+    time.sleep(200)
+    receiver.stop()
+    server.stop()
+
+
+    # begin script handler testing
+
+
 def test_script_handler():
     c = Canvas(10, 10)
     handler = ScriptHandler(c)

@@ -1,4 +1,4 @@
-package de.oerntec.matledcontrol.networking;
+package de.oerntec.matledcontrol.networking.discovery;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,6 +44,10 @@ public class NetworkDevice implements Serializable {
         this.port = port;
         this.address = address;
         this.discoveryPort = discoveryPort;
+    }
+
+    public boolean remoteIsConfigured(){
+        return port >= 0 && address != null && !"invalid".equals(address);
     }
 
     /**

@@ -13,14 +13,18 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.net.InetAddress;
 import java.security.InvalidParameterException;
 import java.util.List;
 
-import de.oerntec.matledcontrol.networking.DiscoveryClient;
-import de.oerntec.matledcontrol.networking.ExceptionListener;
-import de.oerntec.matledcontrol.networking.NetworkDevice;
-import de.oerntec.matledcontrol.networking.OnDiscoveryListener;
+import de.oerntec.matledcontrol.networking.communication.MessageListener;
+import de.oerntec.matledcontrol.networking.discovery.DiscoveryClient;
+import de.oerntec.matledcontrol.networking.discovery.ExceptionListener;
+import de.oerntec.matledcontrol.networking.discovery.NetworkDevice;
+import de.oerntec.matledcontrol.networking.discovery.OnDiscoveryListener;
 
 
 /**
@@ -31,7 +35,7 @@ import de.oerntec.matledcontrol.networking.OnDiscoveryListener;
  * Use the {@link DiscoveryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, ExceptionListener {
+public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, ExceptionListener, MessageListener {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_DEVICE_NAME = "param1";
     private static final String ARG_SERVER_DISCOVERY_PORT = "param2";
@@ -103,7 +107,7 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
         mPossibleConnections.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                mListener.onServerClicked(mServerList.get(i));
+                mListener.onMatrixClicked(mServerList.get(i));
             }
         });
     }
@@ -223,6 +227,11 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
         mListener = null;
     }
 
+    @Override
+    public void onMessage(NetworkDevice origin, JSONObject data) {
+        Log.w("discoveryfragment", "received unexpected message");
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -238,6 +247,6 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
          * Called when the user tapped on a server
          * @param server identification of the clicked server
          */
-        void onServerClicked(NetworkDevice server);
+        void onMatrixClicked(NetworkDevice server);
     }
 }
