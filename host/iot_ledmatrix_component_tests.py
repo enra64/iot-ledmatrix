@@ -6,7 +6,7 @@ from matserial import MatrixSerial
 from script_handler import ScriptHandler
 
 # begin serial test
-from server import Server
+from zero_server import Server
 
 
 def red_display_test(serial: MatrixSerial):
@@ -84,7 +84,8 @@ def test_broadcast_receiver_and_server():
 
     server = Server(
         lambda data, source: print("got " + data + " from " + str(source)),
-        lambda data, source: print("got " + data + " from " + str(source))
+        lambda data, source: print("got " + data + " from " + str(source)),
+        receiver.get_advertised_data_port()
     )
     server.start()
 

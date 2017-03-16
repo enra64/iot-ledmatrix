@@ -1,5 +1,5 @@
 # dependencies
-* sudo pip install pyserial freetype-py
+* sudo pip install pyserial freetype-py pyzmq
 
 # improvements
 * remove hard-coded wait in draw code, or parametrise it so timer code can be used above eliminating the problem (which 

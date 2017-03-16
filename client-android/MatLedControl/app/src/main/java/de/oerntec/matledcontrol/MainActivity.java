@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
@@ -23,19 +24,19 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-
-import de.oerntec.matledcontrol.networking.communication.MatrixConnection;
 import de.oerntec.matledcontrol.networking.communication.MessageListener;
+import de.oerntec.matledcontrol.networking.communication.ConnectionListener;
+import de.oerntec.matledcontrol.networking.communication.MessageSender;
+import de.oerntec.matledcontrol.networking.communication.ZeroMatrixConnection;
 import de.oerntec.matledcontrol.networking.discovery.ExceptionListener;
 import de.oerntec.matledcontrol.networking.discovery.NetworkDevice;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, DiscoveryFragment.DiscoveryFragmentInteractionListener, ExceptionListener, MessageListener {
+        implements NavigationView.OnNavigationItemSelectedListener, DiscoveryFragment.DiscoveryFragmentInteractionListener, ExceptionListener, MessageListener, ConnectionListener, MessageSender {
 
     private static final int DISCOVERY_PORT = 54123;
 
-    private MatrixConnection mConnection;
+    private ZeroMatrixConnection mConnection;
 
     private MessageListener mCurrentMessageDigestor;
 
@@ -125,6 +126,9 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.simple_drawing:
                 return true;
+            case R.id.print_tester:
+                fragment = PrintFragment.newInstance();
+                break;
             case R.id.choose_server:
                 fragment = getDiscoveryFragment();
                 break;
@@ -135,6 +139,7 @@ public class MainActivity extends AppCompatActivity
         //noinspection ConstantConditions // according to AS, fragment is always null or always instanceof MessageListener, both of which seems unlikely
         if (!(fragment instanceof MessageListener))
             throw new AssertionError("All main fragments must implement messagelistener!");
+        mCurrentMessageDigestor = (MessageListener) fragment;
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.main_fragment_container, fragment).commit();
@@ -147,13 +152,7 @@ public class MainActivity extends AppCompatActivity
     private void connectToMatrix(NetworkDevice matrix) {
         if(mConnection != null)
             mConnection.close();
-        try {
-            mConnection = new MatrixConnection(this, this);
-            mConnection.start(matrix);
-            mConnection.requestConnection(matrix);
-        } catch (IOException e) {
-            onException(this, e, "Could not construct MatrixConnection!");
-        }
+        mConnection = new ZeroMatrixConnection(matrix, this, this);
     }
 
     private void saveMatrix(NetworkDevice matrix) {
@@ -191,26 +190,43 @@ public class MainActivity extends AppCompatActivity
         builder.setTitle(R.string.error_occurred);
         builder.setMessage(info);
         builder.setPositiveButton(R.string.ok, null);
-    }
-
-    private void onConnectionAccepted(NetworkDevice matrix) {
-        saveMatrix(matrix);
-
-        //noinspection ConstantConditions // should be set, see onCreate
-        getSupportActionBar().setSubtitle("Connected to " + matrix.name);
+        builder.show();
     }
 
     @Override
-    public void onMessage(NetworkDevice matrix, JSONObject data) {
-        try {
-            if(data.getString("message_type").equals("connection_request_answer")){
-                if(data.getBoolean("granted"))
-                    onConnectionAccepted(matrix);
-            }
-            else
-                mCurrentMessageDigestor.onMessage(matrix, data);
-        } catch (JSONException e) {
-            onException(this, e, "Could not parse message_type!");
+    public void onMessage(JSONObject data) {
+        mCurrentMessageDigestor.onMessage(data);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mConnection.terminate();
+    }
+
+    @Override
+    public void onConnectionRequestResponse(final NetworkDevice matrix, boolean granted) {
+        if (granted) {
+            saveMatrix(matrix);
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //noinspection ConstantConditions // should be set, see onCreate
+                    getSupportActionBar().setSubtitle("Connected to " + matrix.name);
+                }
+            });
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.matrix_denied_title);
+            builder.setMessage(R.string.matrix_denied_msg);
+            builder.setPositiveButton(R.string.ok, null);
+            builder.show();
         }
+    }
+
+    @Override
+    public void sendMessage(JSONObject json, @Nullable String messageType) {
+        mConnection.sendMessage(json, messageType);
     }
 }

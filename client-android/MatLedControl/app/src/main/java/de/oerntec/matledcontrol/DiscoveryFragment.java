@@ -79,7 +79,7 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
     /**
      * Use this factory to create a new {@link DiscoveryFragment}.
      * @param deviceName name of this device
-     * @param discoveryPort the discovery port the server is listening on
+     * @param discoveryPort the discovery dataPort the server is listening on
      * @return new instance of {@link DiscoveryFragment}
      */
     @SuppressWarnings("unused")
@@ -166,7 +166,7 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
                 } catch (IOException e) {
                     onException(this, e, "DiscoveryActivity: could not create DiscoveryClient");
                 }
-                // these exceptions are thrown if the port is invalid, so we do not want to continue
+                // these exceptions are thrown if the dataPort is invalid, so we do not want to continue
                 catch (NumberFormatException | InvalidParameterException e) {
                     return;
                 }
@@ -228,7 +228,7 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
     }
 
     @Override
-    public void onMessage(NetworkDevice origin, JSONObject data) {
+    public void onMessage(JSONObject data) {
         Log.w("discoveryfragment", "received unexpected message");
     }
 

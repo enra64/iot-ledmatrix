@@ -1,0 +1,82 @@
+package de.oerntec.matledcontrol.networking.communication;
+
+import android.support.annotation.Nullable;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import de.oerntec.matledcontrol.networking.discovery.NetworkDevice;
+import zmq.ZMQ;
+
+/**
+ * Created by arne on 16.03.17.
+ */
+
+public class ZeroMatrixConnection extends Thread {
+    private final org.zeromq.ZMQ.Context mContext;
+    private final org.zeromq.ZMQ.Socket mSocket;
+    private final MessageListener mListener;
+    private final ConnectionListener mConnectionListener;
+    private final NetworkDevice mMatrix;
+    private volatile boolean mContinue = true;
+
+    public ZeroMatrixConnection(NetworkDevice matrix, MessageListener listener, ConnectionListener connectionListener){
+        // listeners
+        mListener = listener;
+        mConnectionListener = connectionListener;
+
+        // store connected networkdevice
+        mMatrix = matrix;
+
+        // zmq setup
+        mContext = org.zeromq.ZMQ.context(1);
+        mSocket = mContext.socket(ZMQ.ZMQ_DEALER);
+        mSocket.connect("tcp://" + matrix.address + ":" + matrix.dataPort);
+
+        // request connection with matrix
+        sendMessage(new JSONObject(), "connection_request");
+        start();
+    }
+
+    public void sendMessage(JSONObject message, @Nullable String messageType) {
+        if(!message.has("message_type") && messageType == null)
+            throw new AssertionError("Messages must have message_type set or a messageType must be given");
+
+        if(messageType != null)
+            try { message.put("message_type", messageType); } catch (JSONException ignored) { }
+
+        mSocket.send(message.toString());
+    }
+
+    @Override
+    public void run() {
+        while(mContinue) {
+            String recv = mSocket.recvStr();
+            try {
+                JSONObject recv_json = new JSONObject(recv);
+
+                if (recv_json.getString("message_type").equals("connection_request_response"))
+                    mConnectionListener.onConnectionRequestResponse(mMatrix, recv_json.getBoolean("granted"));
+
+                mListener.onMessage(recv_json);
+            } catch (JSONException e) {
+                Log.w("zeromatrixcoms", "undecipherable JSON received " + recv);
+            }
+        }
+    }
+
+    public void close() {
+        mContinue = false;
+        sendMessage(new JSONObject(), "shutdown_notification");
+        // drop all messages soon if we cannot send
+        mSocket.setLinger(10);
+
+        // close down shop
+        mSocket.close();
+    }
+
+    public void terminate(){
+        mContext.term();
+    }
+}

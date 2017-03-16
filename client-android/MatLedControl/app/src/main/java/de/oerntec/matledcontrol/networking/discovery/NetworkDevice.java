@@ -18,12 +18,12 @@ public class NetworkDevice implements Serializable {
     public String name;
 
     /**
-     * port the device is listening on this port for incoming data
+     * dataPort the device is listening on this dataPort for incoming data
      */
-    public int port;
+    public int dataPort;
 
     /**
-     * port the device is listening on for discovery packets
+     * dataPort the device is listening on for discovery packets
      */
     public int discoveryPort;
 
@@ -36,18 +36,18 @@ public class NetworkDevice implements Serializable {
      * Create a new, fully defined, NetworkDevice using the given parameters
      *
      * @param name    human readable name
-     * @param port    the device is listening on this port for incoming data
+     * @param dataPort    the device is listening on this dataPort for incoming data
      * @param address ip address
      */
-    public NetworkDevice(String name, int discoveryPort, int port, String address) {
+    public NetworkDevice(String name, int discoveryPort, int dataPort, String address) {
         this.name = name;
-        this.port = port;
+        this.dataPort = dataPort;
         this.address = address;
         this.discoveryPort = discoveryPort;
     }
 
     public boolean remoteIsConfigured(){
-        return port >= 0 && address != null && !"invalid".equals(address);
+        return dataPort >= 0 && address != null && !"invalid".equals(address);
     }
 
     /**
@@ -61,13 +61,13 @@ public class NetworkDevice implements Serializable {
 
     /**
      * j
-     * Create a new NetworkDevice which will announce itself as "name" who may be contacted using commandPort and port
+     * Create a new NetworkDevice which will announce itself as "name" who may be contacted using commandPort and dataPort
      *
      * @param name human readable name
-     * @param port the device is listening on this port for incoming data
+     * @param dataPort the device is listening on this dataPort for incoming data
      */
-    public NetworkDevice(String name, int port) {
-        this(name, -1, port, "invalid");
+    public NetworkDevice(String name, int dataPort) {
+        this(name, -1, dataPort, "invalid");
     }
 
     /**
@@ -117,7 +117,7 @@ public class NetworkDevice implements Serializable {
 
     /**
      * Check whether two network devices identify as the same device. This only checks their address
-     * and name; the port may change!
+     * and name; the dataPort may change!
      * <p>
      * If the {@link #hashCode()} method is changed, this must be adjusted as well!
      */
@@ -138,11 +138,11 @@ public class NetworkDevice implements Serializable {
      *
      * @param json the information source
      * @return NetworkDevice equal to the json representation
-     * @throws JSONException if "name" or "port" is missing in the json object
+     * @throws JSONException if "name" or "dataPort" is missing in the json object
      */
     public static NetworkDevice fromJson(JSONObject json) throws JSONException {
         String name = json.getString("name");
-        int port = json.getInt("port");
+        int port = json.getInt("data_port");
         String address = "invalid";
         int discoveryPort = -1;
 
@@ -157,7 +157,7 @@ public class NetworkDevice implements Serializable {
      *
      * @param json the information source
      * @return NetworkDevice equal to the json representation
-     * @throws JSONException if "name" or "port" is missing in the json object
+     * @throws JSONException if "name" or "dataPort" is missing in the json object
      */
     public static NetworkDevice fromJsonString(String json) throws JSONException {
         return fromJson(new JSONObject(json));
@@ -167,7 +167,7 @@ public class NetworkDevice implements Serializable {
     public JSONObject toJson() throws JSONException {
         JSONObject thisDevice = new JSONObject();
         thisDevice.put("name", name);
-        thisDevice.put("data_port", port);
+        thisDevice.put("data_port", dataPort);
         thisDevice.put("discovery_port", discoveryPort);
 
         if (address != null)

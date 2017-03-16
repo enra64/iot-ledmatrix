@@ -51,11 +51,11 @@ public class DiscoveryClient extends DiscoveryThread {
 
     /**
      * Create a new DiscoveryClient. In contrast to the DiscoveryServer, the DiscoveryClient does not
-     * have to know its command- and data port yet, because we can instantiate those when acutally
+     * have to know its command- and data dataPort yet, because we can instantiate those when acutally
      * connecting to the ports supplied in the discovery response sent by the sever.
      *
      * @param listener   this listener will be notified of changes in the list of known servers
-     * @param remotePort the port the discovery server listens on
+     * @param remotePort the dataPort the discovery server listens on
      * @param selfName   the name this device should announce itself as
      */
     public DiscoveryClient(OnDiscoveryListener listener, ExceptionListener exceptionListener, int remotePort, int localDataPort, String selfName) throws IOException {

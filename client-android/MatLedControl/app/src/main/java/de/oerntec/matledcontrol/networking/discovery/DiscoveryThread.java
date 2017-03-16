@@ -38,12 +38,12 @@ public abstract class DiscoveryThread extends Thread {
     private NetworkDevice mSelfDeviceId;
 
     /**
-     * The port at which some server should be listening
+     * The dataPort at which some server should be listening
      */
     private int mLocalDiscoveryPort;
 
     /**
-     * Create a new DiscoveryThread when you already know your command- and data port, for example for use in a server
+     * Create a new DiscoveryThread when you already know your command- and data dataPort, for example for use in a server
      * announcing where to connect.
      *
      * @param selfName         the discovery thread will announce this name to other devices seeking partners in the network

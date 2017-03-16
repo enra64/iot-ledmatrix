@@ -30,7 +30,7 @@ class Broadcaster extends TimerTask {
     private final ExceptionListener mExceptionListener;
 
     /**
-     * The port the discovery server must be listening on
+     * The dataPort the discovery server must be listening on
      */
     private int mRemotePort;
 

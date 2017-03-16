@@ -19,4 +19,9 @@
     <string name="error_occurred">An error occurred!</string>
     <string name="ok">Ok</string>
     <string name="sp_last_connected_matrix">last_connected_matrix</string>
+    <string name="matrix_denied_msg">The matrix did not accept your connection request</string>
+    <string name="matrix_denied_title">Matrix denied connection</string>
+    <string name="print_tester_debug">Print Tester (debug)</string>
+    <string name="enter_text_for_sending_to_server">enter text for sending to server</string>
+    <string name="send">Send</string>
 </resources>

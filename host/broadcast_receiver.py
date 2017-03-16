@@ -14,8 +14,9 @@ class BroadcastReceiver:
         :param name: the name of this server
         """
         self.discovery_port = discovery_port
+        self.data_port = data_port
         self.abort = threading.Event()
-        self.self_description = json.dumps({'port': data_port, 'name': name})
+        self.self_description = json.dumps({'data_port': data_port, 'name': name})
 
     def __wait(self):
         """Wait continuously for discovery requests"""
@@ -52,3 +53,6 @@ class BroadcastReceiver:
     def stop(self):
         """stop the receiver thread"""
         self.abort.set()
+
+    def get_advertised_data_port(self):
+        return self.data_port

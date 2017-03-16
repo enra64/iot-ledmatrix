@@ -10,5 +10,5 @@ import de.oerntec.matledcontrol.networking.discovery.NetworkDevice;
  * This listener interface must be implemented to be notified of data sent by the matrix
  */
 public interface MessageListener {
-    void onMessage(NetworkDevice origin, JSONObject data);
+    void onMessage(JSONObject data);
 }
