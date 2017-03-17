@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
@@ -23,7 +22,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import de.oerntec.matledcontrol.networking.communication.MessageListener;
+import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
 import de.oerntec.matledcontrol.networking.communication.ConnectionListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ZeroMatrixConnection;
@@ -32,7 +31,7 @@ import de.oerntec.matledcontrol.script_clients.EchoFragment;
 import de.oerntec.matledcontrol.script_clients.draw.DrawFragment;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, DiscoveryFragment.DiscoveryFragmentInteractionListener, ExceptionListener, MessageListener, ConnectionListener, MessageSender {
+        implements NavigationView.OnNavigationItemSelectedListener, DiscoveryFragment.DiscoveryFragmentInteractionListener, ExceptionListener, ScriptFragmentInterface, ConnectionListener, MessageSender {
 
     /**
      * The port set for discovery
@@ -45,9 +44,9 @@ public class MainActivity extends AppCompatActivity
     private ZeroMatrixConnection mConnection;
 
     /**
-     * The currently active fragment, if it implements the MessageListener interface, or null.
+     * The currently active fragment, if it implements the ScriptFragmentInterface interface, or null.
      */
-    private MessageListener mCurrentMessageDigestor;
+    private ScriptFragmentInterface mCurrentMessageDigestor;
 
     /**
      * The matrix we currently are connected to, or null.
@@ -129,10 +128,20 @@ public class MainActivity extends AppCompatActivity
                 Log.w("ledmat:main", "unknown menu item clicked");
         }
 
-        //noinspection ConstantConditions // according to AS, fragment is always null or always instanceof MessageListener, both of which seems unlikely
-        if (!(fragment instanceof MessageListener))
+        //noinspection ConstantConditions // according to AS, fragment is always null or always instanceof ScriptFragmentInterface, both of which seems unlikely
+        if (!(fragment instanceof ScriptFragmentInterface))
             throw new AssertionError("All main fragments must implement messagelistener!");
-        mCurrentMessageDigestor = (MessageListener) fragment;
+
+        mCurrentMessageDigestor = (ScriptFragmentInterface) fragment;
+
+        // the discovery fragment requests no script
+        if(!(fragment instanceof DiscoveryFragment)) {
+            String requestedScript = mCurrentMessageDigestor.requestScript();
+            try {
+                mConnection.sendMessage(new JSONObject("{requested_script: "+ requestedScript + "}"), "script_load_request");
+            } catch (JSONException ignored) {
+            }
+        }
 
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.main_fragment_container, fragment).commit();
@@ -141,6 +150,10 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
+
+
 
     /**
      * Called from within this activity to request a connection to the specified matrix
@@ -236,8 +249,25 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void sendMessage(JSONObject json, @Nullable String messageType) {
-        mConnection.sendMessage(json, messageType);
+    public void sendScriptData(JSONObject json) {
+        JSONObject wrapper = new JSONObject();
+        try {
+            wrapper.put("script_data", json);
+        } catch (JSONException e) {
+            Log.w("mainactivity", "could not send message for script");
+        }
+
+        mConnection.sendMessage(wrapper, "script_data");
+    }
+
+
+    /**
+     * This would be the script the fragment wants the server to load, except this is not a script fragment,
+     * but the mainactivity, so we dont want to load any script.
+     */
+    @Override
+    public String requestScript() {
+        throw new AssertionError("stub!");
     }
 
     @Override

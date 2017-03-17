@@ -8,5 +8,10 @@ import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 
 public interface MessageSender {
     LedMatrix getCurrentMatrix();
-    void sendMessage(JSONObject json, @Nullable String messageType);
+
+    /**
+     * send the json object as script data to the currently running script.
+     * @param json json data to be wrapped in a script_data message
+     */
+    void sendScriptData(JSONObject json);
 }

@@ -15,10 +15,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import de.oerntec.matledcontrol.R;
-import de.oerntec.matledcontrol.networking.communication.MessageListener;
+import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 
-public class EchoFragment extends Fragment implements MessageListener, View.OnClickListener {
+public class EchoFragment extends Fragment implements ScriptFragmentInterface, View.OnClickListener {
     private MessageSender mMessageSender;
 
     private EditText mSendEditText;
@@ -71,6 +71,11 @@ public class EchoFragment extends Fragment implements MessageListener, View.OnCl
     }
 
     @Override
+    public String requestScript() {
+        return "echo_test";
+    }
+
+    @Override
     public void onMessage(final JSONObject data) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
@@ -83,7 +88,7 @@ public class EchoFragment extends Fragment implements MessageListener, View.OnCl
     @Override
     public void onClick(View view) {
         try {
-            mMessageSender.sendMessage(new JSONObject(mSendEditText.getText().toString()), "print_test");
+            mMessageSender.sendScriptData(new JSONObject(mSendEditText.getText().toString()));
             mSendEditText.setText("{\"\":}");
         } catch (JSONException e) {
             Toast.makeText(getContext(), "Invalid JSON encountered!", Toast.LENGTH_SHORT).show();

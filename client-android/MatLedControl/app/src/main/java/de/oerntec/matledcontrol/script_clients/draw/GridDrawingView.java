@@ -8,17 +8,16 @@ import android.view.View;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.view.MotionEvent;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * see https://code.tutsplus.com/tutorials/android-sdk-create-a-drawing-app-touch-interaction--mobile-19202 for more information
  */
 public class GridDrawingView extends View {
-    /**
-     * drawing path
-     */
-    private Path drawPath;
 
     /**
      * drawing and canvas paint
@@ -26,25 +25,31 @@ public class GridDrawingView extends View {
     private Paint drawPaint, canvasPaint;
 
     /**
-     * canvas
-     */
-    private Canvas drawCanvas;
-
-    /**
      * canvas bitmap
      */
     private Bitmap canvasBitmap;
 
-    @ColorInt private int mDrawingColor = Color.BLACK;
+    /**
+     * The color currently selected by the user
+     */
+    @ColorInt
+    private int mDrawingColor = Color.BLACK;
 
+    /**
+     * Contains all color information for cells
+     */
     private Grid mGrid;
 
+    private GridChangeListener mGridChangeListener = null;
+
+    /**
+     * Create a new GridDrawingView
+     */
     public GridDrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        drawPath = new Path();
+        // initialise the paint we use for drawing
         drawPaint = new Paint();
-
         drawPaint.setAntiAlias(true);
         drawPaint.setStrokeWidth(20);
         drawPaint.setStyle(Paint.Style.STROKE);
@@ -52,46 +57,80 @@ public class GridDrawingView extends View {
         drawPaint.setStrokeCap(Paint.Cap.ROUND);
         drawPaint.setColor(mDrawingColor);
 
+        // the paint we use for the background
         canvasPaint = new Paint(Paint.DITHER_FLAG);
+        canvasPaint.setColor(Color.WHITE);
     }
 
-    @ColorInt int getColor() {
+    /**
+     * Retrieve the currently selected color. Any color updates (fx by tapping a cell) will use this color.
+     */
+    @ColorInt
+    int getColor() {
         return mDrawingColor;
     }
 
+    /**
+     * Change the color used for drawing any changes from this point on
+     *
+     * @param color color to be used
+     */
     void setColor(@ColorInt int color) {
         mDrawingColor = color;
     }
 
+    void setGridChangeListener(GridChangeListener listener) {
+        mGridChangeListener = listener;
+    }
+
+    /**
+     * Set the grid size this widget should use (_not_ the number of pixels this view has)
+     */
     void setGridSize(int width, int height) {
         mGrid = new Grid(drawPaint, getWidth(), getHeight(), width, height);
     }
 
+    /**
+     * Called whenever this widget changes size
+     */
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
         canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        drawCanvas = new Canvas(canvasBitmap);
 
-        if(mGrid != null)
+        if (mGrid != null)
             mGrid.setCanvasSize(w, h);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
-        if(mGrid != null)
+        if (mGrid != null)
             mGrid.draw(canvas);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mGrid.setColor(Math.round(event.getX()), Math.round(event.getY()), mDrawingColor);
+        if(mGrid.onTouch(Math.round(event.getX()), Math.round(event.getY()), mDrawingColor))
+            mGridChangeListener.onGridChanged();
+
         invalidate();
         return true;
     }
 
+    public JSONObject getGridAsJsonObject() {
+        try {
+            return mGrid.toJsonObject();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Class containing all cells.
+     */
     private class Grid {
         private final Cell[][] mGrid;
         private final Paint mPaint;
@@ -114,7 +153,7 @@ public class GridDrawingView extends View {
             int cellWidthWithBorder = cellWidth + GRID_LINE_WIDTH;
             int cellHeightWithBorder = cellHeight + GRID_LINE_WIDTH;
 
-            for(int x = 0; x < mHorizontalCellCount; x++) {
+            for (int x = 0; x < mHorizontalCellCount; x++) {
                 for (int y = 0; y < mVerticalCellCount; y++) {
                     mGrid[x][y] = new Cell(cellWidth, cellHeight, x * cellWidthWithBorder, y * cellHeightWithBorder);
                 }
@@ -124,7 +163,7 @@ public class GridDrawingView extends View {
         void draw(Canvas canvas) {
             Paint.Style oldStyle = mPaint.getStyle();
             mPaint.setStyle(Paint.Style.FILL);
-            for(int x = 0; x < mGrid.length; x++) {
+            for (int x = 0; x < mGrid.length; x++) {
                 for (int y = 0; y < mGrid[0].length; y++) {
                     mGrid[x][y].draw(canvas, mPaint);
                 }
@@ -132,15 +171,48 @@ public class GridDrawingView extends View {
             mPaint.setStyle(oldStyle);
         }
 
-        void setColor(int x, int y, @ColorInt int color) {
-            for(int i = 0; i < mGrid.length; i++) {
-                for (int j = 0; j < mGrid[0].length; j++) {
-                    if(mGrid[i][j].contains(x, y))
-                        mGrid[i][j].setColor(color);
+        /**
+         * Update the color of the cell at the touched location
+         * @return true if a value changed, false otherwise
+         */
+        boolean onTouch(int touch_x, int touch_y, @ColorInt int color) {
+            boolean hasChanged = false;
+            for (int x = 0; x < mGrid.length; x++) {
+                for (int y = 0; y < mGrid[0].length; y++) {
+                    if (mGrid[x][y].contains(touch_x, touch_y)){
+                        if (mGrid[x][y].getColor() != color)
+                            hasChanged = true;
+
+                        mGrid[x][y].setColor(color);
+                    }
                 }
             }
+            return hasChanged;
         }
 
+        JSONObject toJsonObject() throws JSONException {
+            JSONArray array = new JSONArray();
+            for (int x = 0; x < mGrid.length; x++) {
+                JSONArray columnArray = new JSONArray();
+                for (int y = 0; y < mGrid[0].length; y++) {
+                    JSONArray colorArray = new JSONArray();
+                    colorArray.put(Color.red(mGrid[x][y].color));
+                    colorArray.put(Color.green(mGrid[x][y].color));
+                    colorArray.put(Color.blue(mGrid[x][y].color));
+                    columnArray.put(colorArray);
+                }
+                array.put(columnArray);
+            }
+            JSONObject wrapper = new JSONObject();
+            wrapper.put("color_array", array);
+            return wrapper;
+        }
+
+        /**
+         * Set the size of the canvas (_not_ the grid size)
+         * @param w width in pixels
+         * @param h height in pixels
+         */
         void setCanvasSize(int w, int h) {
             recreateCells(w, h);
         }
@@ -171,10 +243,18 @@ public class GridDrawingView extends View {
                 this.color = color;
             }
 
+            @ColorInt int getColor() {
+                return this.color;
+            }
+
             void draw(Canvas canvas, Paint paint) {
                 paint.setColor(color);
                 canvas.drawRect(x, y, x + width, y + height, paint);
             }
         }
+    }
+
+    interface GridChangeListener {
+        void onGridChanged();
     }
 }

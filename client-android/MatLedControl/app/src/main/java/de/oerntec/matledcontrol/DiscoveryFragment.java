@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.List;
 
-import de.oerntec.matledcontrol.networking.communication.MessageListener;
+import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
 import de.oerntec.matledcontrol.networking.discovery.DiscoveryClient;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 import de.oerntec.matledcontrol.networking.discovery.OnDiscoveryListener;
@@ -34,7 +34,7 @@ import de.oerntec.matledcontrol.networking.discovery.OnDiscoveryListener;
  * Use the {@link DiscoveryFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, ExceptionListener, MessageListener {
+public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, ExceptionListener, ScriptFragmentInterface {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_DEVICE_NAME = "param1";
     private static final String ARG_SERVER_DISCOVERY_PORT = "param2";
@@ -224,6 +224,11 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
         super.onDetach();
         mDiscoveryListener = null;
         mExceptionListener = null;
+    }
+
+    @Override
+    public String requestScript() {
+        throw new AssertionError("The discovery fragment does not need to load a script");
     }
 
     @Override

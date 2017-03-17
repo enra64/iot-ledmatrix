@@ -16,12 +16,12 @@ import zmq.ZMQ;
 public class ZeroMatrixConnection extends Thread {
     private final org.zeromq.ZMQ.Context mContext;
     private final org.zeromq.ZMQ.Socket mSocket;
-    private final MessageListener mListener;
+    private final ScriptFragmentInterface mListener;
     private final ConnectionListener mConnectionListener;
     private final LedMatrix mMatrix;
     private volatile boolean mContinue = true;
 
-    public ZeroMatrixConnection(LedMatrix matrix, MessageListener listener, ConnectionListener connectionListener){
+    public ZeroMatrixConnection(LedMatrix matrix, ScriptFragmentInterface listener, ConnectionListener connectionListener){
         // listeners
         mListener = listener;
         mConnectionListener = connectionListener;

@@ -16,13 +16,13 @@ import com.pavelsikun.vintagechroma.OnColorSelectedListener;
 import org.json.JSONObject;
 
 import de.oerntec.matledcontrol.R;
-import de.oerntec.matledcontrol.networking.communication.MessageListener;
+import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 
 import static com.pavelsikun.vintagechroma.colormode.ColorMode.RGB;
 
-public class DrawFragment extends Fragment implements MessageListener, View.OnClickListener {
+public class DrawFragment extends Fragment implements ScriptFragmentInterface, View.OnClickListener, GridDrawingView.GridChangeListener {
     private MessageSender mMessageSender;
 
     /**
@@ -54,6 +54,7 @@ public class DrawFragment extends Fragment implements MessageListener, View.OnCl
         mDrawingView = (GridDrawingView) v.findViewById(R.id.fragment_draw_drawing_view);
         LedMatrix currentMatrix = mMessageSender.getCurrentMatrix();
         mDrawingView.setGridSize(currentMatrix.width, currentMatrix.height);
+        mDrawingView.setGridChangeListener(this);
 
         mColorView = v.findViewById(R.id.fragment_draw_current_color_view);
         mColorView.setBackgroundColor(mDrawingView.getColor());
@@ -78,8 +79,13 @@ public class DrawFragment extends Fragment implements MessageListener, View.OnCl
     }
 
     @Override
+    public String requestScript() {
+        return "simple_drawing";
+    }
+
+    @Override
     public void onMessage(JSONObject data) {
-        // ignore dat shit
+        // ignore incoming messages
     }
 
     @Override
@@ -97,5 +103,10 @@ public class DrawFragment extends Fragment implements MessageListener, View.OnCl
                 })
                 .create()
                 .show(getChildFragmentManager(), "ChromaDialog");
+    }
+
+    @Override
+    public void onGridChanged() {
+        mMessageSender.sendScriptData(mDrawingView.getGridAsJsonObject());
     }
 }

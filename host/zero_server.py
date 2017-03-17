@@ -77,11 +77,11 @@ class Server:
             # wait for incoming request
             id, message = self.socket.recv_multipart()
 
-            msg_json = json.loads(message.decode())
-            message_type = msg_json['message_type']
+            msg_decoded_json = json.loads(message.decode())
+            message_type = msg_decoded_json['message_type']
 
             if message_type == "connection_request":
-                self.handle_connection_request(msg_json, id)
+                self.handle_connection_request(msg_decoded_json, id)
             elif id in self.approved_clients:
                 {
                     'script_load_request': self.handle_script_load_request,
@@ -89,7 +89,7 @@ class Server:
                     'connection_test': self.handle_connection_test,
                     'shutdown_notification': lambda json, id: self.approved_clients.remove(id),
                     'print_test': self.handle_print_test
-                }.get(message_type)(msg_json, id)
+                }.get(message_type)(msg_decoded_json, id)
 
         self.socket.close()
 

@@ -5,7 +5,7 @@ from matgraphics import Canvas
 
 
 class print_tester:
-    def __init__(self):
+    def __init__(self, canvas):
         print("print_tester: init called")
         self.next_draw = (0, 0)
 
@@ -18,6 +18,9 @@ class print_tester:
         print("print_tester: received draw call")
         canvas.draw_pixel(self.next_draw[0], self.next_draw[1], 255, 255, 255)
         print(repr(canvas))
+
+    def on_data(self, json, source_id):
+        pass
 
     def exit(self):
         print("print_tester: exiting")
