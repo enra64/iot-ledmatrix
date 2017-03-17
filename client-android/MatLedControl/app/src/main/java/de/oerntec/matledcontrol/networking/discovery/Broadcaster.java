@@ -1,8 +1,13 @@
 package de.oerntec.matledcontrol.networking.discovery;
 
+import android.util.Log;
+
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
@@ -11,6 +16,8 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TimerTask;
+
+import de.oerntec.matledcontrol.ExceptionListener;
 
 /**
  * This class can be used together with {@link java.util.Timer} to periodically send broadcasts
@@ -32,27 +39,44 @@ class Broadcaster extends TimerTask {
     /**
      * The dataPort the discovery server must be listening on
      */
-    private int mRemotePort;
+    private final int mRemoteDiscoveryPort;
 
     /**
-     * The discovery thread used to actually broadcast the information
+     * description of this device as a json string in utf-8 byte form
      */
-    private DiscoveryThread mDiscoveryThread;
+    private final JSONObject mThisDevice;
+
+    /**
+     * The socket that should be used for broadcasting information. Not owned by this class.
+     */
+    private DatagramSocket mSocket;
 
     /**
      * Create a new broadcaster.
      *
-     * @param discoveryThread required for {@link DiscoveryThread#sendSelfIdentification(InetAddress, int)}
-     * @param remotePort      required for sending broadcasts
+     * @param deviceName          name of this device
+     * @param remoteDiscoveryPort required for sending broadcasts
      * @throws IOException when we cannot detect the correct broadcast address
      */
-    Broadcaster(DiscoveryThread discoveryThread, ExceptionListener exceptionListener, int remotePort) throws IOException {
-        mRemotePort = remotePort;
-        mDiscoveryThread = discoveryThread;
+    Broadcaster(String deviceName, ExceptionListener exceptionListener, int remoteDiscoveryPort) throws IOException, JSONException {
+        mRemoteDiscoveryPort = remoteDiscoveryPort;
         mExceptionListener = exceptionListener;
-
-
         mBroadcastAddresses = getBroadcastAddresses();
+
+        JSONObject deviceJson = new NetworkDevice(deviceName).toJson();
+        deviceJson.put("message_type", "discovery");
+        mThisDevice = deviceJson;
+    }
+
+    void setSocket(DatagramSocket socket) {
+        try {
+            mSocket = socket;
+            mThisDevice.put("discovery_port", mSocket.getLocalPort());
+            socket.setBroadcast(true);
+        } catch (JSONException | SocketException e) {
+            Log.w("broadcaster", "could not setBroadcast(true)");
+            mExceptionListener.onException(this, e, "could not setSocket()");
+        }
     }
 
     /**
@@ -76,8 +100,8 @@ class Broadcaster extends TimerTask {
                                 networkInterface.getDisplayName().contains("eth0") ||
                                 networkInterface.getDisplayName().contains("ap0"))
                             // add to list of possible broadcast addresses
-                        if(ifAddress.getBroadcast() != null)
-                            resultList.add(ifAddress.getBroadcast());
+                            if (ifAddress.getBroadcast() != null)
+                                resultList.add(ifAddress.getBroadcast());
                     }
                 }
             }
@@ -95,9 +119,10 @@ class Broadcaster extends TimerTask {
     public void run() {
         // send our identification data via broadcast
         try {
+            byte[] thisDevice = mThisDevice.toString().getBytes("utf-8");
             for (InetAddress address : mBroadcastAddresses)
-                mDiscoveryThread.sendSelfIdentification(address, mRemotePort);
-        } catch (IOException | JSONException e) {
+                mSocket.send(new DatagramPacket(thisDevice, thisDevice.length, address, mRemoteDiscoveryPort));
+        } catch (IOException e) {
             mExceptionListener.onException(this, e, "Discovery: Broadcaster: Exception when trying to broadcast");
         }
     }

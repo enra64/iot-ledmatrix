@@ -82,6 +82,8 @@ class Server:
                     'print_test': self.handle_print_test
                 }.get(message_type)(msg_json, id)
 
+        self.socket.close()
+
 
     def start(self):
         self.socket.bind("tcp://*:" + str(self.local_data_port))

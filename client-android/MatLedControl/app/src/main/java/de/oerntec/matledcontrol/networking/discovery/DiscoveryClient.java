@@ -1,6 +1,10 @@
 package de.oerntec.matledcontrol.networking.discovery;
 
+
+import org.json.JSONException;
+
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
@@ -11,10 +15,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.oerntec.matledcontrol.ExceptionListener;
+
 /**
- * This thread manages sending discovery request packages and receiving answers from servers.
+ * This abstract class serves as a skeleton for implementing both the discovery server implementation
+ * as well as the discovery client implementation.
  */
-public class DiscoveryClient extends DiscoveryThread {
+@SuppressWarnings("WeakerAccess")
+public class DiscoveryClient extends Thread {
     /**
      * Constant specifying how old a server discovery may be before it is regarded offline
      */
@@ -28,6 +36,11 @@ public class DiscoveryClient extends DiscoveryThread {
             DISCOVERY_BROADCAST_PERIOD = 25,
             SERVER_LIST_REFRESH_DELAY = 25,
             SERVER_LIST_REFRESH_PERIOD = 10;
+
+    /**
+     * The ExceptionListener to be notified of exceptions
+     */
+    private final ExceptionListener mExceptionListener;
 
     /**
      * Our broadcaster handles the recurring self identification broadcasts.
@@ -50,25 +63,35 @@ public class DiscoveryClient extends DiscoveryThread {
     private ServerList mCurrentServerList;
 
     /**
+     * True if the thread should keep running
+     */
+    private boolean mIsRunning = false;
+
+    /**
+     * True if the thread was started once
+     */
+    private boolean mHasRun = false;
+
+    /**
      * Create a new DiscoveryClient. In contrast to the DiscoveryServer, the DiscoveryClient does not
      * have to know its command- and data dataPort yet, because we can instantiate those when acutally
      * connecting to the ports supplied in the discovery response sent by the sever.
      *
      * @param listener   this listener will be notified of changes in the list of known servers
-     * @param remotePort the dataPort the discovery server listens on
+     * @param remoteDiscoveryPort the discoveryPort the discovery server listens on
      * @param selfName   the name this device should announce itself as
      */
-    public DiscoveryClient(OnDiscoveryListener listener, ExceptionListener exceptionListener, int remotePort, int localDataPort, String selfName) throws IOException {
-        super(selfName, localDataPort);
-
+    public DiscoveryClient(String selfName, int remoteDiscoveryPort, OnDiscoveryListener listener, ExceptionListener exceptionListener) throws IOException, JSONException {
         // name thread
         setName("DiscoveryClient");
 
         // save who wants to be notified of new servers
         mCurrentServerList = new ServerList(listener);
 
+        mExceptionListener = exceptionListener;
+
         // the broadcaster handles everything related to sending broadcasts
-        mBroadcaster = new Broadcaster(this, exceptionListener, remotePort);
+        mBroadcaster = new Broadcaster(selfName, exceptionListener, remoteDiscoveryPort);
     }
 
     /**
@@ -77,50 +100,97 @@ public class DiscoveryClient extends DiscoveryThread {
     @Override
     public void run() {
         try {
-            setSocket(new DatagramSocket());
+            DatagramSocket socket = new DatagramSocket();
+            mBroadcaster.setSocket(socket);
 
             // send a new broadcast every n milliseconds, beginning now
             mRecurringBroadcastTimer.scheduleAtFixedRate(mBroadcaster, DISCOVERY_BROADCAST_DELAY, DISCOVERY_BROADCAST_PERIOD);
             mServerListTimer.scheduleAtFixedRate(mCurrentServerList, SERVER_LIST_REFRESH_DELAY, SERVER_LIST_REFRESH_PERIOD);
 
-            // continously check if we should continue listening
+            // continuously check if we should continue listening
             while (isRunning()) {
                 try {
-                    listen();
-                    // ignore timeoutexceptions, they are necessary to be able to check started()
-                } catch (SocketTimeoutException ignored) {
-                }
+                    listen(socket);
+                // ignore timeoutexceptions, they are necessary to be able to check isRunning
+                } catch (SocketTimeoutException ignored) {}
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
 
-        // close the socket after use
-        if (getSocket() != null)
-            getSocket().close();
+            // close the socket after use
+            socket.close();
+        } catch (IOException ex) {
+            mExceptionListener.onException(this, ex, "IOException occurred while broadcasting for matrices.");
+        } finally {
+            // stop sending broadcasts
+            mRecurringBroadcastTimer.cancel();
+
+            // stop updating the server list
+            mServerListTimer.cancel();
+        }
     }
 
     /**
-     * When a server is discovered, check if we already know it; if not, add it to the list, and notify
-     * our listener.
-     *
-     * @param device the newly found device
+     * Start the thread. To quote the java api specification "It is never legal to start a thread
+     * more than once. In particular, a thread may not be restarted once it has completed execution."
+     * Use {@link #hasRun()} to check whether you may start the thread
      */
     @Override
-    protected void onDiscovery(NetworkDevice device) {
-        mCurrentServerList.addServer(device);
+    public synchronized void start() {
+        if(mHasRun)
+            throw new AssertionError("You are trying to restart a thread. That is not legal. Create a new instance instead.");
+        mHasRun = true;
+        mIsRunning = true;
+        super.start();
     }
 
-    @Override
+    /**
+     * Check whether the server is set to stay running
+     *
+     * @return true if the server will continue running
+     */
+    public boolean isRunning() {
+        return mIsRunning;
+    }
+
     public void close() {
         // stop the listening loop
-        super.close();
+        mIsRunning = false;
+    }
 
-        // stop sending broadcasts
-        mRecurringBroadcastTimer.cancel();
+    /**
+     * Check whether this threads {@link #start()} has already been called. If it returns true,
+     * start() must not be called on this instance, since threads cannot be restarted.
+     * @return true if this thread has already been started
+     */
+    public boolean hasRun() {
+        return mHasRun;
+    }
 
-        // stop updating the server list
-        mServerListTimer.cancel();
+    /**
+     * Wait for a NetworkDevice object to arrive on the set {@link DatagramSocket}. Other messages will be discarded.
+     *
+     * @throws IOException either a {@link SocketTimeoutException} if the wait times out, or any other IO exception that occurse
+     */
+    protected void listen(DatagramSocket socket) throws IOException {
+        // wait for a message on our socket
+        byte[] recvBuf = new byte[4096];
+        DatagramPacket receivePacket = new DatagramPacket(recvBuf, recvBuf.length);
+        socket.receive(receivePacket);
+
+        // initialise an ObjectInputStream
+
+        NetworkDevice identification;
+        try {
+            // create the NetworkDevice describing our remote partner
+            identification = NetworkDevice.fromJsonString(new String(receivePacket.getData()));
+            identification.address = receivePacket.getAddress().getHostAddress();
+
+            // notify sub-class
+            mCurrentServerList.addServer(identification);
+
+            // if the cast to NetworkDevice fails, this message was not sent by the discovery system, and may be ignored
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

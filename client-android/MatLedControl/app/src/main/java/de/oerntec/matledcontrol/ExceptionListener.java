@@ -1,4 +1,4 @@
-package de.oerntec.matledcontrol.networking.discovery;
+package de.oerntec.matledcontrol;
 
 /**
  * Interface for exception identification across threads

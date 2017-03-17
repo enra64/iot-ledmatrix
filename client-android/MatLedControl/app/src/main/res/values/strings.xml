@@ -4,10 +4,6 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="draw">Draw</string>
     <string name="simple_drawing">Simple Drawing</string>
     <string name="choose_server">Choose Server</string>
@@ -16,12 +12,12 @@
     <string name="connect_to_matrix_message">The matrix will be automatically connected to whenever available.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
-    <string name="error_occurred">An error occurred!</string>
+    <string name="error_occurred">An exception occurred!</string>
     <string name="ok">Ok</string>
-    <string name="sp_last_connected_matrix">last_connected_matrix</string>
+    <string name="sp_last_connected_matrix" translatable="false">last_connected_matrix</string>
     <string name="matrix_denied_msg">The matrix did not accept your connection request</string>
     <string name="matrix_denied_title">Matrix denied connection</string>
-    <string name="print_tester_debug">Print Tester (debug)</string>
+    <string name="print_tester_debug">Echo test (debug)</string>
     <string name="enter_text_for_sending_to_server">enter text for sending to server</string>
     <string name="send">Send</string>
 </resources>

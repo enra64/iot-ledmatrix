@@ -1,3 +1,4 @@
+import inspect
 import time
 
 from broadcast_receiver import BroadcastReceiver
@@ -8,9 +9,10 @@ from script_handler import ScriptHandler
 # begin serial test
 from zero_server import Server
 
-
 def red_display_test(serial: MatrixSerial):
     """draw red to all pixels without using canvas; mostly a MatrixSerial test"""
+    print(inspect.currentframe().f_code.co_name)
+
     # "red" color specification
     r = [255, 0, 0]
 
@@ -27,6 +29,7 @@ def red_display_test(serial: MatrixSerial):
 
 
 def test_pixel_index_conversion():
+    print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
     for y in range(10):
         for x in range(10):
@@ -34,6 +37,7 @@ def test_pixel_index_conversion():
 
 
 def test_canvas_line():
+    print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
 
     c.draw_line(0, 0, 9, 5, 255, 255, 255)
@@ -41,6 +45,7 @@ def test_canvas_line():
 
 
 def test_canvas_pixel_line():
+    print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
 
     for i in range(c.width):
@@ -49,6 +54,7 @@ def test_canvas_pixel_line():
 
 
 def test_canvas_rect():
+    print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
 
     c.draw_rect(2, 2, 4, 4, 255, 0, 0)
@@ -56,6 +62,7 @@ def test_canvas_rect():
 
 
 def test_canvas_font():
+    print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
     c.set_font("helvetica.otf", 13)
     c.draw_text("h", 0, 0, 255, 255, 255)
@@ -63,6 +70,7 @@ def test_canvas_font():
 
 
 def test_canvas_draw_pixel_line(serial):
+    print(inspect.currentframe().f_code.co_name)
     c = Canvas(156, 1)
 
     while True:
@@ -72,6 +80,7 @@ def test_canvas_draw_pixel_line(serial):
 
 
 def test_broadcast_receiver():
+    print(inspect.currentframe().f_code.co_name)
     receiver = BroadcastReceiver(name="test_broadcast_receiver")
     receiver.start()
     time.sleep(200)
@@ -79,6 +88,7 @@ def test_broadcast_receiver():
 
 
 def test_broadcast_receiver_and_server():
+    print(inspect.currentframe().f_code.co_name)
     receiver = BroadcastReceiver(name="test_broadcast_receiver_and_server")
     receiver.start()
 
@@ -98,6 +108,7 @@ def test_broadcast_receiver_and_server():
 
 
 def test_script_handler():
+    print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
     handler = ScriptHandler(c)
 

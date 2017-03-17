@@ -13,16 +13,15 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.security.InvalidParameterException;
 import java.util.List;
 
 import de.oerntec.matledcontrol.networking.communication.MessageListener;
 import de.oerntec.matledcontrol.networking.discovery.DiscoveryClient;
-import de.oerntec.matledcontrol.networking.discovery.ExceptionListener;
 import de.oerntec.matledcontrol.networking.discovery.NetworkDevice;
 import de.oerntec.matledcontrol.networking.discovery.OnDiscoveryListener;
 
@@ -43,7 +42,7 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
     private String mDeviceName;
     private int mServerDiscoveryPort;
 
-    private DiscoveryFragmentInteractionListener mListener;
+    private DiscoveryFragmentInteractionListener mDiscoveryListener;
 
     /**
      * ProgressBar hinting at running discovery
@@ -69,6 +68,11 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
      * This discovery client enables us to find servers
      */
     DiscoveryClient mDiscovery;
+
+    /**
+     * Listener for concurrent exceptions
+     */
+    private ExceptionListener mExceptionListener;
 
     /**
      * Required empty public constructor
@@ -107,7 +111,7 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
         mPossibleConnections.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                mListener.onMatrixClicked(mServerList.get(i));
+                mDiscoveryListener.onDiscoveredMatrixClicked(mServerList.get(i));
             }
         });
     }
@@ -127,7 +131,8 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof DiscoveryFragmentInteractionListener) {
-            mListener = (DiscoveryFragmentInteractionListener) context;
+            mDiscoveryListener = (DiscoveryFragmentInteractionListener) context;
+            mExceptionListener = (ExceptionListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement DiscoveryFragmentInteractionListener");
@@ -156,19 +161,10 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
             if (mDiscovery == null || mDiscovery.hasRun()) {
                 try {
                     // create discovery client
-                    mDiscovery = new DiscoveryClient(
-                            DiscoveryFragment.this,
-                            DiscoveryFragment.this,
-                            mServerDiscoveryPort,
-                            54122,
-                            mDeviceName);
+                    mDiscovery = new DiscoveryClient(mDeviceName, mServerDiscoveryPort, this, this);
                     // this is a network problem
-                } catch (IOException e) {
-                    onException(this, e, "DiscoveryActivity: could not create DiscoveryClient");
-                }
-                // these exceptions are thrown if the dataPort is invalid, so we do not want to continue
-                catch (NumberFormatException | InvalidParameterException e) {
-                    return;
+                } catch (IOException | JSONException | NumberFormatException | InvalidParameterException e) {
+                    onException(this, e, "DiscoveryActivity: could not create DiscoveryClient because of: " + e.getClass().toString());
                 }
             }
 
@@ -178,6 +174,9 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
         }
     }
 
+    /**
+     * Show or hide a spinning indicator and a text to signal the user that we are searching for matrices
+     */
     private void setDiscoveringHintEnabled(boolean enable) {
         mDiscoveryProgressBar.setVisibility(enable ? View.VISIBLE : View.GONE);
         mDiscoveryTextView.setVisibility(enable ? View.VISIBLE : View.GONE);
@@ -217,14 +216,14 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
 
     @Override
     public void onException(Object origin, Exception exception, String info) {
-        Log.e(origin.toString(), info, exception);
-        exception.printStackTrace();
+        mExceptionListener.onException(origin, exception, info);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+        mDiscoveryListener = null;
+        mExceptionListener = null;
     }
 
     @Override
@@ -242,11 +241,11 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
      */
-    public interface DiscoveryFragmentInteractionListener {
+    interface DiscoveryFragmentInteractionListener {
         /**
          * Called when the user tapped on a server
          * @param server identification of the clicked server
          */
-        void onMatrixClicked(NetworkDevice server);
+        void onDiscoveredMatrixClicked(NetworkDevice server);
     }
 }

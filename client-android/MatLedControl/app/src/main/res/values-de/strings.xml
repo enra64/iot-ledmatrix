@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MatLedControl</string>
+    <string name="choose_server">Wähle eine Matrix</string>
+    <string name="connect_to_matrix">Mit Matrix verbinden?</string>
+    <string name="connect_to_matrix_message">Wann immer möglich wird die App sich mit dieser Matrix verbinden</string>
+    <string name="draw">Zeichnen</string>
+    <string name="enter_text_for_sending_to_server">text an den server</string>
+    <string name="error_occurred">Eine Exception ist aufgetreten!</string>
+    <string name="matrix_denied_msg">Die Matrix hat die Verbindungsanfrage abgelehnt</string>
+    <string name="matrix_denied_title">Verbindung abgelehnt</string>
+    <string name="navigation_drawer_close">Navigation-Drawer schliessen</string>
+    <string name="navigation_drawer_open">Navigation-Drawer öffnen</string>
+    <string name="no">Nein</string>
+    <string name="ok">Ok</string>
+    <string name="print_tester_debug">Echo-Test (debug)</string>
+    <string name="searching_for_matrices">Suche nach Matrizen</string>
+    <string name="send">Senden</string>
+    <string name="simple_drawing">Zeichnen</string>
+    <string name="yes">Ja</string>
+</resources>

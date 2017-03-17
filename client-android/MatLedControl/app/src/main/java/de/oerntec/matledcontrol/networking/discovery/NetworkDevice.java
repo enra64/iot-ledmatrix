@@ -146,8 +146,8 @@ public class NetworkDevice implements Serializable {
         String address = "invalid";
         int discoveryPort = -1;
 
-        if (json.has("address")) discoveryPort = json.getInt("address");
-        if (json.has("discovery_port")) address = json.getString("discovery_port");
+        if (json.has("address")) address = json.getString("address");
+        if (json.has("discovery_port")) discoveryPort = json.getInt("discovery_port");
 
         return new NetworkDevice(name, discoveryPort, port, address);
     }

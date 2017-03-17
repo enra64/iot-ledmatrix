@@ -17,7 +17,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -28,17 +27,30 @@ import de.oerntec.matledcontrol.networking.communication.MessageListener;
 import de.oerntec.matledcontrol.networking.communication.ConnectionListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ZeroMatrixConnection;
-import de.oerntec.matledcontrol.networking.discovery.ExceptionListener;
 import de.oerntec.matledcontrol.networking.discovery.NetworkDevice;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, DiscoveryFragment.DiscoveryFragmentInteractionListener, ExceptionListener, MessageListener, ConnectionListener, MessageSender {
 
+    /**
+     * The port set for discovery
+     */
     private static final int DISCOVERY_PORT = 54123;
 
+    /**
+     * The connection instance we use for communicating with the matrix
+     */
     private ZeroMatrixConnection mConnection;
 
+    /**
+     * The currently active fragment, if it implements the MessageListener interface, or null.
+     */
     private MessageListener mCurrentMessageDigestor;
+
+    /**
+     * The matrix we currently are connected to, or null.
+     */
+    private NetworkDevice mCurrentMatrix = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +92,7 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lastMatrix = prefs.getString(getString(R.string.sp_last_connected_matrix), null);
 
-        if(lastMatrix != null){
+        if (lastMatrix != null) {
             try {
                 // try to reconnect to the given matrix
                 NetworkDevice lastDevice = NetworkDevice.fromJsonString(lastMatrix);
@@ -89,28 +101,6 @@ public class MainActivity extends AppCompatActivity
                 Log.w("main", "could not parse stored last matrix!");
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private DiscoveryFragment getDiscoveryFragment() {
@@ -149,26 +139,35 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    /**
+     * Called from within this activity to request a connection to the specified matrix
+     *
+     * @param matrix connection request target
+     */
     private void connectToMatrix(NetworkDevice matrix) {
-        if(mConnection != null)
+        if (mConnection != null)
             mConnection.close();
         mConnection = new ZeroMatrixConnection(matrix, this, this);
     }
 
+    /**
+     * Call this to save a matrix as the one that was last connected to
+     */
     private void saveMatrix(NetworkDevice matrix) {
-        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(this).edit();
-
         try {
-            prefs.putString(getString(R.string.sp_last_connected_matrix), matrix.toJsonString());
+            SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(this).edit();
+            prefs.putString(getString(R.string.sp_last_connected_matrix), matrix.toJsonString()).apply();
         } catch (JSONException e) {
             onException(this, e, "Could not serialize matrix for storage");
         }
-
-        prefs.apply();
     }
 
+    /**
+     * Called when the user clicks a matrix in the discovery fragment
+     * @param server identification of the clicked server
+     */
     @Override
-    public void onMatrixClicked(final NetworkDevice server) {
+    public void onDiscoveredMatrixClicked(final NetworkDevice server) {
         Toast.makeText(this, "chose server " + server.name, Toast.LENGTH_LONG).show();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -184,6 +183,12 @@ public class MainActivity extends AppCompatActivity
         builder.show();
     }
 
+    /**
+     * Can be called to signal exceptions across threads
+     * @param origin    the instance (or, if it is a hidden instance, the known parent) that produced the exception
+     * @param exception the exception that was thrown
+     * @param info additional information to help identify the problem
+     */
     @Override
     public void onException(Object origin, Exception exception, String info) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -191,11 +196,6 @@ public class MainActivity extends AppCompatActivity
         builder.setMessage(info);
         builder.setPositiveButton(R.string.ok, null);
         builder.show();
-    }
-
-    @Override
-    public void onMessage(JSONObject data) {
-        mCurrentMessageDigestor.onMessage(data);
     }
 
     @Override
@@ -208,6 +208,8 @@ public class MainActivity extends AppCompatActivity
     public void onConnectionRequestResponse(final NetworkDevice matrix, boolean granted) {
         if (granted) {
             saveMatrix(matrix);
+
+            mCurrentMatrix = matrix;
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -226,7 +228,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public NetworkDevice getCurrentServer() {
+        return mCurrentMatrix;
+    }
+
+    @Override
     public void sendMessage(JSONObject json, @Nullable String messageType) {
         mConnection.sendMessage(json, messageType);
+    }
+
+    @Override
+    public void onMessage(JSONObject data) {
+        mCurrentMessageDigestor.onMessage(data);
     }
 }
