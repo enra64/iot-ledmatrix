@@ -20,4 +20,7 @@
     <string name="print_tester_debug">Echo test (debug)</string>
     <string name="enter_text_for_sending_to_server">enter text for sending to server</string>
     <string name="send">Send</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -27,7 +27,9 @@ import de.oerntec.matledcontrol.networking.communication.MessageListener;
 import de.oerntec.matledcontrol.networking.communication.ConnectionListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ZeroMatrixConnection;
-import de.oerntec.matledcontrol.networking.discovery.NetworkDevice;
+import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
+import de.oerntec.matledcontrol.script_clients.EchoFragment;
+import de.oerntec.matledcontrol.script_clients.draw.DrawFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, DiscoveryFragment.DiscoveryFragmentInteractionListener, ExceptionListener, MessageListener, ConnectionListener, MessageSender {
@@ -50,7 +52,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * The matrix we currently are connected to, or null.
      */
-    private NetworkDevice mCurrentMatrix = null;
+    private LedMatrix mCurrentMatrix = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +97,7 @@ public class MainActivity extends AppCompatActivity
         if (lastMatrix != null) {
             try {
                 // try to reconnect to the given matrix
-                NetworkDevice lastDevice = NetworkDevice.fromJsonString(lastMatrix);
+                LedMatrix lastDevice = LedMatrix.fromJsonString(lastMatrix);
                 connectToMatrix(lastDevice);
             } catch (JSONException e) {
                 Log.w("main", "could not parse stored last matrix!");
@@ -115,9 +117,10 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = null;
         switch (item.getItemId()) {
             case R.id.simple_drawing:
-                return true;
+                fragment = DrawFragment.newInstance();
+                break;
             case R.id.print_tester:
-                fragment = PrintFragment.newInstance();
+                fragment = EchoFragment.newInstance();
                 break;
             case R.id.choose_server:
                 fragment = getDiscoveryFragment();
@@ -144,7 +147,7 @@ public class MainActivity extends AppCompatActivity
      *
      * @param matrix connection request target
      */
-    private void connectToMatrix(NetworkDevice matrix) {
+    private void connectToMatrix(LedMatrix matrix) {
         if (mConnection != null)
             mConnection.close();
         mConnection = new ZeroMatrixConnection(matrix, this, this);
@@ -153,7 +156,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * Call this to save a matrix as the one that was last connected to
      */
-    private void saveMatrix(NetworkDevice matrix) {
+    private void saveMatrix(LedMatrix matrix) {
         try {
             SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(this).edit();
             prefs.putString(getString(R.string.sp_last_connected_matrix), matrix.toJsonString()).apply();
@@ -167,7 +170,7 @@ public class MainActivity extends AppCompatActivity
      * @param server identification of the clicked server
      */
     @Override
-    public void onDiscoveredMatrixClicked(final NetworkDevice server) {
+    public void onDiscoveredMatrixClicked(final LedMatrix server) {
         Toast.makeText(this, "chose server " + server.name, Toast.LENGTH_LONG).show();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -205,7 +208,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onConnectionRequestResponse(final NetworkDevice matrix, boolean granted) {
+    public void onConnectionRequestResponse(final LedMatrix matrix, boolean granted) {
         if (granted) {
             saveMatrix(matrix);
 
@@ -228,7 +231,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public NetworkDevice getCurrentServer() {
+    public LedMatrix getCurrentMatrix() {
         return mCurrentMatrix;
     }
 

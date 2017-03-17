@@ -1,4 +1,4 @@
-package de.oerntec.matledcontrol;
+package de.oerntec.matledcontrol.script_clients;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,22 +14,22 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MessageListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 
-public class PrintFragment extends Fragment implements MessageListener, View.OnClickListener {
+public class EchoFragment extends Fragment implements MessageListener, View.OnClickListener {
     private MessageSender mMessageSender;
 
-    private Button mSendButton;
     private EditText mSendEditText;
     private TextView mResponseView;
 
-    public PrintFragment() {
+    public EchoFragment() {
         // Required empty public constructor
     }
 
-    public static PrintFragment newInstance() {
-        PrintFragment fragment = new PrintFragment();
+    public static EchoFragment newInstance() {
+        EchoFragment fragment = new EchoFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -45,8 +45,9 @@ public class PrintFragment extends Fragment implements MessageListener, View.OnC
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_print, container, false);
-        mSendButton = (Button) v.findViewById(R.id.print_tester_send_button);
-        mSendButton.setOnClickListener(this);
+        Button sendButton = (Button) v.findViewById(R.id.print_tester_send_button);
+        sendButton.setOnClickListener(this);
+
         mSendEditText = (EditText) v.findViewById(R.id.print_tester_send_to_server_edittext);
         mResponseView = (TextView) v.findViewById(R.id.print_tester_response_textview);
         return v;

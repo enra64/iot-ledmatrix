@@ -4,9 +4,9 @@ import android.support.annotation.Nullable;
 
 import org.json.JSONObject;
 
-import de.oerntec.matledcontrol.networking.discovery.NetworkDevice;
+import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 
 public interface MessageSender {
-    NetworkDevice getCurrentServer();
+    LedMatrix getCurrentMatrix();
     void sendMessage(JSONObject json, @Nullable String messageType);
 }

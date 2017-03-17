@@ -9,7 +9,7 @@ public interface OnDiscoveryListener {
     /**
      * Called when the list of current devices changed
      *
-     * @param deviceList a list of current {@link NetworkDevice NetworkDevices}
+     * @param deviceList a list of current {@link LedMatrix NetworkDevices}
      */
-    void onServerListUpdated(List<NetworkDevice> deviceList);
+    void onServerListUpdated(List<LedMatrix> deviceList);
 }

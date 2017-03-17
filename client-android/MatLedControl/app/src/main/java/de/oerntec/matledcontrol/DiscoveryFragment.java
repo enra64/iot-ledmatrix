@@ -22,7 +22,7 @@ import java.util.List;
 
 import de.oerntec.matledcontrol.networking.communication.MessageListener;
 import de.oerntec.matledcontrol.networking.discovery.DiscoveryClient;
-import de.oerntec.matledcontrol.networking.discovery.NetworkDevice;
+import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 import de.oerntec.matledcontrol.networking.discovery.OnDiscoveryListener;
 
 
@@ -62,7 +62,7 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
     /**
      * List of current servers
      */
-    List<NetworkDevice> mServerList;
+    List<LedMatrix> mServerList;
 
     /**
      * This discovery client enables us to find servers
@@ -196,7 +196,7 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
      * @param servers list of current servers
      */
     @Override
-    public void onServerListUpdated(List<NetworkDevice> servers) {
+    public void onServerListUpdated(List<LedMatrix> servers) {
         mServerList = servers;             //save server names and ips for further use
 
         final String[] stringNames = new String[servers.size()];
@@ -246,6 +246,6 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
          * Called when the user tapped on a server
          * @param server identification of the clicked server
          */
-        void onDiscoveredMatrixClicked(NetworkDevice server);
+        void onDiscoveredMatrixClicked(LedMatrix server);
     }
 }

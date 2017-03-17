@@ -2,6 +2,7 @@ package de.oerntec.matledcontrol.networking.discovery;
 
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -60,7 +61,7 @@ public class DiscoveryClient extends Thread {
     /**
      * list of servers
      */
-    private ServerList mCurrentServerList;
+    private ServerList mCurrentMatrixList;
 
     /**
      * True if the thread should keep running
@@ -86,7 +87,7 @@ public class DiscoveryClient extends Thread {
         setName("DiscoveryClient");
 
         // save who wants to be notified of new servers
-        mCurrentServerList = new ServerList(listener);
+        mCurrentMatrixList = new ServerList(listener);
 
         mExceptionListener = exceptionListener;
 
@@ -105,7 +106,7 @@ public class DiscoveryClient extends Thread {
 
             // send a new broadcast every n milliseconds, beginning now
             mRecurringBroadcastTimer.scheduleAtFixedRate(mBroadcaster, DISCOVERY_BROADCAST_DELAY, DISCOVERY_BROADCAST_PERIOD);
-            mServerListTimer.scheduleAtFixedRate(mCurrentServerList, SERVER_LIST_REFRESH_DELAY, SERVER_LIST_REFRESH_PERIOD);
+            mServerListTimer.scheduleAtFixedRate(mCurrentMatrixList, SERVER_LIST_REFRESH_DELAY, SERVER_LIST_REFRESH_PERIOD);
 
             // continuously check if we should continue listening
             while (isRunning()) {
@@ -166,7 +167,7 @@ public class DiscoveryClient extends Thread {
     }
 
     /**
-     * Wait for a NetworkDevice object to arrive on the set {@link DatagramSocket}. Other messages will be discarded.
+     * Wait for a LedMatrix object to arrive on the set {@link DatagramSocket}. Other messages will be discarded.
      *
      * @throws IOException either a {@link SocketTimeoutException} if the wait times out, or any other IO exception that occurse
      */
@@ -178,18 +179,19 @@ public class DiscoveryClient extends Thread {
 
         // initialise an ObjectInputStream
 
-        NetworkDevice identification;
+        LedMatrix identification;
         try {
-            // create the NetworkDevice describing our remote partner
-            identification = NetworkDevice.fromJsonString(new String(receivePacket.getData()));
+            JSONObject received_object = new JSONObject(new String(receivePacket.getData()));
+            // create the LedMatrix describing our remote partner
+            identification = LedMatrix.fromJson(received_object);
             identification.address = receivePacket.getAddress().getHostAddress();
 
             // notify sub-class
-            mCurrentServerList.addServer(identification);
+            mCurrentMatrixList.addMatrix(identification);
 
-            // if the cast to NetworkDevice fails, this message was not sent by the discovery system, and may be ignored
+            // if the cast to LedMatrix fails, this message was not sent by the discovery system, and may be ignored
         } catch (JSONException e) {
-            e.printStackTrace();
+            mExceptionListener.onException(this, e, "Error when parsing discovery response from matrix");
         }
     }
 
@@ -200,7 +202,7 @@ public class DiscoveryClient extends Thread {
         /**
          * Current list of known servers as well as a timestamp marking their time of discovery
          */
-        private ConcurrentHashMap<NetworkDevice, Long> mCurrentServerList = new ConcurrentHashMap<>();
+        private ConcurrentHashMap<LedMatrix, Long> mCurrentServerList = new ConcurrentHashMap<>();
 
         /**
          * Listener to be called when our list of servers is updated
@@ -225,7 +227,7 @@ public class DiscoveryClient extends Thread {
             long now = System.currentTimeMillis();
 
             // remove all servers older than MAXIMUM_SERVER_AGE_MS
-            Iterator<Map.Entry<NetworkDevice, Long>> it = mCurrentServerList.entrySet().iterator();
+            Iterator<Map.Entry<LedMatrix, Long>> it = mCurrentServerList.entrySet().iterator();
             while (it.hasNext()) {
                 // get the next devices discovery timestamp
                 long discoveryTimestamp = it.next().getValue();
@@ -247,14 +249,14 @@ public class DiscoveryClient extends Thread {
         /**
          * Retrieve an up-to-date list of known servers
          */
-        private List<NetworkDevice> getCurrentServers() {
+        private List<LedMatrix> getCurrentServers() {
             return new ArrayList<>(mCurrentServerList.keySet());
         }
 
         /**
          * Adds a server to the list or, if it already exists, updates it.
          */
-        void addServer(NetworkDevice device) {
+        void addMatrix(LedMatrix device) {
             // the list only changed if the device was unknown
             if (!mCurrentServerList.containsKey(device))
                 mChanged = true;

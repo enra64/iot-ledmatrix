@@ -95,7 +95,8 @@ def test_broadcast_receiver_and_server():
     server = Server(
         lambda data, source: print("got " + data + " from " + str(source)),
         lambda data, source: print("got " + data + " from " + str(source)),
-        receiver.get_advertised_data_port()
+        local_data_port=receiver.get_advertised_data_port(),
+        matrix_dimensions=(10, 10)
     )
     server.start()
 

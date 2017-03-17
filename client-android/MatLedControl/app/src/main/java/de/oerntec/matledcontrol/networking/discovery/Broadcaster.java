@@ -63,7 +63,7 @@ class Broadcaster extends TimerTask {
         mExceptionListener = exceptionListener;
         mBroadcastAddresses = getBroadcastAddresses();
 
-        JSONObject deviceJson = new NetworkDevice(deviceName).toJson();
+        JSONObject deviceJson = new LedMatrix(deviceName).toJson();
         deviceJson.put("message_type", "discovery");
         mThisDevice = deviceJson;
     }

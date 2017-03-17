@@ -11,7 +11,7 @@ import java.net.UnknownHostException;
  * This object is used to identify psychic network devices
  */
 @SuppressWarnings("WeakerAccess")
-public class NetworkDevice implements Serializable {
+public class LedMatrix implements Serializable {
     /**
      * A human-readable name
      */
@@ -31,15 +31,17 @@ public class NetworkDevice implements Serializable {
      * ip address
      */
     public String address;
+    public int width;
+    public int height;
 
     /**
-     * Create a new, fully defined, NetworkDevice using the given parameters
+     * Create a new, fully defined, LedMatrix using the given parameters
      *
      * @param name    human readable name
      * @param dataPort    the device is listening on this dataPort for incoming data
      * @param address ip address
      */
-    public NetworkDevice(String name, int discoveryPort, int dataPort, String address) {
+    private LedMatrix(String name, int discoveryPort, int dataPort, String address, int width, int height) {
         this.name = name;
         this.dataPort = dataPort;
         this.address = address;
@@ -51,47 +53,21 @@ public class NetworkDevice implements Serializable {
     }
 
     /**
-     * Get the name as given by the NetworkDevice
+     * Get the name as given by the LedMatrix
      *
-     * @return the name as given by the NetworkDevice
+     * @return the name as given by the LedMatrix
      */
     public String getName() {
         return name;
     }
 
     /**
-     * j
-     * Create a new NetworkDevice which will announce itself as "name" who may be contacted using commandPort and dataPort
-     *
-     * @param name human readable name
-     * @param dataPort the device is listening on this dataPort for incoming data
-     */
-    public NetworkDevice(String name, int dataPort) {
-        this(name, -1, dataPort, "invalid");
-    }
-
-    /**
-     * Create a new NetworkDevice when only the name is known
+     * Create a new LedMatrix when only the name is known
      *
      * @param name human readable name
      */
-    public NetworkDevice(String name) {
-        this(name, -1);
-    }
-
-    /**
-     * Returns this devices address to an {@link InetAddress} object
-     *
-     * @return InetAddress pointing to this device
-     * @throws UnknownHostException if this NetworkDevice is not configured sufficiently or the address could not be converted
-     */
-    public InetAddress getInetAddress() throws UnknownHostException {
-        // check whether we actually have set a valid address yet
-        if ("invalid".equals(address))
-            throw new UnknownHostException("This NetworkDevice is not configured sufficiently to provide an InetAddress");
-
-        // convert and return address
-        return InetAddress.getByName(address);
+    public LedMatrix(String name) {
+        this(name, -1, -1, "invalid", -1, -1);
     }
 
     /**
@@ -123,43 +99,49 @@ public class NetworkDevice implements Serializable {
      */
     @Override
     public boolean equals(Object obj) {
-        // if obj is not a NetworkDevice, they are not the same object
-        if (!(obj instanceof NetworkDevice))
+        // if obj is not a LedMatrix, they are not the same object
+        if (!(obj instanceof LedMatrix))
             return false;
 
         // for equality, only the name and address must be the same. thus, a device can have multiple servers,
         // and a name may be used multiple times in the same network
-        NetworkDevice server = (NetworkDevice) obj;
+        LedMatrix server = (LedMatrix) obj;
         return address.equals(server.address) && name.equals(server.name);
     }
 
     /**
-     * Create a new NetworkDevice from a json representation
+     * Create a new LedMatrix from a json representation
      *
      * @param json the information source
-     * @return NetworkDevice equal to the json representation
+     * @return LedMatrix equal to the json representation
      * @throws JSONException if "name" or "dataPort" is missing in the json object
      */
-    public static NetworkDevice fromJson(JSONObject json) throws JSONException {
+    public static LedMatrix fromJson(JSONObject json) throws JSONException {
         String name = json.getString("name");
         int port = json.getInt("data_port");
+
+        // default parameter values
         String address = "invalid";
         int discoveryPort = -1;
+        int width = -1;
+        int height = -1;
 
         if (json.has("address")) address = json.getString("address");
         if (json.has("discovery_port")) discoveryPort = json.getInt("discovery_port");
+        if (json.has("matrix_width")) width = json.getInt("matrix_width");
+        if (json.has("matrix_height")) width = json.getInt("matrix_height");
 
-        return new NetworkDevice(name, discoveryPort, port, address);
+        return new LedMatrix(name, discoveryPort, port, address, width, height);
     }
 
     /**
-     * Create a new NetworkDevice from a json string representation
+     * Create a new LedMatrix from a json string representation
      *
      * @param json the information source
-     * @return NetworkDevice equal to the json representation
+     * @return LedMatrix equal to the json representation
      * @throws JSONException if "name" or "dataPort" is missing in the json object
      */
-    public static NetworkDevice fromJsonString(String json) throws JSONException {
+    public static LedMatrix fromJsonString(String json) throws JSONException {
         return fromJson(new JSONObject(json));
     }
 
@@ -169,6 +151,8 @@ public class NetworkDevice implements Serializable {
         thisDevice.put("name", name);
         thisDevice.put("data_port", dataPort);
         thisDevice.put("discovery_port", discoveryPort);
+        thisDevice.put("matrix_width", width);
+        thisDevice.put("matrix_height", height);
 
         if (address != null)
             thisDevice.put("address", address);

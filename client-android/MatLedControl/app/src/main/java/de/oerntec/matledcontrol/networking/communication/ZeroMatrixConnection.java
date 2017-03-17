@@ -6,7 +6,7 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import de.oerntec.matledcontrol.networking.discovery.NetworkDevice;
+import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 import zmq.ZMQ;
 
 /**
@@ -18,10 +18,10 @@ public class ZeroMatrixConnection extends Thread {
     private final org.zeromq.ZMQ.Socket mSocket;
     private final MessageListener mListener;
     private final ConnectionListener mConnectionListener;
-    private final NetworkDevice mMatrix;
+    private final LedMatrix mMatrix;
     private volatile boolean mContinue = true;
 
-    public ZeroMatrixConnection(NetworkDevice matrix, MessageListener listener, ConnectionListener connectionListener){
+    public ZeroMatrixConnection(LedMatrix matrix, MessageListener listener, ConnectionListener connectionListener){
         // listeners
         mListener = listener;
         mConnectionListener = connectionListener;
@@ -56,8 +56,11 @@ public class ZeroMatrixConnection extends Thread {
             try {
                 JSONObject recv_json = new JSONObject(recv);
 
-                if (recv_json.getString("message_type").equals("connection_request_response"))
+                if (recv_json.getString("message_type").equals("connection_request_response")){
+                    mMatrix.width = recv_json.getInt("matrix_width");
+                    mMatrix.height = recv_json.getInt("matrix_height");
                     mConnectionListener.onConnectionRequestResponse(mMatrix, recv_json.getBoolean("granted"));
+                }
 
                 mListener.onMessage(recv_json);
             } catch (JSONException e) {
@@ -77,6 +80,7 @@ public class ZeroMatrixConnection extends Thread {
     }
 
     public void terminate(){
+        close();
         mContext.term();
     }
 }

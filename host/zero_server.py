@@ -5,9 +5,13 @@ import zmq
 
 
 class Server:
-    def __init__(self, script_load_request_handler, script_data_handler, local_data_port: int = 54122):
+    def __init__(self, script_load_request_handler, script_data_handler, matrix_dimensions = (156, 1), local_data_port: int = 54122):
         # local data port
         self.local_data_port = local_data_port
+
+        # store matrix dimensions
+        self.matrix_width = matrix_dimensions[0]
+        self.matrix_height = matrix_dimensions[1]
 
         # handlers
         self.script_load_request_handler = script_load_request_handler
@@ -52,7 +56,12 @@ class Server:
         if self.connection_request_handler is None or self.connection_request_handler(data):
             # any accepted client has its target tuple stored
             self.approved_clients.append(source_id)
-            self.__send_object({'message_type': 'connection_request_response', 'granted': True}, source_id)
+            response_object = {
+                'message_type': 'connection_request_response',
+                'granted': True,
+                'matrix_width': self.matrix_width,
+                'matrix_height': self.matrix_height}
+            self.__send_object(response_object, source_id)
         else:
             self.__send_object({'message_type': 'connection_request_response', 'granted': False}, source_id)
 
@@ -83,7 +92,6 @@ class Server:
                 }.get(message_type)(msg_json, id)
 
         self.socket.close()
-
 
     def start(self):
         self.socket.bind("tcp://*:" + str(self.local_data_port))
