@@ -28,6 +28,9 @@ class Manager:
         self.server.stop()
         self.script_handler.stop_current_script()
 
+    def load_script(self, script):
+        self.script_handler.start_script(script, "hardcoded")
+
     def __init__(self, arduino_interface, arduino_baud, matrix_width, matrix_height, data_port, server_name):
         """initializes all required modules without starting any of them. DiscoveryPort hardcoded to 54123"""
         self.matrix_serial = MatrixSerial(arduino_interface, matrix_width * matrix_height, arduino_baud)

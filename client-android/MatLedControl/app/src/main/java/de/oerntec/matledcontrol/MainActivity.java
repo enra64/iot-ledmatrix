@@ -28,6 +28,8 @@ import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ZeroMatrixConnection;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 import de.oerntec.matledcontrol.script_clients.EchoFragment;
+import de.oerntec.matledcontrol.script_clients.camera.Camera2BasicFragment;
+import de.oerntec.matledcontrol.script_clients.camera.CameraFragment;
 import de.oerntec.matledcontrol.script_clients.draw.DrawFragment;
 
 public class MainActivity extends AppCompatActivity
@@ -123,6 +125,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.choose_server:
                 fragment = getDiscoveryFragment();
+                break;
+            case R.id.camera:
+                fragment = Camera2BasicFragment.newInstance();
                 break;
             default:
                 Log.w("ledmat:main", "unknown menu item clicked");

@@ -21,8 +21,9 @@ def test_all():
 
 def run():
     print("starting complete server")
-    manager = Manager("/dev/ttyUSB0", 115200, 156, 1, 55124, "arnes matrix")
+    manager = Manager("/dev/ttyACM0", 115200, 10, 10, 55124, "arnes matrix")
     manager.start()
+    manager.load_script("gameoflife")
 
 
 if __name__ == "__main__":
