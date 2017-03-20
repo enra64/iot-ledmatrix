@@ -6,7 +6,6 @@ from matgraphics import Canvas
 
 class gameoflife:
     def __init__(self, canvas):
-        print("gameoflife started")
         self.gameboard = np.zeros((canvas.height, canvas.width), dtype = bool)
         self.colorboard = np.zeros((canvas.height, canvas.width, 3), dtype = int)
         self.gameboard[2, 5:7] = True
@@ -48,4 +47,4 @@ class gameoflife:
         #print(repr(canvas))
 
     def exit(self):
-        print("gameoflife: exiting")
+        pass

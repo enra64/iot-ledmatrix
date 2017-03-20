@@ -4,7 +4,7 @@ import random
 from matgraphics import Canvas
 
 
-class print_tester:
+class echo_test:
     def __init__(self, canvas):
         print("print_tester: init called")
         self.next_draw = (0, 0)

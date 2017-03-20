@@ -1,5 +1,8 @@
 from importlib import import_module # import all the things
 import threading
+
+import logging
+
 import helpers
 import time
 
@@ -33,7 +36,7 @@ class ScriptRunner:
             self.process.join()
         # called when process was never started
         except RuntimeError:
-            print("process stopped before start")
+            print(self.script_name + " stopped before starting")
 
     def on_data(self, data, source_id):
         self.script.on_data(data, source_id)
@@ -41,9 +44,10 @@ class ScriptRunner:
     def __init__(self, script:str, canvas: Canvas, draw_cycle_finished_callback):
         module = import_module('scripts.' + script)
         self.script = getattr(module, script)(canvas)
-        self.process = threading.Thread(target=self.runner, args={canvas,draw_cycle_finished_callback,})
+        self.process = threading.Thread(target=self.runner, args=(canvas,draw_cycle_finished_callback))
         self.abort = threading.Event()
         self.last_exec = 0
+        self.script_name = script
 
 
 class ScriptHandler:
@@ -56,8 +60,13 @@ class ScriptHandler:
     def start_script(self, script_name: str, source_id):
         """Will load the class in the scripts/ folder that has the given name in the file with the same name.
         :param script_name: the name of _both_ the script and the class implementing the callback functions"""
+        if self.is_script_running:
+            self.stop_current_script()
+
         self.current_script_runner = ScriptRunner(script_name, self.canvas, self.draw_cycle_finished_callback)
-        self.__start_current_script()
+        logging.info("starting script: " + script_name)
+        self.current_script_runner.start()
+        self.is_script_running = True
 
     def script_running(self):
         return self.is_script_running
@@ -65,12 +74,7 @@ class ScriptHandler:
     def on_data(self, data, source_id):
         self.current_script_runner.on_data(data, source_id)
 
-    def __start_current_script(self):
-        if self.is_script_running:
-            self.stop_current_script()
-        self.current_script_runner.start()
-        self.is_script_running = True
-
     def stop_current_script(self):
+        logging.info("stopping script: " + self.current_script_runner.script_name)
         self.current_script_runner.stop()
         self.is_script_running = False

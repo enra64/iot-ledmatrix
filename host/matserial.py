@@ -1,3 +1,4 @@
+import logging
 import serial, time
 import serial.tools.list_ports
 
@@ -78,6 +79,7 @@ class MatrixSerial:
         response = self.serial.read(3)
 
         if response != b'SAM':
+            logging.exception("Handshake failed: expected b'SAM', got " + str(response))
             raise MatrixProtocolException("Handshake failed: expected b'SAM', got " + str(response))
 
     def stop(self):
@@ -105,6 +107,8 @@ class MatrixSerial:
         """
         # ensure correct data length
         assert len(data) == len(self.buffer), "bad data length! len(data) should be " + str(len(self.buffer))
+        if len(data) != len(self.buffer):
+            logging.critical("bad data length! len(data) should be " + str(len(self.buffer)))
 
         # copy buffer
         self.buffer[:] = data
@@ -129,5 +133,6 @@ class MatrixSerial:
 
         # check acknowledgement char correctness
         if ack != b'k':
+            logging.exception("No acknowledgement received, expected b'k', got " + str(ack))
             raise MatrixProtocolException("No acknowledgement received, expected b'k', got " + str(ack))
 

@@ -1,6 +1,8 @@
 import getopt
 import sys
 
+import logging
+
 import iot_ledmatrix_component_tests
 from manager import Manager
 from matserial import MatrixSerial, get_connected_arduinos, guess_arduino
@@ -41,12 +43,14 @@ if __name__ == "__main__":
                 "--width=",
                 "--height=",
                 "--data-port=",
-                "--discovery-port="
+                "--discovery-port=",
+                "--loglevel="
             ]
         )
     except getopt.GetoptError:
         print_help()
         sys.exit(2)
+
 
     matrix_port = "/dev/ttyACM0"
     matrix_name = "ledmatrix"
@@ -54,6 +58,9 @@ if __name__ == "__main__":
     matrix_height = 10
     matrix_data_port = 55124
     matrix_discovery_port = 54123
+
+    log_level = logging.INFO
+
     run = True
 
     if len(options) > 0:
@@ -87,8 +94,14 @@ if __name__ == "__main__":
                 matrix_data_port = int(argument)
             elif option == "--discovery-port":
                 matrix_discovery_port = int(argument)
+            elif option == "--loglevel":
+                log_level = getattr(logging, argument.upper(), None)
+
+    # set logging level
+    logging.basicConfig(filename='ledmatrix.log', level=log_level, datefmt='%d.%m.%Y %H:%M:%S')
 
     if run:
+        logging.info("starting full operations")
         manager = Manager(matrix_port, 115200, matrix_width, matrix_height, matrix_data_port, matrix_name, matrix_discovery_port)
         manager.start()
         manager.load_script("gameoflife")

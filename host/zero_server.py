@@ -1,11 +1,19 @@
 import json
 import threading
-
+import atexit
+import logging
 import zmq
 
 
 class Server:
-    def __init__(self, script_load_request_handler, script_data_handler, matrix_dimensions = (156, 1), local_data_port: int = 54122):
+    def __on_host_shutdown(self):
+        logging.info("shutdown, notifying clients...")
+        object = {"message_type": "shutdown_notification"}
+        self.send_object_all(object)
+
+    def __init__(self, script_load_request_handler, script_data_handler, matrix_dimensions = (156, 1), local_data_port: int = 54122, register_shutdown_hook: bool = True):
+        self.logger = logging.getLogger("ledmatrix.server")
+
         # local data port
         self.local_data_port = local_data_port
 
@@ -28,8 +36,13 @@ class Server:
         context = zmq.Context.instance()
         self.socket = context.socket(zmq.ROUTER)
 
+        # shutdown hook for notifying clients
+        if register_shutdown_hook:
+            atexit.register(self.__on_host_shutdown)
+
     def handle_script_load_request(self, data, source_id):
         requested_script = data['requested_script']
+        logging.debug("server received request to load " + requested_script)
         self.script_load_request_handler(requested_script, source_id)
 
     def handle_script_data(self, data, source_id):
@@ -40,12 +53,16 @@ class Server:
         """this function is the only one that should actually use the socket to send anything."""
         self.socket.send_multipart([target_id, object_as_json_str.encode("utf-8")])
 
-    def __send_object(self, object, target_id):
+    def send_object(self, object, target_id):
         self.__send_json_str(json.dumps(object), target_id)
+
+    def send_object_all(self, object):
+        for id in self.approved_clients:
+            self.send_object(object, id)
 
     def handle_connection_test(self, data, source_host):
         answer = {'message_type': 'connection_test_response'}
-        self.__send_object(answer, source_host)
+        self.send_object(answer, source_host)
 
     def set_connection_request_handler(self, handler):
         self.connection_request_handler = handler
@@ -61,13 +78,18 @@ class Server:
                 'granted': True,
                 'matrix_width': self.matrix_width,
                 'matrix_height': self.matrix_height}
-            self.__send_object(response_object, source_id)
+            self.send_object(response_object, source_id)
+            logging.info("id: " + str(source_id) + " has connected")
         else:
-            self.__send_object({'message_type': 'connection_request_response', 'granted': False}, source_id)
+            self.send_object({'message_type': 'connection_request_response', 'granted': False}, source_id)
 
     def handle_print_test(self, data, source_id):
         print(str(data))
-        self.__send_object({"message_type": "print_test_response", "alive": True}, source_id)
+        self.send_object({"message_type": "print_test_response", "alive": True}, source_id)
+
+    def on_shutdown_notification(self, data, id):
+        self.approved_clients.remove(id),
+        logging.debug(str(id) + " has disconnected")
 
     def __wait(self):
         """Wait continuously for discovery requests"""
@@ -87,7 +109,7 @@ class Server:
                     'script_load_request': self.handle_script_load_request,
                     'script_data': self.handle_script_data,
                     'connection_test': self.handle_connection_test,
-                    'shutdown_notification': lambda json, id: self.approved_clients.remove(id),
+                    'shutdown_notification': self.on_shutdown_notification,
                     'print_test': self.handle_print_test
                 }.get(message_type)(msg_decoded_json, id)
 

@@ -32,7 +32,7 @@ class BroadcastReceiver:
                 received, source_address = receiver_socket.recvfrom(4096)
 
                 # decode the incoming message
-                json_recv = json.loads(received)
+                json_recv = json.loads(received.decode("utf-8"))
                 if json_recv['message_type'] == "discovery":
                     # answer with our own server identification
                     response_port = json_recv['discovery_port']
