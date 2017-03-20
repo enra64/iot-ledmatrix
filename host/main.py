@@ -3,7 +3,7 @@ import sys
 
 import iot_ledmatrix_component_tests
 from manager import Manager
-from matserial import MatrixSerial, get_connecetd_arduinos
+from matserial import MatrixSerial, get_connected_arduinos
 
 
 def test_all():
@@ -40,6 +40,6 @@ if __name__ == "__main__":
             elif option == "test":
                 test_all()
             elif option == "getports":
-                print(get_connecetd_arduinos())
+                print(get_connected_arduinos())
     else:
         run()

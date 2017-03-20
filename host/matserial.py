@@ -7,9 +7,9 @@ class MatrixProtocolException(Exception):
     pass
 
 
-def get_connecetd_arduinos():
+def get_connected_arduinos():
     ports = serial.tools.list_ports.comports()
-
+    return ports
 
 
 class MatrixSerial:
