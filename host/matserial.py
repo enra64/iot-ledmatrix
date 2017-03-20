@@ -8,9 +8,23 @@ class MatrixProtocolException(Exception):
 
 
 def get_connected_arduinos():
-    ports = serial.tools.list_ports.comports()
+    ports = list(serial.tools.list_ports.comports())
     return ports
 
+def guess_arduino():
+    ports = get_connected_arduinos()
+    probably_an_arduino = None
+    for port in ports:
+        # this is the raspberry GPIO UART, where we are not connected
+        if port.device == "/dev/ttyAMA0":
+            pass
+        # my arduino UNO
+        if port.device == "/dev/ttyACM0":
+            probably_an_arduino = port.device
+        # my arduino nano
+        if port.device == "/dev/ttyUSB0":
+            probably_an_arduino = port.device
+    return probably_an_arduino
 
 class MatrixSerial:
     """This class handles the communication with the arduino"""

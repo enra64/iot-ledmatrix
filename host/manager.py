@@ -31,10 +31,10 @@ class Manager:
     def load_script(self, script):
         self.script_handler.start_script(script, "hardcoded")
 
-    def __init__(self, arduino_interface, arduino_baud, matrix_width, matrix_height, data_port, server_name):
+    def __init__(self, arduino_interface, arduino_baud, matrix_width, matrix_height, data_port, server_name, discovery_port):
         """initializes all required modules without starting any of them. DiscoveryPort hardcoded to 54123"""
         self.matrix_serial = MatrixSerial(arduino_interface, matrix_width * matrix_height, arduino_baud)
-        self.broadcast_receiver = BroadcastReceiver(54123, data_port, server_name)
+        self.broadcast_receiver = BroadcastReceiver(discovery_port, data_port, server_name)
         self.server = Server(self.script_load_request_handler, self.script_data_handler, (matrix_width, matrix_height), data_port)
         self.canvas = Canvas(matrix_width, matrix_height)
         self.script_handler = ScriptHandler(self.canvas, self.on_draw_cycle_finished)
