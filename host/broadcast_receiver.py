@@ -5,7 +5,7 @@ import threading
 class BroadcastReceiver:
     """This class can be started and stopped. It will respond to incoming JSON discovery messages with the address and data port of the server"""
 
-    def __init__(self, discovery_port: int = 54123, data_port: int = 54122, name: str = "matserver"):
+    def __init__(self, discovery_port: int = 54123, data_port: int = 54122, name: str = "matserver", matrix_width=0, matrix_height=0):
         """
         Init the BroadcastReceiver.
 
@@ -16,7 +16,13 @@ class BroadcastReceiver:
         self.discovery_port = discovery_port
         self.data_port = data_port
         self.abort = threading.Event()
-        self.self_description = json.dumps({'data_port': data_port, 'name': name})
+        self.self_description = json.dumps(
+            {
+                'data_port': data_port,
+                'name': name,
+                'matrix_width': matrix_width,
+                'matrix_height': matrix_height
+            })
 
     def __wait(self):
         """Wait continuously for discovery requests"""

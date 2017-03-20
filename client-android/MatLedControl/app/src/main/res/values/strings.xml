@@ -9,7 +9,6 @@
     <string name="choose_server">Choose Server</string>
     <string name="searching_for_matrices">Searching for Matrices</string>
     <string name="connect_to_matrix">Connect to matrix?</string>
-    <string name="connect_to_matrix_message">The matrix will be automatically connected to whenever available.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="error_occurred">An exception occurred!</string>
@@ -31,4 +30,10 @@
     <string name="notice">Notice</string>
     <string name="no_warnings">All commands will be executed without warning.</string>
     <string name="administration">Administration</string>
+    <string name="reconnect">reconnect</string>
+    <string name="connect">connect</string>
+    <string name="connect_confirmation_message">%s will be automatically connected to when available.</string>
+    <string name="load">load</string>
+    <string name="refreshing_scripts">refreshing scripts</string>
+    <string name="manual_script_load">Manual script load</string>
 </resources>

@@ -29,6 +29,8 @@ def print_help():
     print("--guess-arduino\tget the port we would try to use as an arduino")
 
 if __name__ == "__main__":
+    iot_ledmatrix_component_tests.test_broadcast_receiver()
+    pass
     # test_all()
     try:
         options, arguments = getopt.getopt(

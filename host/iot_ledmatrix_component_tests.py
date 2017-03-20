@@ -81,7 +81,7 @@ def test_canvas_draw_pixel_line(serial):
 
 def test_broadcast_receiver():
     print(inspect.currentframe().f_code.co_name)
-    receiver = BroadcastReceiver(name="test_broadcast_receiver")
+    receiver = BroadcastReceiver(name="test_broadcast_receiver", matrix_height=10, matrix_width=10)
     receiver.start()
     time.sleep(200)
     receiver.stop()
@@ -89,7 +89,7 @@ def test_broadcast_receiver():
 
 def test_broadcast_receiver_and_server():
     print(inspect.currentframe().f_code.co_name)
-    receiver = BroadcastReceiver(name="test_broadcast_receiver_and_server")
+    receiver = BroadcastReceiver(name="test_broadcast_receiver_and_server", matrix_height=10, matrix_width=10)
     receiver.start()
 
     server = Server(

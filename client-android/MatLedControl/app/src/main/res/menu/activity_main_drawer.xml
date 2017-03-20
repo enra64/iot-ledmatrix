@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/choose_server"
+        android:id="@+id/matrix_discovery"
         android:icon="@drawable/ic_menu_manage"
         android:title="@string/choose_server" />
     <item
-        android:id="@+id/simple_drawing"
+        android:id="@+id/drawing"
         android:icon="@drawable/ic_menu_gallery"
         android:title="@string/simple_drawing" />
     <item
         android:id="@+id/administration"
         android:icon="@drawable/ic_menu_manage"
         android:title="@string/administration" />
+    <item
+        android:id="@+id/manual_script_load"
+        android:icon="@drawable/ic_menu_slideshow"
+        android:title="@string/manual_script_load" />
     <item
         android:id="@+id/camera"
         android:icon="@drawable/ic_menu_camera"

@@ -3,7 +3,6 @@
     <string name="app_name">MatLedControl</string>
     <string name="choose_server">Wähle eine Matrix</string>
     <string name="connect_to_matrix">Mit Matrix verbinden?</string>
-    <string name="connect_to_matrix_message">Wann immer möglich wird die App sich mit dieser Matrix verbinden</string>
     <string name="draw">Zeichnen</string>
     <string name="enter_text_for_sending_to_server">text an den server</string>
     <string name="error_occurred">Eine Exception ist aufgetreten!</string>
@@ -18,4 +17,16 @@
     <string name="send">Senden</string>
     <string name="simple_drawing">Zeichnen</string>
     <string name="yes">Ja</string>
+    <string name="administration">Administration</string>
+    <string name="camera">Kamera</string>
+    <string name="connect">verbinden</string>
+    <string name="connect_confirmation_message">Wenn möglich wird die App sich automatisch mit %s verbinden</string>
+    <string name="echo_test">echo-test</string>
+    <string name="load_specific_script">Script manuell laden</string>
+    <string name="no_warnings">Bestätigungsanfragen werden nicht gestellt worden sein</string>
+    <string name="notice">Hinweis</string>
+    <string name="reboot_rpi">RPi neu starten</string>
+    <string name="reconnect">wiederverbinden</string>
+    <string name="restart_matrix_control">Matrix-Kontrolle neu initialisieren</string>
+    <string name="sp_last_connected_matrix" translatable="false"></string>
 </resources>

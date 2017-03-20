@@ -46,6 +46,8 @@ public class LedMatrix implements Serializable {
         this.dataPort = dataPort;
         this.address = address;
         this.discoveryPort = discoveryPort;
+        this.width = width;
+        this.height = height;
     }
 
     public boolean remoteIsConfigured(){
@@ -129,7 +131,7 @@ public class LedMatrix implements Serializable {
         if (json.has("address")) address = json.getString("address");
         if (json.has("discovery_port")) discoveryPort = json.getInt("discovery_port");
         if (json.has("matrix_width")) width = json.getInt("matrix_width");
-        if (json.has("matrix_height")) width = json.getInt("matrix_height");
+        if (json.has("matrix_height")) height = json.getInt("matrix_height");
 
         return new LedMatrix(name, discoveryPort, port, address, width, height);
     }

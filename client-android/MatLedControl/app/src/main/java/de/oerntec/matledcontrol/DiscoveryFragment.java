@@ -2,6 +2,9 @@ package de.oerntec.matledcontrol;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -20,6 +24,7 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.List;
 
+import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
 import de.oerntec.matledcontrol.networking.discovery.DiscoveryClient;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
@@ -57,12 +62,7 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
     /**
      * The ListView we use to display available servers
      */
-    ListView mPossibleConnections;
-
-    /**
-     * List of current servers
-     */
-    List<LedMatrix> mServerList;
+    ListView mAvailableMatrices;
 
     /**
      * This discovery client enables us to find servers
@@ -73,6 +73,11 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
      * Listener for concurrent exceptions
      */
     private ExceptionListener mExceptionListener;
+
+    /**
+     * The MessageSender we use for requesting the currently connected matrix
+     */
+    private MessageSender mMessageListener;
 
     /**
      * Required empty public constructor
@@ -106,22 +111,11 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        mPossibleConnections.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                mDiscoveryListener.onDiscoveredMatrixClicked(mServerList.get(i));
-            }
-        });
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View inflated = inflater.inflate(R.layout.fragment_discovery, container, false);
-        mPossibleConnections = (ListView) inflated.findViewById(R.id.discovery_fragment_server_list);
+        mAvailableMatrices = (ListView) inflated.findViewById(R.id.discovery_fragment_server_list);
         mDiscoveryProgressBar = (ProgressBar) inflated.findViewById(R.id.discovery_fragment_progress_bar);
         mDiscoveryTextView = (TextView) inflated.findViewById(R.id.discovery_fragment_searching_text);
         return inflated;
@@ -133,6 +127,7 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
         if (context instanceof DiscoveryFragmentInteractionListener) {
             mDiscoveryListener = (DiscoveryFragmentInteractionListener) context;
             mExceptionListener = (ExceptionListener) context;
+            mMessageListener = (MessageSender) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement DiscoveryFragmentInteractionListener");
@@ -193,23 +188,15 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
 
     /**
      * Called by the ServerList in DiscoveryClient when a new server has responded
-     * @param servers list of current servers
+     * @param matrices list of currently found matrices
      */
     @Override
-    public void onServerListUpdated(List<LedMatrix> servers) {
-        mServerList = servers;             //save server names and ips for further use
-
-        final String[] stringNames = new String[servers.size()];
-
-        for (int i = 0; i < servers.size(); i++)
-            stringNames[i] = servers.get(i).name;
-
+    public void onServerListUpdated(final List<LedMatrix> matrices) {
         // since this is called from a separate thread, we must use runOnUiThread to update the lits
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                ArrayAdapter<String> serverNameAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, stringNames);
-                mPossibleConnections.setAdapter(serverNameAdapter);
+                mAvailableMatrices.setAdapter(new DiscoveryAdapter(getContext(), R.layout.matrix_list_item, matrices));
             }
         });
     }
@@ -228,12 +215,12 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
 
     @Override
     public String requestScript() {
-        throw new AssertionError("The discovery fragment does not need to load a script");
+        throw new AssertionError("The discovery fragment does not load a script.");
     }
 
     @Override
     public void onMessage(JSONObject data) {
-        Log.w("discoveryfragment", "received unexpected message");
+        Log.w("discoveryfragment", "received unexpected message: " + data.toString());
     }
 
     /**
@@ -252,5 +239,41 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
          * @param server identification of the clicked server
          */
         void onDiscoveredMatrixClicked(LedMatrix server);
+    }
+
+    private class DiscoveryAdapter extends ArrayAdapter<LedMatrix> {
+
+        DiscoveryAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<LedMatrix> objects) {
+            super(context, resource, objects);
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View itemView, @NonNull ViewGroup parent) {
+            View hmm = itemView;
+            if (hmm == null) {
+                LayoutInflater vi = LayoutInflater.from(getContext());
+                hmm = vi.inflate(R.layout.matrix_list_item, null);
+            }
+
+            final LedMatrix matrix = getItem(position);
+
+            if(matrix != null){
+                ((TextView) hmm.findViewById(R.id.large_text)).setText(matrix.name);
+                ((TextView) hmm.findViewById(R.id.small_text)).setText(matrix.width + "x" + matrix.height);
+
+                Button button = (Button) hmm.findViewById(R.id.button);
+
+                button.setText(matrix.equals(mMessageListener.getCurrentMatrix()) ? getString(R.string.reconnect) : getString(R.string.connect));
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mDiscoveryListener.onDiscoveredMatrixClicked(matrix);
+                    }
+                });
+            }
+
+            return hmm;
+        }
     }
 }

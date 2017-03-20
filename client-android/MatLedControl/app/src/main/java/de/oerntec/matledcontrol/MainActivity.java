@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -28,6 +29,7 @@ import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ZeroMatrixConnection;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 import de.oerntec.matledcontrol.script_clients.AdministrationFragment;
+import de.oerntec.matledcontrol.script_clients.ManualScriptLoadFragment;
 import de.oerntec.matledcontrol.script_clients.camera.Camera2BasicFragment;
 import de.oerntec.matledcontrol.script_clients.draw.DrawFragment;
 
@@ -47,7 +49,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * The currently active fragment, if it implements the ScriptFragmentInterface interface, or null.
      */
-    private ScriptFragmentInterface mCurrentMessageDigestor;
+    private ScriptFragmentInterface mCurrentScriptFragment;
 
     /**
      * The matrix we currently are connected to, or null.
@@ -58,23 +60,28 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // set toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // load discovery fragment per default
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        DiscoveryFragment fragment = getDiscoveryFragment();
-        mCurrentMessageDigestor = fragment;
-        fragmentManager.beginTransaction().replace(R.id.main_fragment_container, fragment).commit();
-
+        // init drawer layout
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this,
+                drawer,
+                toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
+        // init navigation view
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // load discovery fragment per default
+        loadFragment(R.id.matrix_discovery);
     }
 
     @Override
@@ -105,22 +112,23 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private DiscoveryFragment getDiscoveryFragment() {
-        return DiscoveryFragment.newInstance(Build.MODEL, DISCOVERY_PORT);
-    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
+        loadFragment(item.getItemId());
+        return true;
+    }
+
+    private void loadFragment(@IdRes int id) {
         // thx http://chrisrisner.com/Using-Fragments-with-the-Navigation-Drawer-Activity
         Fragment fragment = null;
-        switch (item.getItemId()) {
-            case R.id.simple_drawing:
+        switch (id) {
+            case R.id.drawing:
                 fragment = DrawFragment.newInstance();
                 break;
-            case R.id.choose_server:
-                fragment = getDiscoveryFragment();
+            case R.id.matrix_discovery:
+                fragment = DiscoveryFragment.newInstance(Build.MODEL, DISCOVERY_PORT);
                 break;
             case R.id.camera:
                 fragment = Camera2BasicFragment.newInstance();
@@ -128,31 +136,36 @@ public class MainActivity extends AppCompatActivity
             case R.id.administration:
                 fragment = AdministrationFragment.newInstance();
                 break;
+            case R.id.manual_script_load:
+                fragment = ManualScriptLoadFragment.newInstance();
+                break;
             default:
                 Log.w("ledmat:main", "unknown menu item clicked");
         }
 
         //noinspection ConstantConditions // according to AS, fragment is always null or always instanceof ScriptFragmentInterface, both of which seems unlikely
         if (!(fragment instanceof ScriptFragmentInterface))
-            throw new AssertionError("All main fragments must implement messagelistener!");
+            throw new AssertionError("All main fragments must implement ScriptFragmentInterface!");
 
-        mCurrentMessageDigestor = (ScriptFragmentInterface) fragment;
+        // enable later callbacks
+        mCurrentScriptFragment = (ScriptFragmentInterface) fragment;
 
         // the discovery fragment requests no script
-        if(!(fragment instanceof DiscoveryFragment)) {
-            String requestedScript = mCurrentMessageDigestor.requestScript();
+        if (!(fragment instanceof DiscoveryFragment)) {
+            String requestedScript = mCurrentScriptFragment.requestScript();
             try {
-                mConnection.sendMessage(new JSONObject("{requested_script: "+ requestedScript + "}"), "script_load_request");
+                mConnection.sendMessage(new JSONObject("{requested_script: " + requestedScript + "}"), "script_load_request");
             } catch (JSONException ignored) {
             }
         }
 
+        // actually load the fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.main_fragment_container, fragment).commit();
 
+        // finally, close the drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
-        return true;
     }
 
 
@@ -181,15 +194,14 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Called when the user clicks a matrix in the discovery fragment
+     *
      * @param server identification of the clicked server
      */
     @Override
     public void onDiscoveredMatrixClicked(final LedMatrix server) {
-        Toast.makeText(this, "chose server " + server.name, Toast.LENGTH_LONG).show();
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.connect_to_matrix);
-        builder.setMessage(R.string.connect_to_matrix_message);
+        builder.setMessage(String.format(getString(R.string.connect_confirmation_message), server.name));
         builder.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -202,9 +214,10 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * Can be called to signal exceptions across threads
+     *
      * @param origin    the instance (or, if it is a hidden instance, the known parent) that produced the exception
      * @param exception the exception that was thrown
-     * @param info additional information to help identify the problem
+     * @param info      additional information to help identify the problem
      */
     @Override
     public void onException(Object origin, Exception exception, String info) {
@@ -221,52 +234,25 @@ public class MainActivity extends AppCompatActivity
         mConnection.terminate();
     }
 
-    @Override
-    public void onConnectionRequestResponse(final LedMatrix matrix, boolean granted) {
-        if (granted) {
-            saveMatrix(matrix);
-
-            mCurrentMatrix = matrix;
-
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
-                    getSupportActionBar().setSubtitle("Connected to " + matrix.name);
-                }
-            });
-        } else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.matrix_denied_title);
-            builder.setMessage(R.string.matrix_denied_msg);
-            builder.setPositiveButton(R.string.ok, null);
-            builder.show();
-        }
-    }
-
-    @Override
-    public void onMatrixDisconnected(final LedMatrix matrix) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if(matrix != null)
-                    Toast.makeText(MainActivity.this, matrix.name + " lost connection", Toast.LENGTH_SHORT).show();
-                //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
-                getSupportActionBar().setSubtitle(null);
-            }
-        });
-        mCurrentMatrix = null;
-        mConnection.close();
-        mConnection = null;
-    }
-
+    /**
+     * Get an LedMatrix object containing all known information about the matrix the MessageSender
+     * is currently connected to
+     */
     @Override
     public LedMatrix getCurrentMatrix() {
         return mCurrentMatrix;
     }
 
+    /**
+     * send the json object as script data to the currently running script.
+     * @param json json data to be wrapped in a script_data message
+     */
     @Override
     public void sendScriptData(JSONObject json) {
+        // avoid trying to send without a valid connection
+        if(mConnection == null)
+            return;
+
         JSONObject wrapper = new JSONObject();
         try {
             wrapper.put("script_data", json);
@@ -290,10 +276,66 @@ public class MainActivity extends AppCompatActivity
     /**
      * Called when the {@link ZeroMatrixConnection} receives a message that it cannot handle
      * (like for example a matrix disconnect). In an ideal world, all such messages are script data.
+     *
      * @param data message content
      */
     @Override
     public void onMessage(JSONObject data) {
-        mCurrentMessageDigestor.onMessage(data);
+        mCurrentScriptFragment.onMessage(data);
+    }
+
+
+    /**
+     * Called when matrix answered the connection request
+     *
+     * @param matrix  the matrix we wanted to connect to
+     * @param granted true if the connection was granted, false otherwise
+     */
+    @Override
+    public void onConnectionRequestResponse(final LedMatrix matrix, boolean granted) {
+        if (granted) {
+            saveMatrix(matrix);
+
+            mCurrentMatrix = matrix;
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
+                    getSupportActionBar().setSubtitle("Connected to " + matrix.name);
+                }
+            });
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.matrix_denied_title);
+            builder.setMessage(R.string.matrix_denied_msg);
+            builder.setPositiveButton(R.string.ok, null);
+            builder.show();
+        }
+    }
+
+    /**
+     * Called when matrix has sent a shutdown notification.
+     *
+     * @param matrix the matrix that went offline
+     */
+    @Override
+    public void onMatrixDisconnected(final LedMatrix matrix) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (matrix != null)
+                    Toast.makeText(MainActivity.this, matrix.name + " lost connection", Toast.LENGTH_SHORT).show();
+                //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
+                getSupportActionBar().setSubtitle(null);
+            }
+        });
+        mCurrentMatrix = null;
+
+        if(mConnection != null)
+            mConnection.close();
+        mConnection = null;
+
+        loadFragment(R.id.matrix_discovery);
     }
 }

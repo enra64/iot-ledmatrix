@@ -47,9 +47,9 @@ class ScriptRunner:
     def on_client_disconnected(self, client_id):
         self.script.on_client_disconnected(client_id)
 
-    def __init__(self, script:str, canvas: Canvas, draw_cycle_finished_callback, send_object, send_object_to_all):
+    def __init__(self, script:str, canvas: Canvas, draw_cycle_finished_callback, send_object, send_object_to_all, start_script):
         module = import_module('scripts.' + script)
-        self.script = getattr(module, script)(canvas, send_object, send_object_to_all)
+        self.script = getattr(module, script)(canvas, send_object, send_object_to_all, start_script)
         self.process = threading.Thread(target=self.runner, args=(canvas,draw_cycle_finished_callback))
         self.abort = threading.Event()
         self.last_exec = 0
@@ -71,7 +71,7 @@ class ScriptHandler:
         if self.is_script_running:
             self.stop_current_script()
 
-        self.current_script_runner = ScriptRunner(script_name, self.canvas, self.draw_cycle_finished_callback, self.send_object, self.send_object_to_all)
+        self.current_script_runner = ScriptRunner(script_name, self.canvas, self.draw_cycle_finished_callback, self.send_object, self.send_object_to_all, self.start_script)
         logging.info("START: " + script_name)
         self.current_script_runner.start()
         self.is_script_running = True

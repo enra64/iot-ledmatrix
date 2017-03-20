@@ -8,7 +8,7 @@ import org.json.JSONObject;
 public interface ScriptFragmentInterface {
     /**
      * The script the fragment wants the server to load.
-     * @return the name of the script minus ".py" as well as the name of the contained class
+     * @return the name of the script minus ".py" as well as the name of the contained class. "null" is reserved.
      */
     String requestScript();
 

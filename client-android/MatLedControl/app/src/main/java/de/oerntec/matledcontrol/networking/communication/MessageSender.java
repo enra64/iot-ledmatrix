@@ -7,6 +7,10 @@ import org.json.JSONObject;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 
 public interface MessageSender {
+    /**
+     * Get an LedMatrix object containing all known information about the matrix the MessageSender
+     * is currently connected to
+     */
     LedMatrix getCurrentMatrix();
 
     /**
