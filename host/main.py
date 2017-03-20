@@ -35,11 +35,17 @@ if __name__ == "__main__":
     if len(options) > 0:
         for option, argument in options:
             if option == "-h":
-                print(
-                    "main.py; \n-h: this help \n--test: run all tests\n--getports: return list of comports. might include arduinos. ")
-            elif option == "test":
+                print("-h\t\t\tthis help")
+                print("--getports\tlist of comports. might include arduinos")
+                print("--test\t\trun tests")
+            elif option == "--test":
                 test_all()
-            elif option == "getports":
-                print(get_connected_arduinos())
+            elif option == "--getports":
+                arduinos = get_connected_arduinos()
+                if len(arduinos) == 0:
+                    print("no arduinos detected")
+                else:
+                    print("the following arduinos were detected")
+                    print(get_connected_arduinos())
     else:
         run()
