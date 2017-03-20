@@ -8,4 +8,5 @@ import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 
 public interface ConnectionListener {
     void onConnectionRequestResponse(LedMatrix matrix, boolean granted);
+    void onMatrixDisconnected(LedMatrix matrix);
 }

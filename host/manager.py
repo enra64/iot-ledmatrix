@@ -37,4 +37,4 @@ class Manager:
         self.broadcast_receiver = BroadcastReceiver(discovery_port, data_port, server_name)
         self.server = Server(self.script_load_request_handler, self.script_data_handler, (matrix_width, matrix_height), data_port)
         self.canvas = Canvas(matrix_width, matrix_height)
-        self.script_handler = ScriptHandler(self.canvas, self.on_draw_cycle_finished)
+        self.script_handler = ScriptHandler(self.canvas, self.on_draw_cycle_finished, self.server.send_object, self.server.send_object_all)

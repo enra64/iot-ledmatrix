@@ -24,4 +24,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="camera">Camera</string>
+    <string name="load_specific_script">load specific script</string>
+    <string name="restart_matrix_control">restart matrix control</string>
+    <string name="echo_test">echo test</string>
+    <string name="reboot_rpi">reboot rpi</string>
+    <string name="notice">Notice</string>
+    <string name="no_warnings">All commands will be executed without warning.</string>
 </resources>

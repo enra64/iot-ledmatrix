@@ -94,9 +94,14 @@ class Canvas:
         """Load a font to be used for rendering text"""
         self.font = Font(path, size)
 
-    def clear(self):
-        """ Zero all colors to black """
-        self.data_buffer = bytearray(self.buffer_length)
+    def clear(self, r = 0, g = 0, b = 0):
+        """Set all pixels to some color"""
+        if r == 0 and g == 0 and b == 0:
+            self.data_buffer = bytearray(self.buffer_length)
+        else:
+            for i in range(self.led_count):
+                self.data_buffer[3 * i::3] = r, g, b
+
 
     def draw_pixel(self, x: int, y: int, r: int, g: int, b: int):
         """

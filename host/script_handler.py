@@ -41,9 +41,15 @@ class ScriptRunner:
     def on_data(self, data, source_id):
         self.script.on_data(data, source_id)
 
-    def __init__(self, script:str, canvas: Canvas, draw_cycle_finished_callback):
+    def on_new_client(self, client_id):
+        self.script.on_new_client(client_id)
+
+    def on_client_disconnected(self, client_id):
+        self.script.on_client_disconnected(client_id)
+
+    def __init__(self, script:str, canvas: Canvas, draw_cycle_finished_callback, send_object, send_object_to_all):
         module = import_module('scripts.' + script)
-        self.script = getattr(module, script)(canvas)
+        self.script = getattr(module, script)(canvas, send_object, send_object_to_all)
         self.process = threading.Thread(target=self.runner, args=(canvas,draw_cycle_finished_callback))
         self.abort = threading.Event()
         self.last_exec = 0
@@ -51,11 +57,13 @@ class ScriptRunner:
 
 
 class ScriptHandler:
-    def __init__(self, canvas: Canvas, draw_cycle_finish_callback):
+    def __init__(self, canvas: Canvas, draw_cycle_finish_callback, send_object, send_object_to_all):
         self.current_script_runner = None
         self.canvas = canvas
         self.is_script_running = False
         self.draw_cycle_finished_callback = draw_cycle_finish_callback
+        self.send_object = send_object
+        self.send_object_to_all = send_object_to_all
 
     def start_script(self, script_name: str, source_id):
         """Will load the class in the scripts/ folder that has the given name in the file with the same name.
@@ -63,7 +71,7 @@ class ScriptHandler:
         if self.is_script_running:
             self.stop_current_script()
 
-        self.current_script_runner = ScriptRunner(script_name, self.canvas, self.draw_cycle_finished_callback)
+        self.current_script_runner = ScriptRunner(script_name, self.canvas, self.draw_cycle_finished_callback, self.send_object, self.send_object_to_all)
         logging.info("starting script: " + script_name)
         self.current_script_runner.start()
         self.is_script_running = True

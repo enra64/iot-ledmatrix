@@ -27,9 +27,7 @@ import de.oerntec.matledcontrol.networking.communication.ConnectionListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ZeroMatrixConnection;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
-import de.oerntec.matledcontrol.script_clients.EchoFragment;
 import de.oerntec.matledcontrol.script_clients.camera.Camera2BasicFragment;
-import de.oerntec.matledcontrol.script_clients.camera.CameraFragment;
 import de.oerntec.matledcontrol.script_clients.draw.DrawFragment;
 
 public class MainActivity extends AppCompatActivity
@@ -120,9 +118,6 @@ public class MainActivity extends AppCompatActivity
             case R.id.simple_drawing:
                 fragment = DrawFragment.newInstance();
                 break;
-            case R.id.print_tester:
-                fragment = EchoFragment.newInstance();
-                break;
             case R.id.choose_server:
                 fragment = getDiscoveryFragment();
                 break;
@@ -155,9 +150,6 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-
-
 
 
     /**
@@ -235,7 +227,7 @@ public class MainActivity extends AppCompatActivity
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    //noinspection ConstantConditions // should be set, see onCreate
+                    //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
                     getSupportActionBar().setSubtitle("Connected to " + matrix.name);
                 }
             });
@@ -246,6 +238,20 @@ public class MainActivity extends AppCompatActivity
             builder.setPositiveButton(R.string.ok, null);
             builder.show();
         }
+    }
+
+    @Override
+    public void onMatrixDisconnected(LedMatrix matrix) {
+        mCurrentMatrix = null;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
+                getSupportActionBar().setSubtitle(null);
+            }
+        });
+        mConnection.close();
+        mConnection = null;
     }
 
     @Override
@@ -275,6 +281,11 @@ public class MainActivity extends AppCompatActivity
         throw new AssertionError("stub!");
     }
 
+    /**
+     * Called when the {@link ZeroMatrixConnection} receives a message that it cannot handle
+     * (like for example a matrix disconnect). In an ideal world, all such messages are script data.
+     * @param data message content
+     */
     @Override
     public void onMessage(JSONObject data) {
         mCurrentMessageDigestor.onMessage(data);

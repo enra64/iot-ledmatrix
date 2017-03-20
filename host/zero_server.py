@@ -83,13 +83,9 @@ class Server:
         else:
             self.send_object({'message_type': 'connection_request_response', 'granted': False}, source_id)
 
-    def handle_print_test(self, data, source_id):
-        print(str(data))
-        self.send_object({"message_type": "print_test_response", "alive": True}, source_id)
-
-    def on_shutdown_notification(self, data, id):
-        self.approved_clients.remove(id),
-        logging.debug(str(id) + " has disconnected")
+    def on_client_shutdown(self, data, client_id):
+        self.approved_clients.remove(client_id),
+        logging.debug(str(client_id) + " has disconnected")
 
     def __wait(self):
         """Wait continuously for discovery requests"""
@@ -109,8 +105,7 @@ class Server:
                     'script_load_request': self.handle_script_load_request,
                     'script_data': self.handle_script_data,
                     'connection_test': self.handle_connection_test,
-                    'shutdown_notification': self.on_shutdown_notification,
-                    'print_test': self.handle_print_test
+                    'shutdown_notification': self.on_client_shutdown
                 }.get(message_type)(msg_decoded_json, id)
 
         self.socket.close()

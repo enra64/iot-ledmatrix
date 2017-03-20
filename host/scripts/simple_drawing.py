@@ -1,9 +1,9 @@
 from matgraphics import Canvas
 
 class simple_drawing:
-    def __init__(self, canvas):
-        print("simple_drawing started")
+    def __init__(self, canvas, send_object, send_object_to_all):
         self.client_data = None
+        canvas.clear()
 
     def update(self, canvas):
         pass
@@ -20,4 +20,4 @@ class simple_drawing:
         #print(repr(canvas))
 
     def exit(self):
-        print("print_tester: exiting")
+        pass

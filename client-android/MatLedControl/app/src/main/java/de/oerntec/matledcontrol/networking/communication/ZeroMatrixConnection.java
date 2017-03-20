@@ -60,6 +60,8 @@ public class ZeroMatrixConnection extends Thread {
                     mMatrix.width = recv_json.getInt("matrix_width");
                     mMatrix.height = recv_json.getInt("matrix_height");
                     mConnectionListener.onConnectionRequestResponse(mMatrix, recv_json.getBoolean("granted"));
+                } else if (recv_json.getString("message_type").equals("shutdown_notification")){
+                    mConnectionListener.onMatrixDisconnected(mMatrix);
                 }
 
                 mListener.onMessage(recv_json);

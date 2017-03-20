@@ -5,10 +5,6 @@
         android:icon="@drawable/ic_menu_manage"
         android:title="@string/choose_server" />
     <item
-        android:id="@+id/print_tester"
-        android:icon="@drawable/ic_menu_send"
-        android:title="@string/print_tester_debug" />
-    <item
         android:id="@+id/simple_drawing"
         android:icon="@drawable/ic_menu_gallery"
         android:title="@string/simple_drawing" />
