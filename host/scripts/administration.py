@@ -24,7 +24,8 @@ class administration:
             self.send_object({"message_type": "print_test_response", "received": json}, source_id)
         elif command == "reboot_rpi":
             logging.info("rebooting pi on command")
-            os.system('reboot')
+            CustomAtExit().trigger()
+            os.system('/sbin/reboot')
         elif command == "restart_matrix_server":
             logging.info("restarting server script. somewhat finicky...")
             CustomAtExit().trigger()
