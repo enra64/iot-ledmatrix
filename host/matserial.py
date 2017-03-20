@@ -1,8 +1,15 @@
 import serial, time
+import serial.tools.list_ports
+
 
 class MatrixProtocolException(Exception):
     """Exception raised when the arduino did not follow the communication protocol as expected"""
     pass
+
+
+def get_connecetd_arduinos():
+    ports = serial.tools.list_ports.comports()
+
 
 
 class MatrixSerial:
