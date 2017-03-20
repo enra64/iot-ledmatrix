@@ -27,6 +27,7 @@ import de.oerntec.matledcontrol.networking.communication.ConnectionListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ZeroMatrixConnection;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
+import de.oerntec.matledcontrol.script_clients.AdministrationFragment;
 import de.oerntec.matledcontrol.script_clients.camera.Camera2BasicFragment;
 import de.oerntec.matledcontrol.script_clients.draw.DrawFragment;
 
@@ -123,6 +124,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.camera:
                 fragment = Camera2BasicFragment.newInstance();
+                break;
+            case R.id.administration:
+                fragment = AdministrationFragment.newInstance();
                 break;
             default:
                 Log.w("ledmat:main", "unknown menu item clicked");
@@ -241,15 +245,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onMatrixDisconnected(LedMatrix matrix) {
-        mCurrentMatrix = null;
+    public void onMatrixDisconnected(final LedMatrix matrix) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if(matrix != null)
+                    Toast.makeText(MainActivity.this, matrix.name + " lost connection", Toast.LENGTH_SHORT).show();
                 //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
                 getSupportActionBar().setSubtitle(null);
             }
         });
+        mCurrentMatrix = null;
         mConnection.close();
         mConnection = null;
     }

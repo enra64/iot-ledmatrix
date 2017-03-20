@@ -72,7 +72,7 @@ class ScriptHandler:
             self.stop_current_script()
 
         self.current_script_runner = ScriptRunner(script_name, self.canvas, self.draw_cycle_finished_callback, self.send_object, self.send_object_to_all)
-        logging.info("starting script: " + script_name)
+        logging.info("START: " + script_name)
         self.current_script_runner.start()
         self.is_script_running = True
 
@@ -83,6 +83,6 @@ class ScriptHandler:
         self.current_script_runner.on_data(data, source_id)
 
     def stop_current_script(self):
-        logging.info("stopping script: " + self.current_script_runner.script_name)
+        logging.info("STOP: " + self.current_script_runner.script_name)
         self.current_script_runner.stop()
         self.is_script_running = False

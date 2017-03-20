@@ -1,4 +1,7 @@
+import logging
+
 from broadcast_receiver import BroadcastReceiver
+from custom_atexit import CustomAtExit
 from matgraphics import Canvas
 from matserial import MatrixSerial
 from script_handler import ScriptHandler
@@ -23,13 +26,17 @@ class Manager:
 
     def stop(self):
         "gracefully stop all modules"
+        self.script_handler.stop_current_script()
         self.matrix_serial.stop()
         self.broadcast_receiver.stop()
         self.server.stop()
-        self.script_handler.stop_current_script()
+        logging.info("manager shut down")
 
     def load_script(self, script):
         self.script_handler.start_script(script, "hardcoded")
+
+    def on_shutdown(self):
+        self.stop()
 
     def __init__(self, arduino_interface, arduino_baud, matrix_width, matrix_height, data_port, server_name, discovery_port):
         """initializes all required modules without starting any of them. DiscoveryPort hardcoded to 54123"""
@@ -38,3 +45,7 @@ class Manager:
         self.server = Server(self.script_load_request_handler, self.script_data_handler, (matrix_width, matrix_height), data_port)
         self.canvas = Canvas(matrix_width, matrix_height)
         self.script_handler = ScriptHandler(self.canvas, self.on_draw_cycle_finished, self.server.send_object, self.server.send_object_all)
+
+        CustomAtExit().register(self.stop)
+
+        logging.info("manager init complete")

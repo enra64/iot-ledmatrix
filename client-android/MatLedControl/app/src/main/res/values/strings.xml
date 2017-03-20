@@ -30,4 +30,5 @@
     <string name="reboot_rpi">reboot rpi</string>
     <string name="notice">Notice</string>
     <string name="no_warnings">All commands will be executed without warning.</string>
+    <string name="administration">Administration</string>
 </resources>

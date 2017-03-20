@@ -1,17 +1,12 @@
 import json
 import threading
-import atexit
 import logging
 import zmq
 
 
 class Server:
-    def __on_host_shutdown(self):
-        logging.info("shutdown, notifying clients...")
-        object = {"message_type": "shutdown_notification"}
-        self.send_object_all(object)
 
-    def __init__(self, script_load_request_handler, script_data_handler, matrix_dimensions = (156, 1), local_data_port: int = 54122, register_shutdown_hook: bool = True):
+    def __init__(self, script_load_request_handler, script_data_handler, matrix_dimensions = (156, 1), local_data_port: int = 54122):
         self.logger = logging.getLogger("ledmatrix.server")
 
         # local data port
@@ -35,10 +30,6 @@ class Server:
         # zmq socket creation
         context = zmq.Context.instance()
         self.socket = context.socket(zmq.ROUTER)
-
-        # shutdown hook for notifying clients
-        if register_shutdown_hook:
-            atexit.register(self.__on_host_shutdown)
 
     def handle_script_load_request(self, data, source_id):
         requested_script = data['requested_script']
@@ -116,4 +107,9 @@ class Server:
 
     def stop(self):
         """stop the receiver thread"""
+        # notify clients
+        object = {"message_type": "shutdown_notification"}
+        self.send_object_all(object)
+
+        # stop receiver thread
         self.abort.set()

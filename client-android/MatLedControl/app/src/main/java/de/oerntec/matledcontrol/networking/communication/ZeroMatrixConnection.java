@@ -6,6 +6,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.channels.ClosedSelectorException;
+
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 import zmq.ZMQ;
 
@@ -52,8 +54,9 @@ public class ZeroMatrixConnection extends Thread {
     @Override
     public void run() {
         while(mContinue) {
-            String recv = mSocket.recvStr();
+            String recv = "";
             try {
+                recv = mSocket.recvStr();
                 JSONObject recv_json = new JSONObject(recv);
 
                 if (recv_json.getString("message_type").equals("connection_request_response")){
@@ -66,7 +69,10 @@ public class ZeroMatrixConnection extends Thread {
 
                 mListener.onMessage(recv_json);
             } catch (JSONException e) {
-                Log.w("zeromatrixcoms", "undecipherable JSON received " + recv);
+                Log.w("zmatrixcomm", "undecipherable JSON received " + recv);
+            } catch (ClosedSelectorException e) {
+                Log.w("zmatrixcomm", "closed selector exception occurred!");
+                e.printStackTrace();
             }
         }
     }

@@ -101,7 +101,6 @@ if __name__ == "__main__":
     logging.basicConfig(filename='ledmatrix.log', level=log_level, datefmt='%d.%m.%Y %H:%M:%S')
 
     if run:
-        logging.info("starting full operations")
         manager = Manager(matrix_port, 115200, matrix_width, matrix_height, matrix_data_port, matrix_name, matrix_discovery_port)
         manager.start()
         manager.load_script("gameoflife")

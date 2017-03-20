@@ -26,7 +26,7 @@ import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface
 public class AdministrationFragment extends Fragment implements ScriptFragmentInterface, View.OnClickListener {
     private MessageSender mMessageSender;
     private ExceptionListener mExceptionListener;
-    private Console mConsole;
+    private Button mRebootButton, mEchoButton, mRestartScriptButton;
 
     public AdministrationFragment() {
         // Required empty public constructor
@@ -51,6 +51,12 @@ public class AdministrationFragment extends Fragment implements ScriptFragmentIn
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_administration, container, false);
+        mRebootButton = (Button) v.findViewById(R.id.admin_reboot_rpi_button);
+        mRebootButton.setOnClickListener(this);
+        mEchoButton = (Button) v.findViewById(R.id.admin_echo_test_button);
+        mEchoButton.setOnClickListener(this);
+        mRestartScriptButton = (Button) v.findViewById(R.id.admin_restart_matrix_control);
+        mRestartScriptButton.setOnClickListener(this);
         return v;
     }
 
@@ -66,6 +72,8 @@ public class AdministrationFragment extends Fragment implements ScriptFragmentIn
             builder.setMessage(R.string.no_warnings);
             builder.setPositiveButton(R.string.ok, null);
             builder.show();
+
+            Console.clear();
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");

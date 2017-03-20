@@ -9,6 +9,10 @@
         android:icon="@drawable/ic_menu_gallery"
         android:title="@string/simple_drawing" />
     <item
+        android:id="@+id/administration"
+        android:icon="@drawable/ic_menu_manage"
+        android:title="@string/administration" />
+    <item
         android:id="@+id/camera"
         android:icon="@drawable/ic_menu_camera"
         android:title="@string/camera" />

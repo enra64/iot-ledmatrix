@@ -66,11 +66,19 @@ class MatrixSerial:
         """
         self.was_connected = True
 
+        logging.info("beginning arduino connection attempt")
+
         # begin serial connection
         self.serial = serial.Serial(self.interface, self.baud, timeout=timeout)
+        self.serial.flushInput()
+        self.serial.flushOutput()
 
         # wait for arduino reset
         time.sleep(2)
+
+        # flushing more cant hurt right
+        self.serial.flushInput()
+        self.serial.flushOutput()
 
         # begin handshake
         self.serial.write(b'hello')
@@ -78,9 +86,11 @@ class MatrixSerial:
         # wait for response
         response = self.serial.read(3)
 
-        if response != b'SAM':
+        if response != b'SAM' and response != b'kSA':
             logging.exception("Handshake failed: expected b'SAM', got " + str(response))
             raise MatrixProtocolException("Handshake failed: expected b'SAM', got " + str(response))
+
+        logging.info("successfully connected to arduino")
 
     def stop(self):
         self.serial.close()
@@ -125,11 +135,15 @@ class MatrixSerial:
         # we need to wait some time before writing the next set of data. testing required for better accuracy
         time.sleep(0.009)
 
+        ack = ""
+
         # write out internal buffer to arduino
         self.serial.write(self.buffer)
 
         # read arduino acknowledgement char
         ack = self.serial.read(1)
+
+
 
         # check acknowledgement char correctness
         if ack != b'k':
