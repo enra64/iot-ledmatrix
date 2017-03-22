@@ -22,16 +22,20 @@ def test_all():
     iot_ledmatrix_component_tests.test_broadcast_receiver()
     iot_ledmatrix_component_tests.test_broadcast_receiver_and_server()
 
+
 def print_help():
-    print("-h\t\t\t\tthis help")
-    print("--getports\t\tlist of comports. might include arduinos")
-    print("--test\t\t\trun tests")
-    print("--guess-arduino\tget the port we would try to use as an arduino")
+    print("-h                     this help")
+    print("--getports             list of comports. might include arduinos")
+    print("--set-arduino-port=    set the port the arduino is connected on manually.")
+    print("--name=                set the name the ledmatrix will advertise itself as")
+    print("--width=               horizontal number of leds ")
+    print("--height=              vertical number of leds ")
+    print("--data-port=           set the data port this ledmatrix will use")
+    print("--discovery-port=      set the discovery port this ledmatrix will use")
+    print("--loglevel=            set python logging loglevel")
+
 
 if __name__ == "__main__":
-    iot_ledmatrix_component_tests.test_broadcast_receiver()
-    pass
-    # test_all()
     try:
         options, arguments = getopt.getopt(
             sys.argv[1:],
@@ -39,8 +43,7 @@ if __name__ == "__main__":
             [
                 "test",
                 "getports",
-                "guess-arduino",
-                "--set-port=",
+                "--set-arduino-port=",
                 "--name=",
                 "--width=",
                 "--height=",
@@ -53,8 +56,7 @@ if __name__ == "__main__":
         print_help()
         sys.exit(2)
 
-
-    matrix_port = "/dev/ttyACM0"
+    matrix_port = None
     matrix_name = "ledmatrix"
     matrix_width = 10
     matrix_height = 10
@@ -82,9 +84,7 @@ if __name__ == "__main__":
                     print("the following arduinos were detected")
                     for port in arduinos:
                         print(port)
-            elif option == "--guess-arduino":
-                matrix_port = guess_arduino()
-            elif option == "--set-port":
+            elif option == "--set-arduino-port":
                 matrix_port = argument
             elif option == "--name":
                 matrix_name = argument
@@ -99,10 +99,14 @@ if __name__ == "__main__":
             elif option == "--loglevel":
                 log_level = getattr(logging, argument.upper(), None)
 
+    if matrix_port is None:
+        matrix_port = guess_arduino()
+
     # set logging level
     logging.basicConfig(filename='ledmatrix.log', level=log_level, datefmt='%d.%m.%Y %H:%M:%S')
 
     if run:
-        manager = Manager(matrix_port, 115200, matrix_width, matrix_height, matrix_data_port, matrix_name, matrix_discovery_port)
+        manager = Manager(matrix_port, 115200, matrix_width, matrix_height, matrix_data_port, matrix_name,
+                          matrix_discovery_port)
         manager.start()
         manager.load_script("gameoflife")

@@ -6,6 +6,7 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ClosedSelectorException;
 
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
@@ -72,6 +73,9 @@ public class ZeroMatrixConnection extends Thread {
                 Log.w("zmatrixcomm", "undecipherable JSON received " + recv);
             } catch (ClosedSelectorException e) {
                 Log.w("zmatrixcomm", "closed selector exception occurred!");
+                e.printStackTrace();
+            } catch (zmq.ZError.IOException e) {
+                Log.w("zmatrixcomm", "ZError.IOException occurred!");
                 e.printStackTrace();
             }
         }

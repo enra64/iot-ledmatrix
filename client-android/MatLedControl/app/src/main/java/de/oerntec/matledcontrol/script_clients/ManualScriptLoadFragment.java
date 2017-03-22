@@ -1,7 +1,6 @@
 package de.oerntec.matledcontrol.script_clients;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
@@ -14,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -26,7 +26,6 @@ import java.util.List;
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
-import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 
 public class ManualScriptLoadFragment extends Fragment implements ScriptFragmentInterface {
     /**
@@ -34,6 +33,8 @@ public class ManualScriptLoadFragment extends Fragment implements ScriptFragment
      */
     private MessageSender mMessageSender;
     private ListView mList;
+    private TextView mRefreshingText;
+    private ProgressBar mRefreshingSpinner;
 
     public ManualScriptLoadFragment() {
         // Required empty public constructor
@@ -58,6 +59,8 @@ public class ManualScriptLoadFragment extends Fragment implements ScriptFragment
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_manual_script_load, container, false);
         mList = (ListView) v.findViewById(R.id.fragment_manual_script_load_list);
+        mRefreshingSpinner = (ProgressBar) v.findViewById(R.id.fragment_manual_script_load_querying_spinner);
+        mRefreshingText = (TextView) v.findViewById(R.id.fragment_manual_script_load_querying_text);
         return v;
     }
 
@@ -105,11 +108,13 @@ public class ManualScriptLoadFragment extends Fragment implements ScriptFragment
             for(int i = 0; i < scriptList.length(); i++)
                 scripts.add(scriptList.getString(i));
 
-            // display in list
+            // display scripts, hide "querying..."
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     mList.setAdapter(new ScriptAdapter(getContext(), R.layout.script_list_item, scripts));
+                    mRefreshingSpinner.setVisibility(View.GONE);
+                    mRefreshingText.setVisibility(View.GONE);
                 }
             });
         } catch (JSONException ignored) {

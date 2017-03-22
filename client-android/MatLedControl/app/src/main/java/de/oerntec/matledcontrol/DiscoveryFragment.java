@@ -241,6 +241,10 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
         void onDiscoveredMatrixClicked(LedMatrix server);
     }
 
+    public void refreshMatrices(){
+        ((DiscoveryAdapter) mAvailableMatrices.getAdapter()).notifyDataSetChanged();
+    }
+
     private class DiscoveryAdapter extends ArrayAdapter<LedMatrix> {
 
         DiscoveryAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<LedMatrix> objects) {

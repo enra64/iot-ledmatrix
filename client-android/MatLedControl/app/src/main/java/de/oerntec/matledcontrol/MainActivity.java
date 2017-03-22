@@ -303,6 +303,8 @@ public class MainActivity extends AppCompatActivity
                 public void run() {
                     //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
                     getSupportActionBar().setSubtitle("Connected to " + matrix.name);
+                    if(mCurrentScriptFragment instanceof DiscoveryFragment)
+                        ((DiscoveryFragment) mCurrentScriptFragment).refreshMatrices();
                 }
             });
         } else {
@@ -321,6 +323,12 @@ public class MainActivity extends AppCompatActivity
      */
     @Override
     public void onMatrixDisconnected(final LedMatrix matrix) {
+        mCurrentMatrix = null;
+
+        if(mConnection != null)
+            mConnection.close();
+        mConnection = null;
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -328,14 +336,8 @@ public class MainActivity extends AppCompatActivity
                     Toast.makeText(MainActivity.this, matrix.name + " lost connection", Toast.LENGTH_SHORT).show();
                 //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
                 getSupportActionBar().setSubtitle(null);
+                loadFragment(R.id.matrix_discovery);
             }
         });
-        mCurrentMatrix = null;
-
-        if(mConnection != null)
-            mConnection.close();
-        mConnection = null;
-
-        loadFragment(R.id.matrix_discovery);
     }
 }

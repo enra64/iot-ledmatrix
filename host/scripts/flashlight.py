@@ -1,0 +1,21 @@
+from matgraphics import Canvas
+
+class flashlight:
+    def __init__(self, canvas, send_object, send_object_to_all, start_script):
+        self.enable = True
+
+    def update(self, canvas):
+        pass
+
+    def draw(self, canvas: Canvas):
+        if self.enable:
+            canvas.clear(255, 255, 255)
+        else:
+            canvas.clear(0, 0, 0)
+
+    def on_data(self, json, source_id):
+        if 'enable' in json:
+            self.enable = json['enable']
+
+    def exit(self):
+        pass

@@ -9,7 +9,7 @@ from matgraphics import Canvas
 
 
 class administration:
-    def __init__(self, canvas, send_object, send_object_to_all):
+    def __init__(self, canvas, send_object, send_object_to_all, start_script):
         self.send_object = send_object
 
     def update(self, canvas):

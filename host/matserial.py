@@ -20,12 +20,13 @@ def guess_arduino():
         if port.device == "/dev/ttyAMA0":
             pass
         # my arduino UNO
-        if port.device == "/dev/ttyACM0":
+        elif "/dev/ttyACM" in port.device:
             probably_an_arduino = port.device
         # my arduino nano
-        if port.device == "/dev/ttyUSB0":
+        elif "/dev/ttyUSB" in port.device:
             probably_an_arduino = port.device
     return probably_an_arduino
+
 
 class MatrixSerial:
     """This class handles the communication with the arduino"""
@@ -66,7 +67,7 @@ class MatrixSerial:
         """
         self.was_connected = True
 
-        logging.info("beginning arduino connection attempt")
+        logging.info("beginning arduino connection attempt to " + self.interface)
 
         # begin serial connection
         self.serial = serial.Serial(self.interface, self.baud, timeout=timeout)
@@ -116,9 +117,9 @@ class MatrixSerial:
         :raises: MatrixProtocolException if the arduino did not acknowledge the updated data
         """
         # ensure correct data length
-        assert len(data) == len(self.buffer), "bad data length! len(data) should be " + str(len(self.buffer))
+        assert len(data) == len(self.buffer), "bad data length! len(data) should be " + str(len(self.buffer)) + ", is " + str(len(data))
         if len(data) != len(self.buffer):
-            logging.critical("bad data length! len(data) should be " + str(len(self.buffer)))
+            logging.critical("bad data length! len(data) should be " + str(len(self.buffer)) + ", is " + str(len(data)))
 
         # copy buffer
         self.buffer[:] = data

@@ -21,9 +21,13 @@ class ScriptRunner:
             self.last_exec = time.time()
 
             # call cycle
-            self.script.update(canvas)
-            self.script.draw(canvas)
-            draw_cycle_finished_callback()
+            try:
+                self.script.update(canvas)
+                self.script.draw(canvas)
+                draw_cycle_finished_callback()
+            except (AssertionError, Exception) as detail:
+                logging.error(self.script_name + ": caused an exception: " + str(detail) + ", execution will be stopped.")
+                self.abort.set()
 
         self.script.exit()
 
@@ -39,7 +43,10 @@ class ScriptRunner:
             print(self.script_name + " stopped before starting")
 
     def on_data(self, data, source_id):
-        self.script.on_data(data, source_id)
+        try:
+            self.script.on_data(data, source_id)
+        except Exception as detail:
+            logging.error(self.script_name + ": on_data caused an exception: " + str(detail))
 
     def on_new_client(self, client_id):
         self.script.on_new_client(client_id)
@@ -49,11 +56,15 @@ class ScriptRunner:
 
     def __init__(self, script:str, canvas: Canvas, draw_cycle_finished_callback, send_object, send_object_to_all, start_script):
         module = import_module('scripts.' + script)
-        self.script = getattr(module, script)(canvas, send_object, send_object_to_all, start_script)
-        self.process = threading.Thread(target=self.runner, args=(canvas,draw_cycle_finished_callback))
-        self.abort = threading.Event()
-        self.last_exec = 0
-        self.script_name = script
+        try:
+            self.script = getattr(module, script)(canvas, send_object, send_object_to_all, start_script)
+        except Exception as detail:
+            logging.error(script + ": __init__ caused an exception: " + str(detail))
+        else:
+            self.process = threading.Thread(target=self.runner, args=(canvas,draw_cycle_finished_callback))
+            self.abort = threading.Event()
+            self.last_exec = 0
+            self.script_name = script
 
 
 class ScriptHandler:

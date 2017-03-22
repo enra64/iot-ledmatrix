@@ -100,8 +100,7 @@ class Canvas:
             self.data_buffer = bytearray(self.buffer_length)
         else:
             for i in range(self.led_count):
-                self.data_buffer[3 * i::3] = r, g, b
-
+                self.data_buffer[3 * i:3 * i + 3] = [r, g, b]
 
     def draw_pixel(self, x: int, y: int, r: int, g: int, b: int):
         """
