@@ -129,7 +129,7 @@ public class LogFragment extends Fragment implements ScriptFragmentInterface {
                                 color = ContextCompat.getColor(context, R.color.log_info);
                             else if (line.contains("WARNING"))
                                 color = ContextCompat.getColor(context, R.color.log_warning);
-                            else if (line.contains("ERROR"))
+                            else if (line.contains("ERROR") || line.contains("Exception") || line.contains("Error"))
                                 color = ContextCompat.getColor(context, R.color.log_error);
                             else if (line.contains("CRITICAL"))
                                 color = ContextCompat.getColor(context, R.color.log_criticial);

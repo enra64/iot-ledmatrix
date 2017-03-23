@@ -52,9 +52,13 @@ class BroadcastReceiver:
 
         receiver_socket.close()
 
+    def join(self):
+        self.receiver_thread.join()
+
     def start(self):
         """start the receiver thread"""
-        threading.Thread(target=self.__wait).start()
+        self.receiver_thread = threading.Thread(target=self.__wait, name="broadcast receiver")
+        self.receiver_thread.start()
 
     def stop(self):
         """stop the receiver thread"""

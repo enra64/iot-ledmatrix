@@ -100,7 +100,8 @@ class MatrixSerial:
         logging.info("successfully connected to arduino")
 
     def stop(self):
-        self.serial.close()
+        if self.serial is not None:
+            self.serial.close()
 
     def get_led_count(self) -> int:
         """ Query the number of leds this serial connection is configured for """

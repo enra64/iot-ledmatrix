@@ -18,6 +18,11 @@ class Manager:
     def on_draw_cycle_finished(self):
         self.matrix_serial.update(self.canvas.get_buffer())
 
+    def join(self):
+        self.broadcast_receiver.join()
+        self.server.join()
+        self.script_handler.join()
+
     def start(self):
         """starts all required modules"""
         self.matrix_serial.connect()

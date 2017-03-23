@@ -113,18 +113,22 @@ if __name__ == "__main__":
     logging.basicConfig(filename='ledmatrix.log', level=log_level, datefmt='%d.%m.%Y@%H:%M:%S', format='%(asctime)s: %(levelname)s: %(message)s')
 
     if run:
+        manager = Manager(
+            matrix_port,
+            115200,
+            matrix_width,
+            matrix_height,
+            matrix_data_port,
+            matrix_name,
+            matrix_discovery_port,
+            matrix_connect_to_arduino)
         try:
-            manager = Manager(
-                matrix_port,
-                115200,
-                matrix_width,
-                matrix_height,
-                matrix_data_port,
-                matrix_name,
-                matrix_discovery_port,
-                matrix_connect_to_arduino)
             manager.start()
             manager.load_script("gameoflife")
+            # wait for exit to be able to catch exceptions
+            manager.join()
         except KeyboardInterrupt:
+            logging.info("shutting down on manual command")
+            manager.stop()
             CustomAtExit().trigger()
 

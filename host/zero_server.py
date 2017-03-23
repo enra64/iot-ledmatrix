@@ -103,7 +103,8 @@ class Server:
 
     def start(self):
         self.socket.bind("tcp://*:" + str(self.local_data_port))
-        threading.Thread(target=self.__wait).start()
+        self.receiver_thread = threading.Thread(target=self.__wait, name="zero_server")
+        self.receiver_thread.start()
 
     def stop(self):
         """stop the receiver thread"""
@@ -111,5 +112,12 @@ class Server:
         object = {"message_type": "shutdown_notification"}
         self.send_object_all(object)
 
+        # wait max 10ms before shutting down
+        self.socket.setsockopt(zmq.LINGER, 10)
+        self.socket.close()
+
         # stop receiver thread
         self.abort.set()
+
+    def join(self):
+        self.receiver_thread.join()

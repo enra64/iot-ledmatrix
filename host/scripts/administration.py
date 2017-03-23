@@ -22,7 +22,7 @@ class administration:
         command = json['command']
         if command == "echo_test":
             self.send_object({"message_type": "print_test_response", "received": json}, source_id)
-            elif command == "reboot_rpi":
+        elif command == "reboot_rpi":
             logging.info("rebooting pi on command")
             CustomAtExit().trigger()
             os.system('/sbin/sudo /sbin/reboot now')

@@ -1,3 +1,4 @@
+import traceback
 from importlib import import_module # import all the things
 import threading
 
@@ -32,12 +33,12 @@ class ScriptRunner:
         self.script.exit()
 
     def start(self):
-        self.process.start()
+        self.script_thread.start()
 
     def stop(self):
         self.abort.set()
         try:
-            self.process.join()
+            self.script_thread.join()
         # called when process was never started
         except RuntimeError:
             print(self.script_name + " stopped before starting")
@@ -54,17 +55,26 @@ class ScriptRunner:
     def on_client_disconnected(self, client_id):
         self.script.on_client_disconnected(client_id)
 
+    def join(self):
+        self.script_thread.join()
+
     def __init__(self, script:str, canvas: Canvas, draw_cycle_finished_callback, send_object, send_object_to_all, start_script):
-        module = import_module('scripts.' + script)
+        self.ok = False
         try:
-            self.script = getattr(module, script)(canvas, send_object, send_object_to_all, start_script)
-        except Exception as detail:
-            logging.error(script + ": __init__ caused an exception: " + str(detail))
+            module = import_module('scripts.' + script)
+        except SyntaxError:
+            logging.error("module import of " + script + " produced a syntaxerror " + traceback.format_exc())
         else:
-            self.process = threading.Thread(target=self.runner, args=(canvas,draw_cycle_finished_callback))
-            self.abort = threading.Event()
-            self.last_exec = 0
-            self.script_name = script
+            try:
+                self.script = getattr(module, script)(canvas, send_object, send_object_to_all, start_script)
+            except Exception as detail:
+                logging.error(script + ": __init__ caused an exception: " + str(detail))
+            else:
+                self.script_thread = threading.Thread(target=self.runner, args=(canvas, draw_cycle_finished_callback), name="script thread: " + script)
+                self.abort = threading.Event()
+                self.last_exec = 0
+                self.script_name = script
+                self.ok = True
 
 
 class ScriptHandler:
@@ -83,9 +93,12 @@ class ScriptHandler:
             self.stop_current_script()
 
         self.current_script_runner = ScriptRunner(script_name, self.canvas, self.draw_cycle_finished_callback, self.send_object, self.send_object_to_all, self.start_script)
-        logging.info("START: " + script_name)
-        self.current_script_runner.start()
-        self.is_script_running = True
+        if self.current_script_runner.ok:
+            logging.info("START: " + script_name)
+            self.current_script_runner.start()
+            self.is_script_running = True
+        else:
+            logging.warning("script '" + script_name + "' not executed due to initialization failure. check your code!")
 
     def script_running(self):
         return self.is_script_running
@@ -97,3 +110,6 @@ class ScriptHandler:
         logging.info("STOP: " + self.current_script_runner.script_name)
         self.current_script_runner.stop()
         self.is_script_running = False
+
+    def join(self):
+        self.current_script_runner.join()
