@@ -60,6 +60,12 @@
                 android:text="@string/echo_test" />
 
             <Button
+                android:id="@+id/admin_shutdown_rpi_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/shut_down_rpi" />
+
+            <Button
                 android:id="@+id/admin_restart_matrix_control"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

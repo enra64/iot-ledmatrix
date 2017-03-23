@@ -102,6 +102,10 @@ public class AdministrationFragment extends Fragment implements ScriptFragmentIn
                     Console.writeLine("Sending reboot command");
                     response.put("command", "reboot_rpi");
                     break;
+                case R.id.admin_shutdown_rpi_button:
+                    Console.writeLine("Sending reboot command");
+                    response.put("command", "shutdown_rpi");
+                    break;
                 case R.id.admin_restart_matrix_control:
                     Console.writeLine("Sending restart command. Please re-connect manually.");
                     response.put("command", "restart_matrix_server");

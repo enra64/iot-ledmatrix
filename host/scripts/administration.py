@@ -22,10 +22,14 @@ class administration:
         command = json['command']
         if command == "echo_test":
             self.send_object({"message_type": "print_test_response", "received": json}, source_id)
-        elif command == "reboot_rpi":
+            elif command == "reboot_rpi":
             logging.info("rebooting pi on command")
             CustomAtExit().trigger()
-            os.system('/sbin/reboot')
+            os.system('/sbin/sudo /sbin/reboot now')
+        elif command == "shutdown_rpi":
+            logging.info("shutting down pi on command")
+            CustomAtExit().trigger()
+            os.system('/sbin/sudo /sbin/shutdown now')
         elif command == "restart_matrix_server":
             logging.info("restarting server script. somewhat finicky...")
             CustomAtExit().trigger()

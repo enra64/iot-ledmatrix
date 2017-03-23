@@ -116,3 +116,10 @@ WARNING:root:got exception during exit :(
 23.03.2017@12:09:43: INFO: id: b'\x00k\x8bEi' has connected
 23.03.2017@12:09:48: INFO: STOP: simple_drawing
 23.03.2017@12:09:48: INFO: START: log_reader
+23.03.2017@12:10:39: INFO: custom atexit triggered.
+23.03.2017@12:10:39: INFO: STOP: log_reader
+23.03.2017@12:10:39: WARNING: got exception during exit :(
+23.03.2017@16:41:46: INFO: manager init complete
+23.03.2017@16:41:46: INFO: the matrix serial was started in silent mode. connect() was ignored.
+23.03.2017@16:41:46: INFO: START: gameoflife
+23.03.2017@16:43:33: INFO: id: b'\x00k\x8bEg' has connected
