@@ -320,3 +320,27 @@ SyntaxError: invalid syntax
 23.03.2017@17:10:07: INFO: START: administration
 23.03.2017@17:10:11: INFO: shutting down on manual command
 23.03.2017@17:10:14: INFO: STOP: administration
+23.03.2017@17:11:10: INFO: manager init complete
+23.03.2017@17:11:10: INFO: the matrix serial was started in silent mode. connect() was ignored.
+23.03.2017@17:11:10: INFO: START: gameoflife
+23.03.2017@17:11:15: INFO: id: b'\x00k\x8bEg' has connected
+23.03.2017@17:11:18: INFO: STOP: gameoflife
+23.03.2017@17:11:18: INFO: START: administration
+23.03.2017@17:11:32: INFO: id: b'\x00k\x8bEh' has connected
+23.03.2017@17:11:34: INFO: STOP: administration
+23.03.2017@17:11:34: INFO: START: administration
+23.03.2017@17:11:39: INFO: shutting down on manual command
+23.03.2017@17:11:39: INFO: STOP: administration
+23.03.2017@17:13:24: INFO: manager init complete
+23.03.2017@17:13:24: INFO: the matrix serial was started in silent mode. connect() was ignored.
+23.03.2017@17:13:24: INFO: START: gameoflife
+23.03.2017@17:13:30: INFO: id: b'\x00k\x8bEg' has connected
+23.03.2017@17:13:31: INFO: STOP: gameoflife
+23.03.2017@17:13:31: INFO: START: administration
+23.03.2017@17:13:54: INFO: rebooting pi on command
+23.03.2017@17:13:54: INFO: custom atexit triggered.
+23.03.2017@17:13:54: INFO: STOP: administration
+23.03.2017@17:13:57: INFO: manager shut down
+23.03.2017@17:13:57: INFO: custom atexit triggered.
+23.03.2017@17:13:57: INFO: STOP: administration
+23.03.2017@17:13:57: WARNING: got exception during exit :(

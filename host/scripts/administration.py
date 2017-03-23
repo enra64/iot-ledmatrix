@@ -29,7 +29,7 @@ class administration:
         elif command == "shutdown_rpi":
             logging.info("shutting down pi on command")
             CustomAtExit().trigger()
-            os.system('/sbin/sudo /sbin/shutdown now')
+            os.system('sudo shutdown now')
         elif command == "restart_matrix_server":
             logging.info("restarting server script. somewhat finicky...")
             CustomAtExit().trigger()
