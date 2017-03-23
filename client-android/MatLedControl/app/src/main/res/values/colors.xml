@@ -3,4 +3,12 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="log_criticial">#B71C1C</color>
+    <color name="log_error">#E65100</color>
+    <color name="log_warning">#FFEA00</color>
+    <color name="log_info">#76FF03</color>
+    <color name="log_debug">#76FF03</color>
+    <color name="log_notset">#76FF03</color>
+
 </resources>

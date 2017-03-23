@@ -32,7 +32,7 @@
         android:text="@string/refreshing_scripts"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="@+id/fragment_manual_script_load_list"
-        app:layout_constraintTop_toBottomOf="@+id/progressBar" />
+        app:layout_constraintTop_toBottomOf="@+id/fragment_manual_script_load_querying_spinner" />
 
     <ListView
         android:id="@+id/fragment_manual_script_load_list"

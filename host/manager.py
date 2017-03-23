@@ -38,9 +38,9 @@ class Manager:
     def on_shutdown(self):
         self.stop()
 
-    def __init__(self, arduino_interface, arduino_baud, matrix_width, matrix_height, data_port, server_name, discovery_port):
+    def __init__(self, arduino_interface, arduino_baud, matrix_width, matrix_height, data_port, server_name, discovery_port, enable_arduino_connection: bool):
         """initializes all required modules without starting any of them. DiscoveryPort hardcoded to 54123"""
-        self.matrix_serial = MatrixSerial(arduino_interface, matrix_width * matrix_height, arduino_baud)
+        self.matrix_serial = MatrixSerial(arduino_interface, matrix_width * matrix_height, arduino_baud, enable_arduino_connection)
         self.broadcast_receiver = BroadcastReceiver(discovery_port, data_port, server_name, matrix_height=matrix_height, matrix_width=matrix_width)
         self.server = Server(self.script_load_request_handler, self.script_data_handler, (matrix_width, matrix_height), data_port)
         self.canvas = Canvas(matrix_width, matrix_height)

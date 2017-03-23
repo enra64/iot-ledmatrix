@@ -4,6 +4,7 @@ import sys
 import logging
 
 import iot_ledmatrix_component_tests
+from custom_atexit import CustomAtExit
 from manager import Manager
 from matserial import MatrixSerial, get_connected_arduinos, guess_arduino
 
@@ -24,15 +25,16 @@ def test_all():
 
 
 def print_help():
-    print("-h                     this help")
-    print("--getports             list of comports. might include arduinos")
-    print("--set-arduino-port=    set the port the arduino is connected on manually.")
-    print("--name=                set the name the ledmatrix will advertise itself as")
-    print("--width=               horizontal number of leds ")
-    print("--height=              vertical number of leds ")
-    print("--data-port=           set the data port this ledmatrix will use")
-    print("--discovery-port=      set the discovery port this ledmatrix will use")
-    print("--loglevel=            set python logging loglevel")
+    print("-h                               this help")
+    print("--getports                       list of comports. might include arduinos")
+    print("--set-arduino-port=              set the port the arduino is connected on manually.")
+    print("--name=                          set the name the ledmatrix will advertise itself as")
+    print("--width=                         horizontal number of leds ")
+    print("--height=                        vertical number of leds ")
+    print("--data-port=                     set the data port this ledmatrix will use")
+    print("--discovery-port=                set the discovery port this ledmatrix will use")
+    print("--loglevel=                      set python logging loglevel")
+    print("--disable-arduino-connection=    set python logging loglevel")
 
 
 if __name__ == "__main__":
@@ -43,16 +45,18 @@ if __name__ == "__main__":
             [
                 "test",
                 "getports",
-                "--set-arduino-port=",
-                "--name=",
-                "--width=",
-                "--height=",
-                "--data-port=",
-                "--discovery-port=",
-                "--loglevel="
+                "set-arduino-port=",
+                "name=",
+                "width=",
+                "height=",
+                "data-port=",
+                "discovery-port=",
+                "loglevel=",
+                "disable-arduino-connection"
             ]
         )
     except getopt.GetoptError:
+        print("bad arguments. look at this help:\n")
         print_help()
         sys.exit(2)
 
@@ -62,6 +66,7 @@ if __name__ == "__main__":
     matrix_height = 10
     matrix_data_port = 55124
     matrix_discovery_port = 54123
+    matrix_connect_to_arduino = True
 
     log_level = logging.INFO
 
@@ -98,15 +103,28 @@ if __name__ == "__main__":
                 matrix_discovery_port = int(argument)
             elif option == "--loglevel":
                 log_level = getattr(logging, argument.upper(), None)
+            elif option == "--disable-arduino-connection":
+                matrix_connect_to_arduino = False
 
-    if matrix_port is None:
+    if matrix_connect_to_arduino and matrix_port is None:
         matrix_port = guess_arduino()
 
     # set logging level
-    logging.basicConfig(filename='ledmatrix.log', level=log_level, datefmt='%d.%m.%Y %H:%M:%S')
+    logging.basicConfig(filename='ledmatrix.log', level=log_level, datefmt='%d.%m.%Y@%H:%M:%S', format='%(asctime)s: %(levelname)s: %(message)s')
 
     if run:
-        manager = Manager(matrix_port, 115200, matrix_width, matrix_height, matrix_data_port, matrix_name,
-                          matrix_discovery_port)
-        manager.start()
-        manager.load_script("gameoflife")
+        try:
+            manager = Manager(
+                matrix_port,
+                115200,
+                matrix_width,
+                matrix_height,
+                matrix_data_port,
+                matrix_name,
+                matrix_discovery_port,
+                matrix_connect_to_arduino)
+            manager.start()
+            manager.load_script("gameoflife")
+        except KeyboardInterrupt:
+            CustomAtExit().trigger()
+

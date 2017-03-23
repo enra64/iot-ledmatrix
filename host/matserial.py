@@ -31,7 +31,7 @@ def guess_arduino():
 class MatrixSerial:
     """This class handles the communication with the arduino"""
 
-    def __init__(self, interface: str, led_count: int, baud: int = 115200, connect: bool = False):
+    def __init__(self, interface: str, led_count: int, baud: int = 115200, connect: bool = False, enable_arduino_connection = False):
         """
         Create new MatrixSerial, immediately connecting to the arduino.
 
@@ -50,8 +50,10 @@ class MatrixSerial:
 
         self.was_connected = False
 
+        self.enable_arduino_connection = enable_arduino_connection
+
         # convenience function for immediately connecting
-        if connect:
+        if connect and enable_arduino_connection:
             self.connect()
 
     def connect(self, timeout:float = 2):
@@ -65,6 +67,10 @@ class MatrixSerial:
         :raises: MatrixProtocolException if the arduino does not shake hands
         :
         """
+        if not self.enable_arduino_connection:
+            logging.info("the matrix serial was started in silent mode. connect() was ignored.")
+            return
+
         self.was_connected = True
 
         logging.info("beginning arduino connection attempt to " + self.interface)
@@ -133,6 +139,9 @@ class MatrixSerial:
         :raises: MatrixProtocolException if the arduino did not acknowledge a sent buffer
         """
 
+        if not self.enable_arduino_connection:
+            return
+
         # we need to wait some time before writing the next set of data. testing required for better accuracy
         time.sleep(0.009)
 
@@ -143,8 +152,6 @@ class MatrixSerial:
 
         # read arduino acknowledgement char
         ack = self.serial.read(1)
-
-
 
         # check acknowledgement char correctness
         if ack != b'k':

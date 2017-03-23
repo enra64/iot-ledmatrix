@@ -29,6 +29,7 @@ import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ZeroMatrixConnection;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 import de.oerntec.matledcontrol.script_clients.AdministrationFragment;
+import de.oerntec.matledcontrol.script_clients.LogFragment;
 import de.oerntec.matledcontrol.script_clients.ManualScriptLoadFragment;
 import de.oerntec.matledcontrol.script_clients.camera.Camera2BasicFragment;
 import de.oerntec.matledcontrol.script_clients.draw.DrawFragment;
@@ -139,6 +140,8 @@ public class MainActivity extends AppCompatActivity
             case R.id.manual_script_load:
                 fragment = ManualScriptLoadFragment.newInstance();
                 break;
+            case R.id.log_viewer:
+                fragment = LogFragment.newInstance();
             default:
                 Log.w("ledmat:main", "unknown menu item clicked");
         }
@@ -199,17 +202,7 @@ public class MainActivity extends AppCompatActivity
      */
     @Override
     public void onDiscoveredMatrixClicked(final LedMatrix server) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.connect_to_matrix);
-        builder.setMessage(String.format(getString(R.string.connect_confirmation_message), server.name));
-        builder.setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                connectToMatrix(server);
-            }
-        });
-        builder.setNegativeButton(getString(R.string.no), null);
-        builder.show();
+        connectToMatrix(server);
     }
 
     /**

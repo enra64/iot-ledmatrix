@@ -1,0 +1,118 @@
+INFO:root:manager init complete
+INFO:root:custom atexit triggered.
+WARNING:root:got exception during exit :(
+INFO:root:manager init complete
+INFO:root:the matrix serial was started in silent mode. connect() was ignored.
+INFO:root:START: gameoflife
+INFO:root:id: b'\x00k\x8bEg' has connected
+INFO:root:id: b'\x00k\x8bEh' has connected
+INFO:root:STOP: gameoflife
+INFO:root:START: log_reader
+ERROR:root:log_reader: on_data caused an exception: 'dict' object has no attribute 'dumps'
+INFO:root:custom atexit triggered.
+INFO:root:STOP: log_reader
+WARNING:root:got exception during exit :(
+INFO:root:manager init complete
+INFO:root:the matrix serial was started in silent mode. connect() was ignored.
+INFO:root:START: gameoflife
+INFO:root:custom atexit triggered.
+INFO:root:STOP: gameoflife
+WARNING:root:got exception during exit :(
+INFO:root:manager init complete
+INFO:root:the matrix serial was started in silent mode. connect() was ignored.
+INFO:root:START: gameoflife
+INFO:root:id: b'\x00k\x8bEg' has connected
+INFO:root:STOP: gameoflife
+INFO:root:START: log_reader
+ERROR:root:log_reader: on_data caused an exception: 'dict' object has no attribute 'dumps'
+ERROR:root:log_reader: on_data caused an exception: 'dict' object has no attribute 'dumps'
+INFO:root:custom atexit triggered.
+INFO:root:STOP: log_reader
+WARNING:root:got exception during exit :(
+INFO:root:manager init complete
+INFO:root:the matrix serial was started in silent mode. connect() was ignored.
+INFO:root:START: gameoflife
+INFO:root:id: b'\x00k\x8bEh' has connected
+INFO:root:STOP: gameoflife
+INFO:root:START: log_reader
+INFO:root:custom atexit triggered.
+INFO:root:STOP: log_reader
+WARNING:root:got exception during exit :(
+INFO:root:manager init complete
+INFO:root:the matrix serial was started in silent mode. connect() was ignored.
+INFO:root:START: gameoflife
+INFO:root:id: b'\x00k\x8bEh' has connected
+INFO:root:STOP: gameoflife
+INFO:root:START: log_reader
+INFO:root:custom atexit triggered.
+INFO:root:STOP: log_reader
+WARNING:root:got exception during exit :(
+23.03.2017 11:56:56 manager init complete
+23.03.2017 11:56:56 the matrix serial was started in silent mode. connect() was ignored.
+23.03.2017 11:56:56 START: gameoflife
+23.03.2017 11:57:01 id: b'\x00k\x8bEh' has connected
+23.03.2017 11:57:03 STOP: gameoflife
+23.03.2017 11:57:03 START: log_reader
+23.03.2017 11:58:29 custom atexit triggered.
+23.03.2017 11:58:29 STOP: log_reader
+23.03.2017 11:58:29 got exception during exit :(
+23.03.2017 11:58:36 manager init complete
+23.03.2017 11:58:36 the matrix serial was started in silent mode. connect() was ignored.
+23.03.2017 11:58:36 START: gameoflife
+23.03.2017 11:58:53 id: b'\x00k\x8bEh' has connected
+23.03.2017 11:59:28 id: b'\x00k\x8bEi' has connected
+23.03.2017 11:59:36 STOP: gameoflife
+23.03.2017 11:59:36 START: log_reader
+23.03.2017 11:59:36 log_reader: on_data caused an exception: __enter__
+23.03.2017 11:59:42 custom atexit triggered.
+23.03.2017 11:59:42 STOP: log_reader
+23.03.2017 11:59:42 got exception during exit :(
+23.03.2017 11:59:44 manager init complete
+23.03.2017 11:59:44 the matrix serial was started in silent mode. connect() was ignored.
+23.03.2017 11:59:44 START: gameoflife
+23.03.2017 11:59:45 custom atexit triggered.
+23.03.2017 11:59:45 STOP: gameoflife
+23.03.2017 11:59:45 got exception during exit :(
+23.03.2017 11:59:47 manager init complete
+23.03.2017 11:59:47 the matrix serial was started in silent mode. connect() was ignored.
+23.03.2017 11:59:47 START: gameoflife
+23.03.2017 11:59:52 id: b'\x00k\x8bEh' has connected
+23.03.2017 11:59:56 STOP: gameoflife
+23.03.2017 11:59:56 START: log_reader
+23.03.2017 11:59:56 log_reader: on_data caused an exception: __enter__
+23.03.2017 12:00:05 log_reader: on_data caused an exception: __enter__
+23.03.2017 12:00:28 log_reader: on_data caused an exception: __enter__
+23.03.2017 12:02:28 custom atexit triggered.
+23.03.2017 12:02:28 STOP: log_reader
+23.03.2017 12:02:28 got exception during exit :(
+23.03.2017 12:02:33 manager init complete
+23.03.2017 12:02:33 the matrix serial was started in silent mode. connect() was ignored.
+23.03.2017 12:02:34 START: gameoflife
+23.03.2017 12:02:38 id: b'\x00k\x8bEh' has connected
+23.03.2017 12:02:39 id: b'\x00k\x8bEi' has connected
+23.03.2017 12:02:44 STOP: gameoflife
+23.03.2017 12:02:44 START: log_reader
+23.03.2017 12:02:44 log_reader: on_data caused an exception: 'NoneType' object is not iterable
+23.03.2017 12:03:00 custom atexit triggered.
+23.03.2017 12:03:00 STOP: log_reader
+23.03.2017 12:03:00 got exception during exit :(
+23.03.2017 12:03:54 manager init complete
+23.03.2017 12:03:54 the matrix serial was started in silent mode. connect() was ignored.
+23.03.2017 12:03:54 START: gameoflife
+23.03.2017 12:03:58 id: b'\x00k\x8bEh' has connected
+23.03.2017 12:04:00 STOP: gameoflife
+23.03.2017 12:04:00 START: log_reader
+23.03.2017 12:05:32 custom atexit triggered.
+23.03.2017 12:05:32 STOP: log_reader
+23.03.2017 12:05:32 got exception during exit :(
+23.03.2017@12:05:35: INFO: manager init complete
+23.03.2017@12:05:35: INFO: the matrix serial was started in silent mode. connect() was ignored.
+23.03.2017@12:05:35: INFO: START: gameoflife
+23.03.2017@12:05:40: INFO: id: b'\x00k\x8bEh' has connected
+23.03.2017@12:05:43: INFO: STOP: gameoflife
+23.03.2017@12:05:43: INFO: START: log_reader
+23.03.2017@12:09:31: INFO: STOP: log_reader
+23.03.2017@12:09:31: INFO: START: simple_drawing
+23.03.2017@12:09:43: INFO: id: b'\x00k\x8bEi' has connected
+23.03.2017@12:09:48: INFO: STOP: simple_drawing
+23.03.2017@12:09:48: INFO: START: log_reader

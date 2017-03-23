@@ -36,4 +36,6 @@
     <string name="load">load</string>
     <string name="refreshing_scripts">refreshing scripts</string>
     <string name="manual_script_load">Manual script load</string>
+    <string name="refresh">Refresh</string>
+    <string name="view_matrix_log">View Matrix Log</string>
 </resources>

@@ -242,7 +242,8 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
     }
 
     public void refreshMatrices(){
-        ((DiscoveryAdapter) mAvailableMatrices.getAdapter()).notifyDataSetChanged();
+        if(mAvailableMatrices.getAdapter() != null)
+            ((DiscoveryAdapter) mAvailableMatrices.getAdapter()).notifyDataSetChanged();
     }
 
     private class DiscoveryAdapter extends ArrayAdapter<LedMatrix> {

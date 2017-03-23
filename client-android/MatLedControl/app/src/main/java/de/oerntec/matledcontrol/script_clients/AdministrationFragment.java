@@ -67,12 +67,6 @@ public class AdministrationFragment extends Fragment implements ScriptFragmentIn
             mMessageSender = (MessageSender) context;
             mExceptionListener = (ExceptionListener) context;
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle(R.string.notice);
-            builder.setMessage(R.string.no_warnings);
-            builder.setPositiveButton(R.string.ok, null);
-            builder.show();
-
             Console.clear();
         } else {
             throw new RuntimeException(context.toString()

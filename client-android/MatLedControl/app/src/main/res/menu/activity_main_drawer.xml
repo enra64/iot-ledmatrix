@@ -2,22 +2,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/matrix_discovery"
-        android:icon="@drawable/ic_menu_manage"
+        android:icon="@drawable/ic_matrix"
         android:title="@string/choose_server" />
     <item
         android:id="@+id/drawing"
-        android:icon="@drawable/ic_menu_gallery"
+        android:icon="@drawable/ic_drawing"
         android:title="@string/simple_drawing" />
-    <item
-        android:id="@+id/administration"
-        android:icon="@drawable/ic_menu_manage"
-        android:title="@string/administration" />
-    <item
-        android:id="@+id/manual_script_load"
-        android:icon="@drawable/ic_menu_slideshow"
-        android:title="@string/manual_script_load" />
     <item
         android:id="@+id/camera"
         android:icon="@drawable/ic_menu_camera"
         android:title="@string/camera" />
+    <item
+        android:id="@+id/manual_script_load"
+        android:icon="@drawable/ic_load_script"
+        android:title="@string/manual_script_load" />
+    <item
+        android:id="@+id/administration"
+        android:icon="@drawable/ic_administration"
+        android:title="@string/administration" />
+    <item
+        android:id="@+id/log_viewer"
+        android:icon="@drawable/ic_log"
+        android:title="@string/view_matrix_log" />
 </menu>
