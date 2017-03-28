@@ -3,19 +3,13 @@ from os.path import isfile, join
 
 import logging
 
+from CustomScript import CustomScript
 from matgraphics import Canvas
 
 
-class script_loader:
+class script_loader(CustomScript):
     def __init__(self, canvas, send_object, send_object_to_all, start_script):
-        self.send_object = send_object
-        self.start_script = start_script
-
-    def update(self, canvas):
-        pass
-
-    def draw(self, canvas: Canvas):
-        pass
+        super().__init__(canvas, send_object, send_object_to_all, start_script)
 
     def on_data(self, json, source_id):
         command = json['command']
@@ -27,6 +21,3 @@ class script_loader:
             requested_script = json['requested_script']
             logging.info("user requested script " + requested_script)
             self.start_script(requested_script, source_id)
-
-    def exit(self):
-        pass

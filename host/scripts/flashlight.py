@@ -1,11 +1,10 @@
+from CustomScript import CustomScript
 from matgraphics import Canvas
 
-class flashlight:
+class flashlight(CustomScript):
     def __init__(self, canvas, send_object, send_object_to_all, start_script):
+        super().__init__(canvas, send_object, send_object_to_all, start_script)
         self.enable = True
-
-    def update(self, canvas):
-        pass
 
     def draw(self, canvas: Canvas):
         if self.enable:
@@ -16,6 +15,3 @@ class flashlight:
     def on_data(self, json, source_id):
         if 'enable' in json:
             self.enable = json['enable']
-
-    def exit(self):
-        pass

@@ -1,16 +1,10 @@
+from CustomScript import CustomScript
 from matgraphics import Canvas
 
 
-class log_reader:
+class log_reader(CustomScript):
     def __init__(self, canvas, send_object, send_object_to_all, start_script):
-        self.send_object = send_object
-        self.start_script = start_script
-
-    def update(self, canvas):
-        pass
-
-    def draw(self, canvas: Canvas):
-        pass
+        super().__init__(canvas, send_object, send_object_to_all, start_script)
 
     def on_data(self, json, source_id):
         command = json['command']
@@ -25,6 +19,3 @@ class log_reader:
                 for line in reversed:
                     log.append(line)
             self.send_object({"message_type": "bogus", "log": log}, source_id)
-
-    def exit(self):
-        pass

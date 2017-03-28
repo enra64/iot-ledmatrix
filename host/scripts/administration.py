@@ -4,19 +4,13 @@ import sys
 
 import logging
 
+from CustomScript import CustomScript
 from custom_atexit import CustomAtExit
-from matgraphics import Canvas
 
 
-class administration:
+class administration(CustomScript):
     def __init__(self, canvas, send_object, send_object_to_all, start_script):
-        self.send_object = send_object
-
-    def update(self, canvas):
-        pass
-
-    def draw(self, canvas: Canvas):
-        pass
+        super().__init__(canvas, send_object, send_object_to_all, start_script)
 
     def on_data(self, json, source_id):
         command = json['command']
@@ -37,6 +31,3 @@ class administration:
             os.execl(python, python, *sys.argv)
         else:
             self.send_object({"message_type": "unrecognized_command_warning"}, source_id)
-
-    def exit(self):
-        pass

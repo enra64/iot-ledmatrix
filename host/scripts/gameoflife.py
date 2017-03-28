@@ -1,11 +1,11 @@
-import time
-import random
 import numpy as np
 
+from CustomScript import CustomScript
 from matgraphics import Canvas
 
-class gameoflife:
+class gameoflife(CustomScript):
     def __init__(self, canvas, send_object, send_object_to_all, start_script):
+        super().__init__(canvas, send_object, send_object_to_all, start_script)
         self.gameboard = np.zeros((canvas.height, canvas.width), dtype = bool)
         self.colorboard = np.zeros((canvas.height, canvas.width, 3), dtype = int)
         self.gameboard[2, 5:7] = True
@@ -35,9 +35,6 @@ class gameoflife:
                 if self.gameboard[x][y] is False:
                     self.colorboard[x][y] = (0,0,0)
 
-    def on_data(self, recv_json, source_id):
-        pass
-
     def draw(self, canvas: Canvas):
         for x in range(0, canvas.width):
             for y in range(0, canvas.height):
@@ -45,6 +42,3 @@ class gameoflife:
                     canvas.draw_pixel(x, y, self.colorboard[x][y][0], self.colorboard[x][y][1], self.colorboard[x][y][2])
 
         #print(repr(canvas))
-
-    def exit(self):
-        pass
