@@ -19,7 +19,7 @@ The class must inherit from CustomScript, which is documented here:
 How to draw from within the script
 ----------------------------------
 Drawing to the matrix is done by using the functions of the canvas supplied with the draw calls. Detailed
-documentation is available here: :ref:`canvas_label`
+documentation is available here: :ref:`canvas_class_label`
 
 CustomScript class
 ------------------
