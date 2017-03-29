@@ -2,7 +2,7 @@ import inspect
 import time
 
 from broadcast_receiver import BroadcastReceiver
-from matgraphics import Canvas
+from canvas import Canvas
 from matserial import MatrixSerial
 from script_handler import ScriptHandler
 
@@ -76,7 +76,7 @@ def test_canvas_draw_pixel_line(serial):
     while True:
         for i in range(c.width):
             c.draw_pixel(i, 0, 255, 0, 0)
-            serial.update(c.get_buffer())
+            serial.update(c.get_buffer_for_arduino())
 
 
 def test_broadcast_receiver():

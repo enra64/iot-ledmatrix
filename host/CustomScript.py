@@ -1,4 +1,4 @@
-from matgraphics import Canvas
+from canvas import Canvas
 
 
 class CustomScript:
@@ -36,6 +36,7 @@ class CustomScript:
     def update(self, canvas):
         """
         Called before draw. Do any updating you want to do here.
+
         :param canvas: canvas object for information like width and height
         """
         pass
@@ -44,6 +45,7 @@ class CustomScript:
         """
         Called after update. Make any modifications of the canvas you want to do here. After this method has finished
         executing, the canvas buffer will be sent to the arduino and displayed.
+
         :param canvas: the canvas you can draw on. will be displayed on the arduino
         :return: nothing
         """
@@ -52,6 +54,7 @@ class CustomScript:
     def on_data(self, data_dictionary, source_id):
         """
         Called whenever the android app sends data for the script.
+
         :param data_dictionary: a dictionary of data received from the android app.
         :param source_id: the network id of the sending android device
         :return: nothing

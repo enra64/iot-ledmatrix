@@ -7,10 +7,11 @@ Welcome to iot-ledmatrix's documentation!
 =========================================
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :caption: Contents:
 
     custom_scripts
+    canvas
 
 iot-ledmatrix is a code base produced to use a diy rgb led matrix made from WS2812B leds.
 The code was written by `enra64 <github.com/enra64>`_ and `gSilas <https://www.github.com/gSilas>`_.

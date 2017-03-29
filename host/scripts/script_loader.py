@@ -4,7 +4,7 @@ from os.path import isfile, join
 import logging
 
 from CustomScript import CustomScript
-from matgraphics import Canvas
+from canvas import Canvas
 
 
 class script_loader(CustomScript):

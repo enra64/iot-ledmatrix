@@ -7,7 +7,7 @@ import logging
 import helpers
 import time
 
-from matgraphics import Canvas
+from canvas import Canvas
 
 
 class ScriptRunner:

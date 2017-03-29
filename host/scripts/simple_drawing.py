@@ -1,5 +1,5 @@
 from CustomScript import CustomScript
-from matgraphics import Canvas
+from canvas import Canvas
 
 class simple_drawing(CustomScript):
     def __init__(self, canvas, send_object, send_object_to_all, start_script):

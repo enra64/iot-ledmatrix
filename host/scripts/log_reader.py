@@ -1,5 +1,5 @@
 from CustomScript import CustomScript
-from matgraphics import Canvas
+from canvas import Canvas
 
 
 class log_reader(CustomScript):

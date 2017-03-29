@@ -2,7 +2,7 @@ import logging
 
 from broadcast_receiver import BroadcastReceiver
 from custom_atexit import CustomAtExit
-from matgraphics import Canvas
+from canvas import Canvas
 from matserial import MatrixSerial
 from script_handler import ScriptHandler
 from zero_server import Server
@@ -16,7 +16,7 @@ class Manager:
         self.script_handler.on_data(script_data, source_id)
 
     def on_draw_cycle_finished(self):
-        self.matrix_serial.update(self.canvas.get_buffer())
+        self.matrix_serial.update(self.canvas.get_buffer_for_arduino())
 
     def join(self):
         self.broadcast_receiver.join()
