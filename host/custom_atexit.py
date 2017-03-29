@@ -4,17 +4,21 @@ import logging
 
 
 class CustomAtExit:
-    """This singleton enables us to manually trigger the atexit functions in case we have the slight suspicion that the program
-        might be ending soon, like right before calling os.execv..."""
+    """
+    This singleton enables us to manually trigger the atexit functions in case we have the slight suspicion that the program
+    might be ending soon, like right before calling os.execv...
+    """
 
     class __CustomAtExit:
         """Inner class doing all the things the class should actually do"""
+
         def __init__(self):
+            """init functions to be called, register ourselves for the official atexit"""
             self.atexit_functions = {}
             atexit.register(self.trigger)
 
-        def register(self, function, args = None):
-            """register a new function that must be called on trigger()"""
+        def register(self, function, args=None):
+            """register a new function that will be called on exit"""
             self.atexit_functions[function] = args
 
         def trigger(self):

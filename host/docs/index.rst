@@ -18,16 +18,12 @@ The code was written by `enra64 <github.com/enra64>`_ and `gSilas <https://www.g
 
 The code consists of three parts:
 
-* the arduino code required to talk to the leds
 * the python code used on the raspberry pi inside the matrix
 * the android code making up the control app
+* the arduino code required to talk to the leds
 
-arduino sketch
-==============
-The arduino code is simple, but ``NUM_LEDS_CURRENT`` must be set before uploading the code.
-The arduino will partake in a simple handshake to confirm correct usage and initialization.
-After that, the arduino writes all received data into the led buffer.
-Whenever enough bytes for a single frame have arrived, the leds will show the new data.
+This documentation is mostly concerned with the python code used on the rpi, since at the moment the other code
+is only written by enra64.
 
 Raspberry pi (host) code
 ========================
@@ -48,4 +44,12 @@ Users can reboot the raspberry pi, shut it down or simply restart the host code.
 
 host script fragments
 ---------------------
-Programmers can write Fragments that display an arbitrary user interface to implement any required custom functionality. Two-Way communication between the matrix (a running instance of the host and the custom script code) is available.
+Programmers can write Fragments that display an arbitrary user interface to implement any required custom functionality.
+Two-Way communication with the matrix is available.
+
+arduino sketch
+==============
+The arduino code is simple, but ``NUM_LEDS_CURRENT`` must be set before uploading the code.
+The arduino will partake in a simple handshake to confirm correct initialization.
+After that, the arduino writes all received data into the led buffer.
+Whenever enough bytes for a single frame have arrived, the leds will show the new data.

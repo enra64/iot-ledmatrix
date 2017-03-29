@@ -1,6 +1,6 @@
 def clamp(n, smallest, largest):
     """
-    From http://stackoverflow.com/a/4092550. Clamp a value.
+    Clamp a value. From http://stackoverflow.com/a/4092550.
     :param n: value to clamp
     :param smallest: smallest acceptable value
     :param largest: largest acceptable value

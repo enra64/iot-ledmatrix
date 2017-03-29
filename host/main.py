@@ -34,10 +34,11 @@ def print_help():
     print("--data-port=                     set the data port this ledmatrix will use")
     print("--discovery-port=                set the discovery port this ledmatrix will use")
     print("--loglevel=                      set python logging loglevel")
-    print("--disable-arduino-connection=    set python logging loglevel")
+    print("--disable-arduino-connection     disable arduino connection. mostly useful for debugging without an arduino")
 
 
 if __name__ == "__main__":
+    # try and get the script parameters
     try:
         options, arguments = getopt.getopt(
             sys.argv[1:],
@@ -60,6 +61,7 @@ if __name__ == "__main__":
         print_help()
         sys.exit(2)
 
+    # set default parameters
     matrix_port = None
     matrix_name = "ledmatrix"
     matrix_width = 10
@@ -67,9 +69,7 @@ if __name__ == "__main__":
     matrix_data_port = 55124
     matrix_discovery_port = 54123
     matrix_connect_to_arduino = True
-
     log_level = logging.INFO
-
     run = True
 
     if len(options) > 0:
