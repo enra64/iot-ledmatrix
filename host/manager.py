@@ -101,7 +101,8 @@ class Manager:
             self.canvas,
             self.on_draw_cycle_finished,
             self.server.send_object,
-            self.server.send_object_all
+            self.server.send_object_all,
+            self.server.get_client_list
         )
 
         # give the server the functions to call when clients dis/connect

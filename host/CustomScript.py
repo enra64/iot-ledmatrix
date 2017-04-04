@@ -6,11 +6,24 @@ class CustomScript:
     """
     The CustomScript class is the class you want to inherit from to implement a new matrix mode.
 
-    In addition to the constructor, there are four methods that will be called by the manager:
-        * update, where the state may be updated
-        * draw, where the matrix content may be drawn
-        * on_data, called when messages from clients arrive
-        * exit, last call before the instance is discarded
+    In addition to the constructor, there are six methods that will be called by the manager:
+        * update(canvas), where the state may be updated
+        * draw(canvas), where the matrix content may be drawn
+        * on_data(obj, source_id), called when messages from clients arrive
+        * exit(), last call before the instance is discarded
+        * on_client_connected(client_id), called with an id parameter when a new client is approved
+        * on_client_disconnected(client_id), called with an id parameter when a client has disconnected
+        
+    A few methods can also be called by the script itself:
+        * send_object(obj, id) to send objects to specific clients
+        * send_object_to_all(obj) to send objects to all clients
+        * start_script(script) start a script by name. will replace current script.
+        * restart_self() restarts the current script
+        * get_connected_clients() gets a list of approved client ids
+        * set_frame_period(period) allows to set a custom update cycle period in seconds
+        * set_frame_rate(rate) allows to set a custom update cycle calling rate in Hz
+        
+    All of these functions are documented more detailed in their method documentations.
 
     The constructor will always be called first. Do your initialization here.
     Update will always be called before draw. The two functions are called in a loop, and will repeatedly execute.
@@ -25,7 +38,8 @@ class CustomScript:
                  start_script,
                  restart_self,
                  set_frame_period,
-                 set_frame_rate):
+                 set_frame_rate,
+                 get_connected_clients):
         """
         The constructor is the first time the script comes alive. After running through it, calls to update and then draw
         are to be expected. All parameters but canvas are stored in the instance by the CustomScript constructor.
@@ -45,6 +59,10 @@ class CustomScript:
         self.__restart_self = restart_self
         self.__set_frame_period = set_frame_period
         self.__set_frame_rate = set_frame_rate
+        self.__get_connected_clients = get_connected_clients
+
+    def get_connected_clients(self):
+        return self.__get_connected_clients()
 
     def send_object(self, obj, target):
         """

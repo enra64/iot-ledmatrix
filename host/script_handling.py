@@ -87,7 +87,8 @@ class ScriptRunner:
             draw_cycle_finished_callback,
             send_object,
             send_object_to_all,
-            start_script):
+            start_script,
+            get_connected_clients):
 
         # default to 30ms frame period
         self.frame_period = 0.030
@@ -109,7 +110,8 @@ class ScriptRunner:
                     # "restart self" helper, simply set script name to this scripts name
                     partial(start_script, script_name=script),
                     self.set_frame_period,
-                    self.set_frame_rate
+                    self.set_frame_rate,
+                    get_connected_clients
                 )
             except Exception as detail:
                 logging.error(script + ": __init__ caused an exception: " + str(detail))
@@ -128,13 +130,14 @@ class ScriptRunner:
 
 
 class ScriptHandler:
-    def __init__(self, canvas: Canvas, draw_cycle_finish_callback, send_object, send_object_to_all):
+    def __init__(self, canvas: Canvas, draw_cycle_finish_callback, send_object, send_object_to_all, get_client_list):
         self.current_script_runner = None
         self.canvas = canvas
         self.is_script_running = False
         self.draw_cycle_finished_callback = draw_cycle_finish_callback
         self.send_object = send_object
         self.send_object_to_all = send_object_to_all
+        self.get_client_list = get_client_list
 
     def start_script(self, script_name: str, source_id):
         """
@@ -152,7 +155,8 @@ class ScriptHandler:
                 self.draw_cycle_finished_callback,
                 self.send_object,
                 self.send_object_to_all,
-                self.start_script)
+                self.start_script,
+                self.get_client_list)
 
         if self.current_script_runner.ok:
             logging.info("START: " + script_name)
