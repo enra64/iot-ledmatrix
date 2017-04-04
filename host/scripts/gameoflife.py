@@ -4,8 +4,10 @@ from CustomScript import CustomScript
 from Canvas import Canvas
 
 class gameoflife(CustomScript):
-    def __init__(self, canvas, send_object, send_object_to_all, start_script):
-        super().__init__(canvas, send_object, send_object_to_all, start_script)
+    def __init__(self, canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
+                 set_frame_rate, get_connected_clients):
+        super().__init__(canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
+                         set_frame_rate, get_connected_clients)
         self.game_board = np.zeros((canvas.height, canvas.width), dtype = bool)
         self.colorboard = np.zeros((canvas.height, canvas.width, 3), dtype = int)
         self.game_board[2, 5:7] = True

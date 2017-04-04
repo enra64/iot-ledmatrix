@@ -1,13 +1,15 @@
 import inspect
 import time
 
-from broadcast_receiver import DiscoveryServer
+from DiscoveryServer import DiscoveryServer
 from Canvas import Canvas
 from matrix_serial import MatrixSerial
 from script_handling import ScriptHandler
+from colour import Color
 
 # begin serial test
 from Server import Server
+
 
 def red_display_test(serial: MatrixSerial):
     """draw red to all pixels without using canvas; mostly a MatrixSerial test"""
@@ -40,7 +42,7 @@ def test_canvas_line():
     print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
 
-    c.draw_line(0, 0, 9, 5, 255, 255, 255)
+    c.draw_line(0, 0, 9, 5, Color())
     print(repr(c))
 
 
@@ -48,8 +50,10 @@ def test_canvas_pixel_line():
     print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
 
-    for i in range(c.width):
-        c.draw_pixel(i, i, 255, 255, 255)
+    blue = Color("blue")
+
+    for i in range(c.width - 1, 0-1, -1):
+        c.draw_pixel(9 - i, i, blue)
         print(repr(c))
 
 
@@ -57,7 +61,9 @@ def test_canvas_rect():
     print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
 
-    c.draw_rect(2, 2, 4, 4, 255, 0, 0)
+    blue = Color("blue")
+
+    c.draw_rect(2, 2, 4, 4, blue)
     print(repr(c))
 
 
@@ -65,7 +71,8 @@ def test_canvas_font():
     print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
     c.set_font("helvetica.otf", 13)
-    c.draw_text("h", 0, 0, 255, 255, 255)
+    blue = Color("blue")
+    c.draw_text("h", 0, 0, blue)
     print(repr(c))
 
 
@@ -73,9 +80,11 @@ def test_canvas_draw_pixel_line(serial):
     print(inspect.currentframe().f_code.co_name)
     c = Canvas(156, 1)
 
+    blue = Color("blue")
+
     while True:
         for i in range(c.width):
-            c.draw_pixel(i, 0, 255, 0, 0)
+            c.draw_pixel(i, 0, blue)
             serial.update(c.get_buffer_for_arduino())
 
 
@@ -95,6 +104,8 @@ def test_broadcast_receiver_and_server():
     server = Server(
         lambda data, source: print("got " + data + " from " + str(source)),
         lambda data, source: print("got " + data + " from " + str(source)),
+        lambda client_id: print(client_id + " has connected"),
+        lambda client_id: print(client_id + " has disconnected"),
         local_data_port=receiver.get_advertised_data_port(),
         matrix_dimensions=(10, 10)
     )
@@ -105,17 +116,36 @@ def test_broadcast_receiver_and_server():
     server.stop()
 
 
-    # begin script handler testing
+def __return_list():
+    return []
+
+
+def test_invalid_script_name():
+    print(inspect.currentframe().f_code.co_name)
+    print("should print or have printed an error about \"invalid-script**dafsdf\" not existing...")
+    c = Canvas(10, 10)
+    handler = ScriptHandler(
+        c,
+        lambda: print("draw cycle finished"),
+        lambda data, client_id: print("sending " + data + " to " + client_id),
+        lambda data: print("sending " + data + " to all"),
+        __return_list()
+    )
+
+    handler.start_script("invalid-script**dafsdf", "test_script_handler")
 
 
 def test_script_handler():
     print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
-    handler = ScriptHandler(c)
+    handler = ScriptHandler(
+        c,
+        lambda: print("draw cycle finished"),
+        lambda data, client_id: print("sending " + data + " to " + client_id),
+        lambda data: print("sending " + data + " to all"),
+        __return_list
+    )
 
-    handler.start_script("print_tester")
+    handler.start_script("_CustomScriptTester", "test_script_handler")
     time.sleep(.5)
     handler.stop_current_script()
-
-    print("testing canvas outside of thread..., should be same as before")
-    print(repr(c))

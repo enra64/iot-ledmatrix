@@ -3,25 +3,28 @@ import sys
 
 import logging
 
-import iot_ledmatrix_component_tests
+import tests
 from custom_atexit import CustomAtExit
 from Manager import Manager
 from matrix_serial import MatrixSerial, get_connected_arduinos, guess_arduino
 
+def test_serial():
+    ser = MatrixSerial("/dev/ttyUSB0", 100, connect=True)
+    tests.red_display_test(ser)
+    tests.test_canvas_draw_pixel_line(ser)
+
 
 def test_all():
-    ser = MatrixSerial("/dev/ttyUSB0", 100, connect=True)
-
-    iot_ledmatrix_component_tests.red_display_test(ser)
-    iot_ledmatrix_component_tests.test_canvas_draw_pixel_line(ser)
-    iot_ledmatrix_component_tests.test_canvas_pixel_line()
-    iot_ledmatrix_component_tests.test_pixel_index_conversion()
-    iot_ledmatrix_component_tests.test_canvas_rect()
-    iot_ledmatrix_component_tests.test_canvas_line()
-    iot_ledmatrix_component_tests.test_script_handler()
-    iot_ledmatrix_component_tests.test_canvas_font()
-    iot_ledmatrix_component_tests.test_broadcast_receiver()
-    iot_ledmatrix_component_tests.test_broadcast_receiver_and_server()
+    #test_serial()
+    tests.test_invalid_script_name()
+    tests.test_canvas_pixel_line()
+    tests.test_pixel_index_conversion()
+    tests.test_canvas_rect()
+    tests.test_canvas_line()
+    tests.test_script_handler()
+    tests.test_canvas_font()
+    tests.test_broadcast_receiver()
+    tests.test_broadcast_receiver_and_server()
 
 
 def print_help():
@@ -72,8 +75,6 @@ if __name__ == "__main__":
     matrix_data_port = 55124
     matrix_discovery_port = 54123
     matrix_connect_to_arduino = True
-    custom_fragment_directory = "scripts/custom_fragment_directory"
-    no_custom_fragment_directory = "scripts/no_custom_fragment_directory"
     log_level = logging.INFO
     run = True
 
@@ -110,10 +111,6 @@ if __name__ == "__main__":
                 log_level = getattr(logging, argument.upper(), None)
             elif option == "--disable-arduino-connection":
                 matrix_connect_to_arduino = False
-            elif option == "custom_fragment_directory":
-                custom_fragment_directory = argument
-            elif option == "no_custom_fragment_directory":
-                no_custom_fragment_directory = argument
 
     if matrix_connect_to_arduino and matrix_port is None:
         matrix_port = guess_arduino()
@@ -130,9 +127,7 @@ if __name__ == "__main__":
             matrix_data_port,
             matrix_name,
             matrix_discovery_port,
-            matrix_connect_to_arduino,
-            custom_fragment_directory,
-            no_custom_fragment_directory)
+            matrix_connect_to_arduino)
         try:
             manager.start()
             manager.load_script("gameoflife")

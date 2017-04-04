@@ -344,3 +344,13 @@ SyntaxError: invalid syntax
 23.03.2017@17:13:57: INFO: custom atexit triggered.
 23.03.2017@17:13:57: INFO: STOP: administration
 23.03.2017@17:13:57: WARNING: got exception during exit :(
+04.04.2017@20:56:38: INFO: manager survived init
+04.04.2017@20:56:38: INFO: the matrix serial was started in silent mode. connect() was ignored.
+04.04.2017@20:56:38: ERROR: no such script: gameoflife, aborting
+04.04.2017@20:56:38: WARNING: script 'gameoflife' not executed due to initialization failure. check your code!
+04.04.2017@20:56:52: INFO: shutting down on manual command
+04.04.2017@20:57:38: INFO: manager survived init
+04.04.2017@20:57:38: INFO: the matrix serial was started in silent mode. connect() was ignored.
+04.04.2017@20:57:38: ERROR: no such script: gameoflife, aborting
+04.04.2017@20:57:38: WARNING: script 'gameoflife' not executed due to initialization failure. check your code!
+04.04.2017@20:57:44: INFO: shutting down on manual command

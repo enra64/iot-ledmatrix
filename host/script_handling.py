@@ -29,7 +29,7 @@ class ScriptRunner:
                 self.script.draw(canvas)
                 draw_cycle_finished_callback()
             except (AssertionError, Exception) as detail:
-                logging.error(self.script_name + ": caused an exception: " + str(detail) + ", execution will be stopped.")
+                logging.error(self.script_name + ": caused an exception: " + traceback.format_exc(detail) + ", execution will be stopped.")
                 self.abort.set()
 
         self.script.exit()
@@ -89,20 +89,27 @@ class ScriptRunner:
             send_object,
             send_object_to_all,
             start_script,
-            get_connected_clients,
-            custom_fragment_dir,
-            no_custom_fragment_dir):
+            get_connected_clients):
 
         # default to 30ms frame period
         self.frame_period = 0.030
+
+        # default to bad init
         self.ok = False
+
+        # store script name for debugging
+        self.script_name = script
+
+        # abort flag for stopping the run thread
+        self.abort = threading.Event()
+
+        # last exec time init so pycharm doesnt whine
+        self.last_exec = 0
 
         # dynamic import
         try:
-            if os.path.isfile(custom_fragment_dir + "/" + script):
-                script_module = import_module(custom_fragment_dir + '.' + script)
-            elif os.path.isfile(no_custom_fragment_dir + "/" + script):
-                script_module = import_module(no_custom_fragment_dir + '.' + script)
+            if os.path.isfile("scripts/" + script + ".py"):
+                script_module = import_module('scripts.' + script)
             else:
                 logging.error("no such script: " + script + ", aborting")
                 return
@@ -123,7 +130,7 @@ class ScriptRunner:
                     get_connected_clients
                 )
             except Exception as detail:
-                logging.error(script + ": __init__ caused an exception: " + str(detail))
+                logging.error(script + ": __init__ caused an exception: " + traceback.format_exc(detail))
             else:
                 self.script_thread = threading.Thread(
                     target=self.runner,
@@ -131,10 +138,7 @@ class ScriptRunner:
                         canvas,
                         draw_cycle_finished_callback
                     ),
-                    name="script thread: " + script)
-                self.abort = threading.Event()
-                self.last_exec = 0
-                self.script_name = script
+                    name="CUSTOM SCRIPT RUNNER FOR \"" + script + "\"")
                 self.ok = True
 
 
@@ -145,9 +149,15 @@ class ScriptHandler:
             draw_cycle_finish_callback,
             send_object,
             send_object_to_all,
-            get_client_list,
-            custom_fragment_dir,
-            no_custom_fragment_dir):
+            get_client_list):
+        """
+        
+        :param canvas: canvas that will be drawn to. can be accessed for the back buffer required to get data to leds 
+        :param draw_cycle_finish_callback: method to be called whenever the draw cycle of the current script has finished
+        :param send_object: method to send an object to a single client
+        :param send_object_to_all: method to send an object to all clients
+        :param get_client_list: method that returns list of zmq (Server) client ids
+        """
         self.current_script_runner = None
         self.canvas = canvas
         self.is_script_running = False
@@ -155,8 +165,6 @@ class ScriptHandler:
         self.send_object = send_object
         self.send_object_to_all = send_object_to_all
         self.get_client_list = get_client_list
-        self.custom_fragment_dir = custom_fragment_dir
-        self.no_custom_fragment_dir = no_custom_fragment_dir
 
     def start_script(self, script_name: str, source_id):
         """
@@ -175,9 +183,7 @@ class ScriptHandler:
                 self.send_object,
                 self.send_object_to_all,
                 self.start_script,
-                self.get_client_list,
-                self.custom_fragment_dir,
-                self.no_custom_fragment_dir)
+                self.get_client_list)
 
         if self.current_script_runner.ok:
             logging.info("START: " + script_name)

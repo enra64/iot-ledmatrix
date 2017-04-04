@@ -45,9 +45,7 @@ class CustomScript:
                  restart_self,
                  set_frame_period,
                  set_frame_rate,
-                 get_connected_clients,
-                 custom_fragment_dir,
-                 no_custom_fragment_dir):
+                 get_connected_clients):
         """
         The constructor is the first time the script comes alive. After running through it, calls to update and then draw
         are to be expected. All parameters but canvas are stored in the instance by the CustomScript constructor.
@@ -61,8 +59,6 @@ class CustomScript:
         :param set_frame_period: set the period with which the script update cycle is called. overwrites set_framerate.
         :param set_frame_rate: set the frame rate with which the script update cycle is called. overwrites set_frame_period.
         :param get_connected_clients: get a list of connected clients' zmq ids
-        :param custom_fragment_dir: directory where custom scripts requiring custom fragments lie
-        :param no_custom_fragment_dir: directory where custom scripts requiring no custom fragments lie
         """
         self.__send_object = send_object
         self.__send_object_to_all = send_object_to_all
@@ -71,8 +67,6 @@ class CustomScript:
         self.__set_frame_period = set_frame_period
         self.__set_frame_rate = set_frame_rate
         self.__get_connected_clients = get_connected_clients
-        self.custom_fragment_dir = custom_fragment_dir
-        self.no_custom_fragment_dir = no_custom_fragment_dir
 
     def get_connected_clients(self):
         """

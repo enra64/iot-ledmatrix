@@ -91,6 +91,17 @@ class Canvas:
 
         return index
 
+    def get_red_index(self, x, y):
+        """
+        Pretty much like get_pixel_index, but this function returns the position of the red value of the given led in the
+        byte buffer.
+        
+        :param x: x coordinate of led in cartesian system
+        :param y: y coordinate of led in cartesian system
+        :return: position of "red" in the background buffer 
+        """
+        return self.get_pixel_index(x, y) * 3
+
     def __write_color_at(self, x, y, color: Color):
         """
         Write a color at a specified position in the matrix
@@ -100,8 +111,9 @@ class Canvas:
         :param color: the color to be written to the pixel
         :return: nothing
         """
-        red_index = self.get_pixel_index(x, y)
-        self.data_buffer[red_index:red_index + 3] = self.__color_to_255_rgb(color)
+        color_in_255 = self.__color_to_255_rgb(color)
+        red_index = self.get_red_index(x, y)
+        self.data_buffer[red_index:red_index + 3] = color_in_255
 
     @staticmethod
     def __get_repr_color(color: Color) -> str:
@@ -135,8 +147,10 @@ class Canvas:
         :param y: y position of pixel; y is zero for the top row of pixels, must be smaller than the canvas height 
         :return: a Color instance
         """
-        clr = self.data_buffer[self.get_pixel_index(x, y):self.get_pixel_index(x, y) + 3]
-        return Color(rgb=tuple([i / 255 for i in clr]))
+        red_index = self.get_red_index(x, y)
+        clr = self.data_buffer[red_index:red_index + 3]
+        clr_normalized = tuple([i / 255 for i in clr])
+        return Color(rgb=clr_normalized)
 
     def __repr__(self) -> str:
         """
@@ -171,7 +185,8 @@ class Canvas:
         """
         self.font = Font(path, size)
 
-    def __color_to_255_rgb(self, color: Color):
+    @staticmethod
+    def __color_to_255_rgb(color: Color):
         """
         Convert a normalized color to byte colors from 0 to 255
         
@@ -180,7 +195,7 @@ class Canvas:
         """
         return [int(round(i * 255)) for i in color.get_rgb()]
 
-    def clear(self, color: Color):
+    def clear(self, color: Color = Color('black')):
         """
         Set all pixels to some color
 
@@ -225,7 +240,7 @@ class Canvas:
             height. if false, a warning will be printed in the log on each such occasion
         :return: nothing
         """
-        assert self.font is None, "No font loaded! Use set_font(path, size)!"
+        assert self.font is not None, "No font loaded! Use set_font(path, size)!"
 
         rendered_text = self.font.render_text(text)
 
@@ -270,7 +285,7 @@ class Canvas:
         """
         for _x in range(x, x + width):
             for _y in range(y, y + height):
-                self.draw_pixel(_x, _y, r, g, b)
+                self.draw_pixel(_x, _y, color)
 
     def draw_line(self, x_start: int, y_start: int, x_end: int, y_end: int, color: Color):
         """
