@@ -1,5 +1,5 @@
 from CustomScript import CustomScript
-from canvas import Canvas
+from Canvas import Canvas
 
 
 class log_reader(CustomScript):

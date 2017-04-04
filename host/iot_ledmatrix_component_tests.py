@@ -2,7 +2,7 @@ import inspect
 import time
 
 from broadcast_receiver import DiscoveryServer
-from canvas import Canvas
+from Canvas import Canvas
 from matserial import MatrixSerial
 from script_handling import ScriptHandler
 

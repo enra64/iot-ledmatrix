@@ -1,4 +1,4 @@
-from canvas import Canvas
+from Canvas import Canvas
 
 
 # noinspection PyMethodMayBeStatic
@@ -13,8 +13,10 @@ class CustomScript:
         * exit(), last call before the instance is discarded
         * on_client_connected(client_id), called with an id parameter when a new client is approved
         * on_client_disconnected(client_id), called with an id parameter when a client has disconnected
+    
+    They have default implementations, so you only need to override them if you need to do anything.
         
-    A few methods can also be called by the script itself:
+    A few methods can also be called by the script itself (self.<function_name>(<param1...>)):
         * send_object(obj, id) to send objects to specific clients
         * send_object_to_all(obj) to send objects to all clients
         * start_script(script) start a script by name. will replace current script.
@@ -85,13 +87,14 @@ class CustomScript:
         """
         self.__send_object_to_all(obj)
 
-    def start_script(self, script_name):
+    def start_script(self, script_name, source_id):
         """
         Will load the class in the scripts/ folder that has the given name in the file with the same name.
 
         :param script_name: the name of _both_ the script and the class implementing the callback functions
+        :param source_id: the id of the client requesting the script to be loaded
         """
-        self.__start_script(script_name)
+        self.__start_script(script_name, source_id)
 
     def restart_self(self):
         """

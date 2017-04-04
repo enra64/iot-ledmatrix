@@ -3,6 +3,7 @@ import logging
 from fonts import Font
 from colour import Color
 
+
 class Canvas:
     """
     A canvas makes it easy to display using the matrix by providing a translation layer between pixels on a cartesian
@@ -100,7 +101,7 @@ class Canvas:
         :return: nothing
         """
         red_index = self.get_pixel_index(x, y)
-        self.data_buffer[red_index:red_index+3] = self.__color_to_255_rgb(color)
+        self.data_buffer[red_index:red_index + 3] = self.__color_to_255_rgb(color)
 
     @staticmethod
     def __get_repr_color(color: Color) -> str:
@@ -212,7 +213,7 @@ class Canvas:
         # update data in position
         self.__write_color_at(x, y, color)
 
-    def draw_text(self, text: str, x: int, y: int, color: Color, ignore_height_warning = False):
+    def draw_text(self, text: str, x: int, y: int, color: Color, ignore_height_warning=False):
         """
         Draw text on the canvas. Rendering over the borders is cut off, so you do not need boundary checking.
         

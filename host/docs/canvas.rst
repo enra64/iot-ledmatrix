@@ -3,6 +3,6 @@
 Canvas class
 ------------
 
-.. automodule:: canvas
-.. autoclass:: canvas.Canvas
+.. automodule:: Canvas
+.. autoclass:: Canvas.Canvas
     :members:

@@ -2,7 +2,7 @@ import logging
 
 from broadcast_receiver import DiscoveryServer
 from custom_atexit import CustomAtExit
-from canvas import Canvas
+from Canvas import Canvas
 from matserial import MatrixSerial
 from script_handling import ScriptHandler
 from Server import Server

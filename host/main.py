@@ -5,7 +5,7 @@ import logging
 
 import iot_ledmatrix_component_tests
 from custom_atexit import CustomAtExit
-from manager import Manager
+from Manager import Manager
 from matserial import MatrixSerial, get_connected_arduinos, guess_arduino
 
 

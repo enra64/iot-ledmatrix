@@ -8,7 +8,7 @@ import logging
 import helpers
 import time
 
-from canvas import Canvas
+from Canvas import Canvas
 
 
 class ScriptRunner:

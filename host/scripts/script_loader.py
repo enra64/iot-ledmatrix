@@ -4,7 +4,7 @@ from os.path import isfile, join
 import logging
 
 from CustomScript import CustomScript
-from canvas import Canvas
+from Canvas import Canvas
 
 
 class script_loader(CustomScript):
@@ -15,7 +15,7 @@ class script_loader(CustomScript):
         command = json['command']
 
         if command == "request_script_list":
-            scripts = [f[:-3] for f in listdir("scripts/") if isfile(join("scripts/", f))]
+            scripts = [f[:-3] for f in listdir("scripts/does_not_require_custom_fragment/") if isfile(join("scripts/", f))]
             self.send_object({"message_type": "request_script_list", "script_list": scripts}, source_id)
         elif command == "script_load_request":
             requested_script = json['requested_script']
