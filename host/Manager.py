@@ -3,7 +3,7 @@ import logging
 from broadcast_receiver import DiscoveryServer
 from custom_atexit import CustomAtExit
 from Canvas import Canvas
-from matserial import MatrixSerial
+from matrix_serial import MatrixSerial
 from script_handling import ScriptHandler
 from Server import Server
 
@@ -50,7 +50,18 @@ class Manager:
         """load specific script"""
         self.script_handler.start_script(script, "hardcoded")
 
-    def __init__(self, arduino_interface, arduino_baud, matrix_width, matrix_height, data_port, server_name, discovery_port, enable_arduino_connection: bool):
+    def __init__(
+            self,
+            arduino_interface,
+            arduino_baud,
+            matrix_width,
+            matrix_height,
+            data_port,
+            server_name,
+            discovery_port,
+            custom_fragment_dir,
+            no_custom_fragment_dir,
+            enable_arduino_connection: bool):
         """
         Initializes instances of: MatrixSerial, BroadcastReceiver, Server, Canvas and ScriptHandler. Registers 
         manager.stop for a shutdown hook.
@@ -61,7 +72,9 @@ class Manager:
         :param matrix_height: height of the matrix
         :param data_port: the data port at which the server should be listening
         :param server_name: name of the server as advertised to the clients
-        :param discovery_port: the discovery port at which the BroadcastReceiver is listening for discovery requests
+        :param discovery_port: the discovery port at which the DiscoveryServer is listening for discovery requests
+        :param custom_fragment_dir: the directory in which fragments requiring a custom android fragment lie in
+        :param no_custom_fragment_dir: the directory in which fragments requiring no custom android fragment lie in
         :param enable_arduino_connection: if True, MatrixSerial will attempt to connect to the arduino
             if False, no connection attempt is made; useful for debugging.
         """
@@ -102,7 +115,9 @@ class Manager:
             self.on_draw_cycle_finished,
             self.server.send_object,
             self.server.send_object_all,
-            self.server.get_client_list
+            self.server.get_client_list,
+            custom_fragment_dir,
+            no_custom_fragment_dir
         )
 
         # give the server the functions to call when clients dis/connect

@@ -6,9 +6,9 @@ Custom scripts
 Custom scripts are what makes iot-ledmatrix powerful.
 You can add any gimmick you want by adding an implementation to one of the subfolders of `scripts`.
 
-Scripts placed in `does_not_require_custom_fragment` can be loaded manually in the accompanying app, while those
-placed in `requires_custom_fragment` will only be loaded by custom fragments in the app. Other than that,
-new custom scripts do not need any configuration effort.
+Scripts placed in `scripts/does_not_require_custom_fragment` can be loaded manually in the accompanying app, while those
+placed in `scripts/requires_custom_fragment` will only be loaded by custom fragments in the app. Other than that,
+new custom scripts do not need any configuration effort. These directories may change depending on your execution parameters.
 When your new script is requested in the app, it will be loaded and can draw to the led matrix.
 
 How to draw from within the script

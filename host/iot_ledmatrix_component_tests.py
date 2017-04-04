@@ -3,7 +3,7 @@ import time
 
 from broadcast_receiver import DiscoveryServer
 from Canvas import Canvas
-from matserial import MatrixSerial
+from matrix_serial import MatrixSerial
 from script_handling import ScriptHandler
 
 # begin serial test

@@ -26,6 +26,10 @@ class CustomScript:
         * set_frame_rate(rate) allows to set a custom update cycle calling rate in Hz
         
     All of these functions are documented more detailed in their method documentations.
+    
+    Also available:
+        * self.no_custom_fragment_dir: the directory where the user put his scripts that do not require a custom android fragment to run
+        * self.custom_fragment_dir: the directory where the user put his scripts that do require a custom android fragment to run properly
 
     The constructor will always be called first. Do your initialization here.
     Update will always be called before draw. The two functions are called in a loop, and will repeatedly execute.
@@ -41,7 +45,9 @@ class CustomScript:
                  restart_self,
                  set_frame_period,
                  set_frame_rate,
-                 get_connected_clients):
+                 get_connected_clients,
+                 custom_fragment_dir,
+                 no_custom_fragment_dir):
         """
         The constructor is the first time the script comes alive. After running through it, calls to update and then draw
         are to be expected. All parameters but canvas are stored in the instance by the CustomScript constructor.
@@ -54,6 +60,9 @@ class CustomScript:
         :param restart_self: helper call for start_script(this_one)
         :param set_frame_period: set the period with which the script update cycle is called. overwrites set_framerate.
         :param set_frame_rate: set the frame rate with which the script update cycle is called. overwrites set_frame_period.
+        :param get_connected_clients: get a list of connected clients' zmq ids
+        :param custom_fragment_dir: directory where custom scripts requiring custom fragments lie
+        :param no_custom_fragment_dir: directory where custom scripts requiring no custom fragments lie
         """
         self.__send_object = send_object
         self.__send_object_to_all = send_object_to_all
@@ -62,25 +71,33 @@ class CustomScript:
         self.__set_frame_period = set_frame_period
         self.__set_frame_rate = set_frame_rate
         self.__get_connected_clients = get_connected_clients
+        self.custom_fragment_dir = custom_fragment_dir
+        self.no_custom_fragment_dir = no_custom_fragment_dir
 
     def get_connected_clients(self):
+        """
+        Get a list of connected clients. The list will only contain the ids as given by zmq, which may
+        be used to send data to clients. To send data to all clients, use send_object_to_all.
+        
+        :return: list of zmq ids. 
+        """
         return self.__get_connected_clients()
 
     def send_object(self, obj, target):
         """
-        Send an object to the target id. The object can be anything. No JSON serialization needs to be
-        performed by you.
+        Send an object to the target id. The object can be anything, but a dict is probably easiest. 
+        No JSON serialization needs to be performed by you.
 
         :param obj: the object to be sent
-        :param target_id: target id of the client
+        :param target: target id of the client
         :return: nothing
         """
         self.__send_object(obj, target)
 
     def send_object_to_all(self, obj):
         """
-        Send an object to all connected clients. The object can be anything. No JSON serialization needs to be
-        performed by you.
+        Send an object to all connected clients. TThe object can be anything, but a dict is probably easiest. 
+        No JSON serialization needs to be performed by you.
     
         :param obj: the object to be sent
         :return: nothing

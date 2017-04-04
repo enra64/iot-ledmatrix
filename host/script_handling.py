@@ -1,3 +1,4 @@
+import os
 import traceback
 from functools import partial
 from importlib import import_module  # import all the things
@@ -88,7 +89,9 @@ class ScriptRunner:
             send_object,
             send_object_to_all,
             start_script,
-            get_connected_clients):
+            get_connected_clients,
+            custom_fragment_dir,
+            no_custom_fragment_dir):
 
         # default to 30ms frame period
         self.frame_period = 0.030
@@ -96,7 +99,13 @@ class ScriptRunner:
 
         # dynamic import
         try:
-            script_module = import_module('scripts.' + script)
+            if os.path.isfile(custom_fragment_dir + "/" + script):
+                script_module = import_module(custom_fragment_dir + '.' + script)
+            elif os.path.isfile(no_custom_fragment_dir + "/" + script):
+                script_module = import_module(no_custom_fragment_dir + '.' + script)
+            else:
+                logging.error("no such script: " + script + ", aborting")
+                return
         except SyntaxError:
             logging.error("module import of " + script + " produced a syntaxerror " + traceback.format_exc())
         else: # if import produced no syntax error
@@ -130,7 +139,15 @@ class ScriptRunner:
 
 
 class ScriptHandler:
-    def __init__(self, canvas: Canvas, draw_cycle_finish_callback, send_object, send_object_to_all, get_client_list):
+    def __init__(
+            self,
+            canvas: Canvas,
+            draw_cycle_finish_callback,
+            send_object,
+            send_object_to_all,
+            get_client_list,
+            custom_fragment_dir,
+            no_custom_fragment_dir):
         self.current_script_runner = None
         self.canvas = canvas
         self.is_script_running = False
@@ -138,6 +155,8 @@ class ScriptHandler:
         self.send_object = send_object
         self.send_object_to_all = send_object_to_all
         self.get_client_list = get_client_list
+        self.custom_fragment_dir = custom_fragment_dir
+        self.no_custom_fragment_dir = no_custom_fragment_dir
 
     def start_script(self, script_name: str, source_id):
         """
@@ -156,7 +175,9 @@ class ScriptHandler:
                 self.send_object,
                 self.send_object_to_all,
                 self.start_script,
-                self.get_client_list)
+                self.get_client_list,
+                self.custom_fragment_dir,
+                self.no_custom_fragment_dir)
 
         if self.current_script_runner.ok:
             logging.info("START: " + script_name)
