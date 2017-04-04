@@ -2,6 +2,8 @@ import atexit
 
 import logging
 
+import traceback
+
 
 class CustomAtExit:
     """
@@ -21,6 +23,15 @@ class CustomAtExit:
             """register a new function that will be called on exit"""
             self.atexit_functions[function] = args
 
+        def disarm_system_atexit(self):
+            """
+            Can be used to remove the trigger this class has set for triggering on atexit. Useful to avoid double-
+            triggering on manual triggering.
+            
+            :return: nothing 
+            """
+            atexit.unregister(self.trigger)
+
         def trigger(self):
             """call all registered functions"""
             logging.info("custom atexit triggered.")
@@ -30,8 +41,12 @@ class CustomAtExit:
                         function(args)
                     else:
                         function()
-                except:
-                    logging.warning("got exception during exit :(")
+                except (Exception, AssertionError) as e:
+                    if not isinstance(e, KeyboardInterrupt):
+                        logging.error(
+                            "exception during exit trigger():\n " +
+                            traceback.format_exc() +
+                            "\n now trying to execute next function :/")
 
     # the singleton instance variable
     instance = None

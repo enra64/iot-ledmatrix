@@ -43,6 +43,9 @@ class Server:
         context = zmq.Context.instance()
         self.socket = context.socket(zmq.ROUTER)
 
+        # wait max 10ms before shutting down
+        self.socket.setsockopt(zmq.LINGER, 10)
+
     def handle_script_load_request(self, data, source_id):
         """
         Handle a script load request by a client.
@@ -158,23 +161,23 @@ class Server:
         # until stop is called
         while not self.abort.is_set():
             # wait for incoming request
-            id, message = self.socket.recv_multipart()
+            client_id, message = self.socket.recv_multipart()
 
             msg_decoded_json = json.loads(message.decode())
             message_type = msg_decoded_json['message_type']
 
             # special handling for connection requests, because those are accepted by non-approved clients
             if message_type == "connection_request":
-                self.handle_connection_request(msg_decoded_json, id)
+                self.handle_connection_request(msg_decoded_json, client_id)
             # messages by approved clients will be handled now
-            elif id in self.approved_clients:
+            elif client_id in self.approved_clients:
                 {
                     'connection_request': self.handle_connection_request,
                     'script_load_request': self.handle_script_load_request,
                     'script_data': self.handle_script_data,
                     'connection_test': self.handle_connection_test,
                     'shutdown_notification': self.on_client_shutdown
-                }.get(message_type)(msg_decoded_json, id)
+                }.get(message_type)(msg_decoded_json, client_id)
 
     def start(self):
         """Start listening for messages"""
@@ -187,9 +190,6 @@ class Server:
         # notify clients
         object = {"message_type": "shutdown_notification"}
         self.send_object_all(object)
-
-        # wait max 10ms before shutting down
-        self.socket.setsockopt(zmq.LINGER, 10)
 
         # stop receiver thread
         self.socket.close()

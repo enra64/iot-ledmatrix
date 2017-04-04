@@ -28,8 +28,8 @@ class ScriptRunner:
                 self.script.update(canvas)
                 self.script.draw(canvas)
                 draw_cycle_finished_callback()
-            except (AssertionError, Exception) as detail:
-                logging.error(self.script_name + ": caused an exception: " + traceback.format_exc(detail) + ", execution will be stopped.")
+            except (AssertionError, Exception):
+                logging.error(self.script_name + ": caused an exception: " + traceback.format_exc() + ", execution will be stopped.")
                 self.abort.set()
 
         self.script.exit()
@@ -129,8 +129,8 @@ class ScriptRunner:
                     self.set_frame_rate,
                     get_connected_clients
                 )
-            except Exception as detail:
-                logging.error(script + ": __init__ caused an exception: " + traceback.format_exc(detail))
+            except Exception:
+                logging.error(script + ": __init__ caused an exception: " + traceback.format_exc())
             else:
                 self.script_thread = threading.Thread(
                     target=self.runner,
@@ -205,8 +205,11 @@ class ScriptHandler:
         self.current_script_runner.on_data(data, source_id)
 
     def stop_current_script(self):
-        logging.info("STOP: " + self.current_script_runner.script_name)
-        self.current_script_runner.stop()
+        if self.current_script_runner is None:
+            logging.info("STOP: NO RUNNING SCRIPT")
+        else:
+            logging.info("STOP: " + self.current_script_runner.script_name)
+            self.current_script_runner.stop()
         self.is_script_running = False
 
     def join(self):

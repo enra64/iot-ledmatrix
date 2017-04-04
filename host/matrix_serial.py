@@ -84,9 +84,6 @@ class MatrixSerial:
         # wait for arduino reset
         time.sleep(2)
 
-        # flushing more cant hurt right
-        self.serial.flushInput()
-        self.serial.flushOutput()
 
         # begin handshake
         self.serial.write(b'hello')
@@ -95,7 +92,7 @@ class MatrixSerial:
         response = self.serial.read(3)
 
         if response != b'SAM' and response != b'kSA':
-            logging.exception("Handshake failed: expected b'SAM', got " + str(response))
+            logging.warning("Handshake failed: expected b'SAM', got " + str(response))
             raise MatrixProtocolException("Handshake failed: expected b'SAM', got " + str(response))
 
         logging.info("successfully connected to arduino")

@@ -76,12 +76,16 @@ class Manager:
         """
         """initializes all required modules without starting any of them."""
 
+        # log that the manager will now attempt to initialize
+        logging.info("manager beginning initialization routines. pray to the gods...")
+
         # matrix serial connects to the arduino and sends data to it
         self.matrix_serial = MatrixSerial(
             arduino_interface,
             matrix_width * matrix_height,
             arduino_baud,
-            enable_arduino_connection)
+            connect=False,  # we shall connect in start()
+            enable_arduino_connection=True)
 
         # the discovery server manages everything related to server discovery for clients
         self.discovery_server = DiscoveryServer(
