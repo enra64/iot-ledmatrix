@@ -1,5 +1,6 @@
 import traceback
-from importlib import import_module # import all the things
+from functools import partial
+from importlib import import_module  # import all the things
 import threading
 
 import logging
@@ -16,7 +17,7 @@ class ScriptRunner:
 
         while not self.abort.is_set():
             # wait until at least 30ms have been over since last exec
-            time.sleep(helpers.clamp(0.030 - (time.time() - self.last_exec), 0, 0.03))
+            time.sleep(helpers.clamp(self.frame_period - (time.time() - self.last_exec), 0, self.frame_period))
 
             # update exec timestamp
             self.last_exec = time.time()
@@ -49,28 +50,77 @@ class ScriptRunner:
         except Exception as detail:
             logging.error(self.script_name + ": on_data caused an exception: " + str(detail))
 
-    def on_new_client(self, client_id):
-        self.script.on_new_client(client_id)
+    def on_client_connected(self, client_id):
+        """forward client connect signal"""
+        self.script.on_client_connected(client_id)
 
     def on_client_disconnected(self, client_id):
+        """forward client disconnect signal"""
         self.script.on_client_disconnected(client_id)
 
     def join(self):
         self.script_thread.join()
 
-    def __init__(self, script:str, canvas: Canvas, draw_cycle_finished_callback, send_object, send_object_to_all, start_script):
+    def set_frame_period(self, period):
+        """
+        Change the frame period with which the script will be updated
+
+        :param period: the target frame period. resulting frame rate must be 0 <= f <= 60, in Hz 
+        :return: nothing
+        """
+        self.set_frame_rate(1 / period)
+
+    def set_frame_rate(self, frame_rate):
+        """
+        Change the frame rate with which the script will be updated
+         
+        :param frame_rate: the target frame rate. must be 0 <= f <= 60, in Hz 
+        :return: nothing
+        """
+        assert 0 <= frame_rate <= 60, "Frame rate out of bounds."
+        self.frame_period = 1 / frame_rate
+
+    def __init__(
+            self,
+            script: str,
+            canvas: Canvas,
+            draw_cycle_finished_callback,
+            send_object,
+            send_object_to_all,
+            start_script):
+
+        # default to 30ms frame period
+        self.frame_period = 0.030
         self.ok = False
+
+        # dynamic import
         try:
-            module = import_module('scripts.' + script)
+            script_module = import_module('scripts.' + script)
         except SyntaxError:
             logging.error("module import of " + script + " produced a syntaxerror " + traceback.format_exc())
-        else:
+        else: # if import produced no syntax error
             try:
-                self.script = getattr(module, script)(canvas, send_object, send_object_to_all, start_script)
+                # call custom script constructor
+                self.script = getattr(script_module, script)(
+                    canvas,
+                    send_object,
+                    send_object_to_all,
+                    start_script,
+                    # "restart self" helper, simply set script name to this scripts name
+                    partial(start_script, script_name=script),
+                    self.set_frame_period,
+                    self.set_frame_rate
+                )
             except Exception as detail:
                 logging.error(script + ": __init__ caused an exception: " + str(detail))
             else:
-                self.script_thread = threading.Thread(target=self.runner, args=(canvas, draw_cycle_finished_callback), name="script thread: " + script)
+                self.script_thread = threading.Thread(
+                    target=self.runner,
+                    args=(
+                        canvas,
+                        draw_cycle_finished_callback
+                    ),
+                    name="script thread: " + script)
                 self.abort = threading.Event()
                 self.last_exec = 0
                 self.script_name = script
@@ -87,12 +137,23 @@ class ScriptHandler:
         self.send_object_to_all = send_object_to_all
 
     def start_script(self, script_name: str, source_id):
-        """Will load the class in the scripts/ folder that has the given name in the file with the same name.
-        :param script_name: the name of _both_ the script and the class implementing the callback functions"""
+        """
+        Will load the class in the scripts/ folder that has the given name in the file with the same name.
+        
+        :param script_name: the name of _both_ the script and the class implementing the callback functions
+        """
         if self.is_script_running:
             self.stop_current_script()
 
-        self.current_script_runner = ScriptRunner(script_name, self.canvas, self.draw_cycle_finished_callback, self.send_object, self.send_object_to_all, self.start_script)
+        self.current_script_runner = \
+            ScriptRunner(
+                script_name,
+                self.canvas,
+                self.draw_cycle_finished_callback,
+                self.send_object,
+                self.send_object_to_all,
+                self.start_script)
+
         if self.current_script_runner.ok:
             logging.info("START: " + script_name)
             self.current_script_runner.start()
@@ -102,6 +163,12 @@ class ScriptHandler:
 
     def script_running(self):
         return self.is_script_running
+
+    def on_client_connected(self, id):
+        self.current_script_runner.on_client_connected(id)
+
+    def on_client_disconnected(self, id):
+        self.current_script_runner.on_client_disconnected(id)
 
     def on_data(self, data, source_id):
         self.current_script_runner.on_data(data, source_id)

@@ -12,6 +12,7 @@ def get_connected_arduinos():
     ports = list(serial.tools.list_ports.comports())
     return ports
 
+
 def guess_arduino():
     ports = get_connected_arduinos()
     probably_an_arduino = None

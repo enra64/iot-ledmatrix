@@ -1,13 +1,13 @@
 import inspect
 import time
 
-from broadcast_receiver import BroadcastReceiver
+from broadcast_receiver import DiscoveryServer
 from canvas import Canvas
 from matserial import MatrixSerial
-from script_handler import ScriptHandler
+from script_handling import ScriptHandler
 
 # begin serial test
-from zero_server import Server
+from Server import Server
 
 def red_display_test(serial: MatrixSerial):
     """draw red to all pixels without using canvas; mostly a MatrixSerial test"""
@@ -81,7 +81,7 @@ def test_canvas_draw_pixel_line(serial):
 
 def test_broadcast_receiver():
     print(inspect.currentframe().f_code.co_name)
-    receiver = BroadcastReceiver(name="test_broadcast_receiver", matrix_height=10, matrix_width=10)
+    receiver = DiscoveryServer(name="test_broadcast_receiver", matrix_height=10, matrix_width=10)
     receiver.start()
     time.sleep(200)
     receiver.stop()
@@ -89,7 +89,7 @@ def test_broadcast_receiver():
 
 def test_broadcast_receiver_and_server():
     print(inspect.currentframe().f_code.co_name)
-    receiver = BroadcastReceiver(name="test_broadcast_receiver_and_server", matrix_height=10, matrix_width=10)
+    receiver = DiscoveryServer(name="test_broadcast_receiver_and_server", matrix_height=10, matrix_width=10)
     receiver.start()
 
     server = Server(

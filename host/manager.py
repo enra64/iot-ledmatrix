@@ -1,18 +1,18 @@
 import logging
 
-from broadcast_receiver import BroadcastReceiver
+from broadcast_receiver import DiscoveryServer
 from custom_atexit import CustomAtExit
 from canvas import Canvas
 from matserial import MatrixSerial
-from script_handler import ScriptHandler
-from zero_server import Server
+from script_handling import ScriptHandler
+from Server import Server
 
 
 class Manager:
     """
     The Manager class provides a simple interface for using the matrix code.
     It correctly parametrizes the different modules, has a unified start() and
-    stop() function, and can join the modules where such action is necessary.
+    stop() function, and can join the module threads when necessary.
     """
     def script_load_request_handler(self, script_name: str, source_id):
         """start a new script"""
@@ -28,21 +28,21 @@ class Manager:
 
     def join(self):
         """join all started threads"""
-        self.broadcast_receiver.join()
+        self.discovery_server.join()
         self.server.join()
         self.script_handler.join()
 
     def start(self):
         """starts all required modules"""
         self.matrix_serial.connect()
-        self.broadcast_receiver.start()
+        self.discovery_server.start()
         self.server.start()
 
     def stop(self):
         "gracefully stop all modules"
         self.script_handler.stop_current_script()
         self.matrix_serial.stop()
-        self.broadcast_receiver.stop()
+        self.discovery_server.stop()
         self.server.stop()
         logging.info("manager shut down")
 
@@ -66,12 +66,50 @@ class Manager:
             if False, no connection attempt is made; useful for debugging.
         """
         """initializes all required modules without starting any of them."""
-        self.matrix_serial = MatrixSerial(arduino_interface, matrix_width * matrix_height, arduino_baud, enable_arduino_connection)
-        self.broadcast_receiver = BroadcastReceiver(discovery_port, data_port, server_name, matrix_height=matrix_height, matrix_width=matrix_width)
-        self.server = Server(self.script_load_request_handler, self.script_data_handler, (matrix_width, matrix_height), data_port)
-        self.canvas = Canvas(matrix_width, matrix_height)
-        self.script_handler = ScriptHandler(self.canvas, self.on_draw_cycle_finished, self.server.send_object, self.server.send_object_all)
 
+        # matrix serial connects to the arduino and sends data to it
+        self.matrix_serial = MatrixSerial(
+            arduino_interface,
+            matrix_width * matrix_height,
+            arduino_baud,
+            enable_arduino_connection)
+
+        # the discovery server manages everything related to server discovery for clients
+        self.discovery_server = DiscoveryServer(
+            discovery_port,
+            data_port,
+            server_name,
+            matrix_height=matrix_height,
+            matrix_width=matrix_width)
+
+        # the server communicates with the clients
+        self.server = Server(
+            self.script_load_request_handler,
+            self.script_data_handler,
+            None,
+            None,
+            (matrix_width, matrix_height),
+            data_port)
+
+        # canvas instance which back buffer is sent to the arduino
+        self.canvas = Canvas(
+            matrix_width,
+            matrix_height)
+
+        # script handler starts and runs custom scripts
+        self.script_handler = ScriptHandler(
+            self.canvas,
+            self.on_draw_cycle_finished,
+            self.server.send_object,
+            self.server.send_object_all
+        )
+
+        # give the server the functions to call when clients dis/connect
+        self.server.on_client_connected = self.script_handler.on_client_connected
+        self.server.on_client_disconnected = self.script_handler.on_client_disconnected
+
+        # register the manager stop (stop all previously started parts) for exit execution
         CustomAtExit().register(self.stop)
 
-        logging.info("manager init complete")
+        # log that the manager survived init
+        logging.info("manager survived init")

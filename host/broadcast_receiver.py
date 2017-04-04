@@ -3,7 +3,7 @@ import json
 import threading
 
 
-class BroadcastReceiver:
+class DiscoveryServer:
     """
     The BroadcastReceiver answers to all client discovery requests with a description of this server.
     All communication is in JSON. 
