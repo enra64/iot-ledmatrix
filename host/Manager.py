@@ -44,7 +44,7 @@ class Manager:
         self.matrix_serial.stop()
         self.discovery_server.stop()
         self.server.stop()
-        logging.info("manager shut down")
+        self.logger.info("shut down")
 
     def load_script(self, script):
         """load specific script"""
@@ -76,8 +76,10 @@ class Manager:
         """
         """initializes all required modules without starting any of them."""
 
+        self.logger = logging.getLogger("manager")
+
         # log that the manager will now attempt to initialize
-        logging.info("manager beginning initialization routines. pray to the gods...")
+        self.logger.info("beginning initialization routines. pray to the gods...")
 
         # matrix serial connects to the arduino and sends data to it
         self.matrix_serial = MatrixSerial(
@@ -126,4 +128,4 @@ class Manager:
         CustomAtExit().register(self.stop)
 
         # log that the manager survived init
-        logging.info("manager survived init")
+        self.logger.info("survived initialization")

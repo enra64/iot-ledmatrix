@@ -26,13 +26,28 @@ class ScriptRunner:
             # call cycle
             try:
                 self.script.update(canvas)
-                self.script.draw(canvas)
-                draw_cycle_finished_callback()
-            except (AssertionError, Exception):
-                logging.error(self.script_name + ": caused an exception: " + traceback.format_exc() + ", execution will be stopped.")
+            except Exception:
+                self.logger.warning("abort execution of " + self.script_name + ": update caused an exception: " + traceback.format_exc())
                 self.abort.set()
 
-        self.script.exit()
+            try:
+                if not self.abort.is_set():
+                    self.script.draw(canvas)
+            except Exception:
+                self.logger.warning("abort execution of " + self.script_name + ": draw caused an exception: " + traceback.format_exc())
+                self.abort.set()
+
+            try:
+                if not self.abort.is_set():
+                    draw_cycle_finished_callback()
+            except Exception:
+                self.logger.error("draw cycle finish callback threw an exception. Errors here likely prohibit any matrix drawing.\n" + traceback.format_exc())
+                self.abort.set()
+
+        try:
+            self.script.exit()
+        except Exception:
+            self.logger.warning(self.script_name + ": exit caused an exception:\n" + traceback.format_exc())
 
     def start(self):
         self.script_thread.start()
@@ -43,21 +58,27 @@ class ScriptRunner:
             self.script_thread.join()
         # called when process was never started
         except RuntimeError:
-            print(self.script_name + " stopped before starting")
+            logging.info(self.script_name + " stopped before starting")
 
     def on_data(self, data, source_id):
         try:
             self.script.on_data(data, source_id)
-        except Exception as detail:
-            logging.error(self.script_name + ": on_data caused an exception: " + str(detail))
+        except Exception:
+            self.logger.warning(self.script_name + ": on_data caused an exception:\n" + traceback.format_exc())
 
     def on_client_connected(self, client_id):
         """forward client connect signal"""
-        self.script.on_client_connected(client_id)
+        try:
+            self.script.on_client_connected(client_id)
+        except Exception:
+            self.logger.warning(self.script_name + ": on_client_connected caused an exception:\n" + traceback.format_exc())
 
     def on_client_disconnected(self, client_id):
         """forward client disconnect signal"""
-        self.script.on_client_disconnected(client_id)
+        try:
+            self.script.on_client_disconnected(client_id)
+        except Exception:
+            self.logger.warning(self.script_name + ": on_client_disconnected caused an exception:\n" + traceback.format_exc())
 
     def join(self):
         self.script_thread.join()
@@ -90,6 +111,8 @@ class ScriptRunner:
             send_object_to_all,
             start_script,
             get_connected_clients):
+        # get me some logger
+        self.logger = logging.getLogger("scriptrunner")
 
         # default to 30ms frame period
         self.frame_period = 0.030
@@ -111,10 +134,10 @@ class ScriptRunner:
             if os.path.isfile("scripts/" + script + ".py"):
                 script_module = import_module('scripts.' + script)
             else:
-                logging.error("no such script: " + script + ", aborting")
+                self.logger.error(script + " not found, aborting")
                 return
         except SyntaxError:
-            logging.error("module import of " + script + " produced a syntaxerror " + traceback.format_exc())
+            self.logger.warning("parsing " + script + " produced a SyntaxError\n" + traceback.format_exc())
         else: # if import produced no syntax error
             try:
                 # call custom script constructor
@@ -130,7 +153,7 @@ class ScriptRunner:
                     get_connected_clients
                 )
             except Exception:
-                logging.error(script + ": __init__ caused an exception: " + traceback.format_exc())
+                self.logger.warning(script + ": __init__ caused an exception:\n" + traceback.format_exc())
             else:
                 self.script_thread = threading.Thread(
                     target=self.runner,
@@ -165,6 +188,7 @@ class ScriptHandler:
         self.send_object = send_object
         self.send_object_to_all = send_object_to_all
         self.get_client_list = get_client_list
+        self.logger = logging.getLogger("scripthandler")
 
     def start_script(self, script_name: str, source_id):
         """
@@ -186,11 +210,10 @@ class ScriptHandler:
                 self.get_client_list)
 
         if self.current_script_runner.ok:
-            logging.info("START: " + script_name)
+            # no warning to user necessary here, as the script handler already logs a lot of information
+            self.logger.info("START: " + script_name)
             self.current_script_runner.start()
             self.is_script_running = True
-        else:
-            logging.warning("script '" + script_name + "' not executed due to initialization failure. check your code!")
 
     def script_running(self):
         return self.is_script_running
@@ -206,9 +229,9 @@ class ScriptHandler:
 
     def stop_current_script(self):
         if self.current_script_runner is None:
-            logging.info("STOP: NO RUNNING SCRIPT")
+            self.logger.info("STOP: NO RUNNING SCRIPT")
         else:
-            logging.info("STOP: " + self.current_script_runner.script_name)
+            self.logger.info("STOP: " + self.current_script_runner.script_name)
             self.current_script_runner.stop()
         self.is_script_running = False
 

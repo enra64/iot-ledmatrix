@@ -149,3 +149,18 @@ def test_script_handler():
     handler.start_script("_CustomScriptTester", "test_script_handler")
     time.sleep(.5)
     handler.stop_current_script()
+
+def test_script_handler_exception_handling():
+    print(inspect.currentframe().f_code.co_name)
+    print("various exceptions in the code are commented to avoid early aborts")
+    print("the following should only log the exceptions and abort executing the script, not die.\n")
+    c = Canvas(10, 10)
+    handler = ScriptHandler(
+        c,
+        lambda: print("draw cycle finished"),
+        lambda data, client_id: print("sending " + data + " to " + client_id),
+        lambda data: print("sending " + data + " to all"),
+        __return_list
+    )
+
+    handler.start_script("_CustomScriptThrowExceptionsEverywhere", "test_script_handler")

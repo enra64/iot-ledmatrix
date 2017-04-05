@@ -17,6 +17,7 @@ class CustomAtExit:
         def __init__(self):
             """init functions to be called, register ourselves for the official atexit"""
             self.atexit_functions = {}
+            self.logger = logging.getLogger("customatexit")
             atexit.register(self.trigger)
 
         def register(self, function, args=None):
@@ -34,7 +35,7 @@ class CustomAtExit:
 
         def trigger(self):
             """call all registered functions"""
-            logging.info("custom atexit triggered.")
+            self.logger.info("custom atexit triggered.")
             for function, args in self.atexit_functions.items():
                 try:
                     if args is not None:
@@ -43,10 +44,9 @@ class CustomAtExit:
                         function()
                 except (Exception, AssertionError) as e:
                     if not isinstance(e, KeyboardInterrupt):
-                        logging.error(
-                            "exception during exit trigger():\n " +
-                            traceback.format_exc() +
-                            "\n now trying to execute next function :/")
+                        self.logger.error(
+                            "exception during exit trigger():\n" +
+                            traceback.format_exc())
 
     # the singleton instance variable
     instance = None

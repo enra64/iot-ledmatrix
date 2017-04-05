@@ -39,6 +39,9 @@ class Canvas:
         # "init" font
         self.font = None
 
+        # get a logger
+        self.logger = logging.getLogger("canvas")
+
     def get_pixel_index(self, x, y):
         """
         Convert a cartesian coordinate for an led into the index that represents red for that led in the buffer.
@@ -245,7 +248,7 @@ class Canvas:
         rendered_text = self.font.render_text(text)
 
         if rendered_text.height > self.height:
-            logging.warning("Warning: The rendered text is higher than the canvas")
+            self.logger.warning("Warning: The rendered text is higher than the canvas")
 
         # calculate appropriate render width (draw at most to canvas border, or (if smaller) to text border)
         available_horizontal_space = self.width - x

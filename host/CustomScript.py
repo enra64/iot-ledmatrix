@@ -7,34 +7,35 @@ class CustomScript:
     The CustomScript class is the class you want to inherit from to implement a new matrix mode.
 
     In addition to the constructor, there are six methods that will be called by the manager:
-        * update(canvas), where the state may be updated
-        * draw(canvas), where the matrix content may be drawn
-        * on_data(obj, source_id), called when messages from clients arrive
-        * exit(), last call before the instance is discarded
-        * on_client_connected(client_id), called with an id parameter when a new client is approved
-        * on_client_disconnected(client_id), called with an id parameter when a client has disconnected
+        * :meth:`update`, where the state may be updated
+        * :meth:`draw`, where the matrix content may be drawn
+        * :meth:`on_data`, called when messages from clients arrive
+        * :meth:`exit`, last call before the instance is discarded
+        * :meth:`on_client_connected`, called with an id parameter when a new client is approved
+        * :meth:`on_client_disconnected`, called with an id parameter when a client has disconnected
     
     They have default implementations, so you only need to override them if you need to do anything.
         
     A few methods can also be called by the script itself (self.<function_name>(<param1...>)):
-        * send_object(obj, id) to send objects to specific clients
-        * send_object_to_all(obj) to send objects to all clients
-        * start_script(script) start a script by name. will replace current script.
-        * restart_self() restarts the current script
-        * get_connected_clients() gets a list of approved client ids
-        * set_frame_period(period) allows to set a custom update cycle period in seconds
-        * set_frame_rate(rate) allows to set a custom update cycle calling rate in Hz
+        * :meth:`send_object` to send objects to specific clients
+        * :meth:`send_object_to_all` to send objects to all clients
+        * :meth:`start_script` start a script by name. will replace current script.
+        * :meth:`restart_self` restarts the current script
+        * :meth:`get_connected_clients` gets a list of approved client ids
+        * :meth:`set_frame_period` allows to set a custom update cycle period in seconds
+        * :meth:`set_frame_rate` allows to set a custom update cycle calling rate in Hz
         
     All of these functions are documented more detailed in their method documentations.
     
-    Also available:
-        * self.no_custom_fragment_dir: the directory where the user put his scripts that do not require a custom android fragment to run
-        * self.custom_fragment_dir: the directory where the user put his scripts that do require a custom android fragment to run properly
-
+    **Script Lifecycle**
+    
     The constructor will always be called first. Do your initialization here.
     Update will always be called before draw. The two functions are called in a loop, and will repeatedly execute.
     exit is always the last method call.
-    See the method documentation for further information.
+    
+    See the method documentations for further information.
+    
+    
     """
 
     def __init__(self,

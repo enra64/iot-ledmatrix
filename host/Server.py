@@ -46,6 +46,8 @@ class Server:
         # wait max 10ms before shutting down
         self.socket.setsockopt(zmq.LINGER, 10)
 
+        self.logger = logging.getLogger("server")
+
     def handle_script_load_request(self, data, source_id):
         """
         Handle a script load request by a client.
@@ -55,7 +57,7 @@ class Server:
         :return: nothing
         """
         requested_script = data['requested_script']
-        logging.debug("server received request to load " + requested_script)
+        self.logger.debug("received request to load " + requested_script)
         self.script_load_request_handler(requested_script, source_id)
 
     def handle_script_data(self, data, source_id):
@@ -145,7 +147,7 @@ class Server:
                 'matrix_height': self.matrix_height}
             self.send_object(response_object, source_id)
             self.on_client_connected(source_id)
-            logging.info("id: " + str(source_id) + " has connected")
+            self.logger.info(str(source_id) + " has connected")
         else:
             self.send_object({'message_type': 'connection_request_response', 'granted': False}, source_id)
 
@@ -153,7 +155,7 @@ class Server:
         """Called when a client disconnects"""
         self.approved_clients.remove(client_id)
         self.on_client_disconnected(client_id)
-        logging.debug(str(client_id) + " has disconnected")
+        self.logger.debug(str(client_id) + " has disconnected")
 
     def __wait(self):
         """Wait continuously for discovery requests"""

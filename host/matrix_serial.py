@@ -53,6 +53,8 @@ class MatrixSerial:
 
         self.enable_arduino_connection = enable_arduino_connection
 
+        self.logger = logging.getLogger("matrixserial")
+
         # convenience function for immediately connecting
         if connect and enable_arduino_connection:
             self.connect()
@@ -69,12 +71,12 @@ class MatrixSerial:
         :
         """
         if not self.enable_arduino_connection:
-            logging.info("the matrix serial was started in silent mode. connect() was ignored.")
+            self.logger.info("the matrix serial was started in silent mode. connect() was ignored.")
             return
 
         self.was_connected = True
 
-        logging.info("beginning arduino connection attempt to " + self.interface)
+        self.logger.info("beginning arduino connection attempt to " + self.interface)
 
         # begin serial connection
         self.serial = serial.Serial(self.interface, self.baud, timeout=timeout)
@@ -92,10 +94,10 @@ class MatrixSerial:
         response = self.serial.read(3)
 
         if response != b'SAM' and response != b'kSA':
-            logging.warning("Handshake failed: expected b'SAM', got " + str(response))
+            self.logger.warning("Handshake failed: expected b'SAM', got " + str(response))
             raise MatrixProtocolException("Handshake failed: expected b'SAM', got " + str(response))
 
-        logging.info("successfully connected to arduino")
+            self.logger.info("successfully connected to arduino")
 
     def stop(self):
         if self.serial is not None:
@@ -122,9 +124,9 @@ class MatrixSerial:
         :raises: MatrixProtocolException if the arduino did not acknowledge the updated data
         """
         # ensure correct data length
-        assert len(data) == len(self.buffer), "bad data length! len(data) should be " + str(len(self.buffer)) + ", is " + str(len(data))
         if len(data) != len(self.buffer):
-            logging.critical("bad data length! len(data) should be " + str(len(self.buffer)) + ", is " + str(len(data)))
+            self.logger.error("Bad data length! len(data) should be " + str(len(self.buffer)) + ", is " + str(len(data)))
+            raise MatrixProtocolException("Bad data length! len(data) should be " + str(len(self.buffer)) + ", is " + str(len(data)))
 
         # copy buffer
         self.buffer[:] = data
@@ -154,6 +156,6 @@ class MatrixSerial:
 
         # check acknowledgement char correctness
         if ack != b'k':
-            logging.exception("No acknowledgement received, expected b'k', got " + str(ack))
+            self.logger.exception("No acknowledgement received, expected b'k', got " + str(ack))
             raise MatrixProtocolException("No acknowledgement received, expected b'k', got " + str(ack))
 
