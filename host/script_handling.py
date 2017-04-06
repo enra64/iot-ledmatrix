@@ -54,11 +54,7 @@ class ScriptRunner:
 
     def stop(self):
         self.abort.set()
-        try:
-            self.script_thread.join()
-        # called when process was never started
-        except RuntimeError:
-            logging.info(self.script_name + " stopped before starting")
+        self.join()
 
     def on_data(self, data, source_id):
         try:
@@ -81,7 +77,12 @@ class ScriptRunner:
             self.logger.warning(self.script_name + ": on_client_disconnected caused an exception:\n" + traceback.format_exc())
 
     def join(self):
-        self.script_thread.join()
+        try:
+            if self.script_thread is not None:
+                self.script_thread.join()
+        # called when process was never started
+        except RuntimeError:
+            logging.info(self.script_name + " joined before starting")
 
     def set_frame_period(self, period):
         """
@@ -119,6 +120,7 @@ class ScriptRunner:
 
         # default to bad init
         self.ok = False
+        self.script_thread = None
 
         # store script name for debugging
         self.script_name = script
