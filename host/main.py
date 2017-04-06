@@ -44,6 +44,7 @@ def print_help():
     print("--discovery-port=                set the discovery port the led matrix discovery server will use")
     print("--loglevel=                      set python logging loglevel")
     print("--disable-arduino-connection     disable arduino connection. mostly useful for debugging without an arduino")
+    print("--logfile=                       set log file location")
 
 if __name__ == "__main__":
     # try and get the script parameters
@@ -63,7 +64,8 @@ if __name__ == "__main__":
                 "discovery-port=",
                 "loglevel=",
                 "disable-arduino-connection",
-                "errors-to-console"
+                "errors-to-console",
+                "logfile="
             ]
         )
     except getopt.GetoptError:
@@ -82,6 +84,7 @@ if __name__ == "__main__":
     log_to_file = True
     log_level = logging.INFO
     run = True
+    log_location = "ledmatrix.log"
 
     if len(options) > 0:
         for option, argument in options:
@@ -121,6 +124,8 @@ if __name__ == "__main__":
                 matrix_connect_to_arduino = False
             elif option == "--errors-to-console":
                 log_to_file = False
+            elif option == "--logfile":
+                log_location = argument
 
     if matrix_connect_to_arduino and matrix_port is None:
         matrix_port = guess_arduino()
@@ -129,7 +134,7 @@ if __name__ == "__main__":
 
     # set logging level
     if log_to_file:
-        logging.basicConfig(filename='ledmatrix.log', level=log_level, datefmt='%d.%m.%Y@%H:%M:%S', format='%(asctime)s: %(levelname)s: %(message)s')
+        logging.basicConfig(filename=log_location, level=log_level, datefmt='%d.%m.%Y@%H:%M:%S', format='%(asctime)s: %(levelname)s: %(message)s')
     else:
         logging.basicConfig(level=log_level, datefmt='%d.%m.%Y@%H:%M:%S', format='%(asctime)s: %(levelname)s: %(message)s')
     if run:

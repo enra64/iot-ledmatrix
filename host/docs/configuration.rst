@@ -16,3 +16,4 @@ All configuration options are command-line arguments.
     --loglevel=                      set python logging loglevel
     --disable-arduino-connection     disable arduino connection. mostly useful for debugging without an arduino
     --errors-to-console              divert errors to console instead of logfile
+    --logfile=                       set log file location
