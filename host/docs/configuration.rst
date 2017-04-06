@@ -1,7 +1,7 @@
 Configuration options
 =====================
 
-All configuration options are command-line arguments.
+All configuration options are command-line arguments. The script will change its working directory to the main.py location.
 
 .. code-block:: none
 

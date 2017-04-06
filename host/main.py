@@ -1,4 +1,5 @@
 import getopt
+import os
 import sys
 
 import logging
@@ -47,6 +48,11 @@ def print_help():
     print("--logfile=                       set log file location")
 
 if __name__ == "__main__":
+    # change working directory to main.py location to avoid confusion with scripts folder
+    abspath = os.path.abspath(__file__)
+    dname = os.path.dirname(abspath)
+    os.chdir(dname)
+
     # try and get the script parameters
     try:
         options, arguments = getopt.getopt(
