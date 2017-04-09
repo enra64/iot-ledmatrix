@@ -4,7 +4,7 @@ import time
 from DiscoveryServer import DiscoveryServer
 from Canvas import Canvas
 from matrix_serial import MatrixSerial
-from script_handling import ScriptHandler
+from ScriptHandler import ScriptHandler
 from colour import Color
 
 # begin serial test

@@ -1,7 +1,8 @@
 import logging
 
-from fonts import Font
 from colour import Color
+
+from helpers.fonts import Font
 
 
 class Canvas:

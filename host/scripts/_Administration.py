@@ -1,11 +1,9 @@
+import logging
 import os
-
 import sys
 
-import logging
-
 from CustomScript import CustomScript
-from custom_atexit import CustomAtExit
+from helpers.custom_atexit import CustomAtExit
 
 
 class _Administration(CustomScript):

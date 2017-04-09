@@ -17,3 +17,4 @@ All configuration options are command-line arguments. The script will change its
     --disable-arduino-connection     disable arduino connection. mostly useful for debugging without an arduino
     --errors-to-console              divert errors to console instead of logfile
     --logfile=                       set log file location. best to use absolute paths.
+    --start-script=                  set starting script, defaults to 'gameoflife'

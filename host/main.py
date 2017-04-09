@@ -1,12 +1,11 @@
 import getopt
+import logging
 import os
 import sys
 
-import logging
-
 import tests
-from custom_atexit import CustomAtExit
 from Manager import Manager
+from helpers.custom_atexit import CustomAtExit
 from matrix_serial import MatrixSerial, get_connected_arduinos, guess_arduino
 
 
@@ -46,6 +45,7 @@ def print_help():
     print("--loglevel=                      set python logging loglevel")
     print("--disable-arduino-connection     disable arduino connection. mostly useful for debugging without an arduino")
     print("--logfile=                       set log file location")
+    print("--start-script=                  set starting script, defaults to 'gameoflife'")
 
 if __name__ == "__main__":
     # change working directory to main.py location to avoid confusion with scripts folder
@@ -71,7 +71,8 @@ if __name__ == "__main__":
                 "loglevel=",
                 "disable-arduino-connection",
                 "errors-to-console",
-                "logfile="
+                "logfile=",
+                "start-script="
             ]
         )
     except getopt.GetoptError:
@@ -89,8 +90,9 @@ if __name__ == "__main__":
     matrix_connect_to_arduino = True
     log_to_file = True
     log_level = logging.INFO
-    run = True
     log_location = "ledmatrix.log"
+    run = True
+    start_script = "gameoflife"
 
     if len(options) > 0:
         for option, argument in options:
@@ -132,6 +134,8 @@ if __name__ == "__main__":
                 log_to_file = False
             elif option == "--logfile":
                 log_location = argument
+            elif option == "--start-script":
+                start_script = argument
 
     if matrix_connect_to_arduino and matrix_port is None:
         matrix_port = guess_arduino()
@@ -155,7 +159,7 @@ if __name__ == "__main__":
             matrix_connect_to_arduino)
         try:
             manager.start()
-            manager.load_script("gameoflife")
+            manager.load_script(start_script)
             # wait for exit to be able to catch exceptions
             manager.join()
         except KeyboardInterrupt:

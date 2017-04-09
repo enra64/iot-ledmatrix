@@ -1,11 +1,11 @@
 import logging
 
-from DiscoveryServer import DiscoveryServer
-from custom_atexit import CustomAtExit
 from Canvas import Canvas
-from matrix_serial import MatrixSerial
-from script_handling import ScriptHandler
+from DiscoveryServer import DiscoveryServer
 from Server import Server
+from helpers.custom_atexit import CustomAtExit
+from matrix_serial import MatrixSerial
+from ScriptHandler import ScriptHandler
 
 
 class Manager:
