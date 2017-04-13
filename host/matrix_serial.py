@@ -97,7 +97,7 @@ class MatrixSerial:
             self.logger.warning("Handshake failed: expected b'SAM', got " + str(response))
             raise MatrixProtocolException("Handshake failed: expected b'SAM', got " + str(response))
 
-            self.logger.info("successfully connected to arduino")
+        self.logger.info("successfully connected to arduino")
 
     def stop(self):
         if self.serial is not None:

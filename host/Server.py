@@ -12,9 +12,7 @@ class Server:
             self,
             script_load_request_handler,
             script_data_handler,
-            on_client_connected,
-            on_client_disconnected,
-            matrix_dimensions = (156, 1),
+            matrix_dimensions,
             local_data_port: int = 54122):
         self.logger = logging.getLogger("ledmatrix.server")
 
@@ -29,8 +27,8 @@ class Server:
         self.script_load_request_handler = script_load_request_handler
         self.script_data_handler = script_data_handler
         self.connection_request_handler = None
-        self.on_client_connected = on_client_connected
-        self.on_client_disconnected = on_client_disconnected
+        self.on_client_connected = None
+        self.on_client_disconnected = None
 
         # stop flag
         self.receiver_thread = None

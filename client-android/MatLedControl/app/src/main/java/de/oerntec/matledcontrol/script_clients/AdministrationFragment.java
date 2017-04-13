@@ -82,7 +82,7 @@ public class AdministrationFragment extends Fragment implements ScriptFragmentIn
 
     @Override
     public String requestScript() {
-        return "administration";
+        return "_Administration";
     }
 
     @Override

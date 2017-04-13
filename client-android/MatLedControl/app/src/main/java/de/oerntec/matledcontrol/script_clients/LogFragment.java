@@ -96,7 +96,7 @@ public class LogFragment extends Fragment implements ScriptFragmentInterface {
 
     @Override
     public String requestScript() {
-        return "log_reader";
+        return "_LogReader";
     }
 
     public void appendLineToConsole(String text, int color) {

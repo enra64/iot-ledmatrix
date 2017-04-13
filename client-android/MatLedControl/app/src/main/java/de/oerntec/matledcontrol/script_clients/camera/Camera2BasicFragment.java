@@ -883,7 +883,7 @@ public class Camera2BasicFragment extends Fragment implements View.OnClickListen
 
     @Override
     public String requestScript() {
-        return "simple_drawing";
+        return "_SimpleDrawing";
     }
 
     @Override

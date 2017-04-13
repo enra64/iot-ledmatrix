@@ -2,6 +2,7 @@ import getopt
 import logging
 import os
 import sys
+from time import sleep
 
 import tests
 from Manager import Manager
@@ -16,6 +17,8 @@ def test_serial():
 
 
 def test():
+    tests.test_gui_canvas_display()
+    return
     tests.test_script_handler_exception_handling()
     tests.test_invalid_script_name()
     tests.test_canvas_pixel_line()
@@ -46,6 +49,7 @@ def print_help():
     print("--disable-arduino-connection     disable arduino connection. mostly useful for debugging without an arduino")
     print("--logfile=                       set log file location")
     print("--start-script=                  set starting script, defaults to 'gameoflife'")
+    print("--enable-gui                     enable a simplicistic gui displaying what the matrix should currently show. combine with --disable-arduino-connection for easy testing. will fuck up stopping. recommended for debugging only")
 
 if __name__ == "__main__":
     # change working directory to main.py location to avoid confusion with scripts folder
@@ -72,7 +76,8 @@ if __name__ == "__main__":
                 "disable-arduino-connection",
                 "errors-to-console",
                 "logfile=",
-                "start-script="
+                "start-script=",
+                "enable-gui"
             ]
         )
     except getopt.GetoptError:
@@ -93,6 +98,7 @@ if __name__ == "__main__":
     log_location = "ledmatrix.log"
     run = True
     start_script = "gameoflife"
+    enable_graphical_display = False
 
     if len(options) > 0:
         for option, argument in options:
@@ -136,6 +142,8 @@ if __name__ == "__main__":
                 log_location = argument
             elif option == "--start-script":
                 start_script = argument
+            elif option == "--enable-gui":
+                enable_graphical_display = True
 
     if matrix_connect_to_arduino and matrix_port is None:
         matrix_port = guess_arduino()
@@ -156,12 +164,19 @@ if __name__ == "__main__":
             matrix_data_port,
             matrix_name,
             matrix_discovery_port,
-            matrix_connect_to_arduino)
+            matrix_connect_to_arduino,
+            enable_graphical_display)
         try:
             manager.start()
             manager.load_script(start_script)
+            # enable gui
+            if enable_graphical_display:
+                while True:
+                    manager.update_gui()
+                    sleep(0.03)
             # wait for exit to be able to catch exceptions
             manager.join()
+
         except KeyboardInterrupt:
             logger.info("shutting down on manual command")
 

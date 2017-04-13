@@ -6,7 +6,7 @@ import traceback
 from functools import partial
 from importlib import import_module
 
-import helpers
+from helpers import utils
 from Canvas import Canvas
 
 
@@ -16,7 +16,7 @@ class ScriptRunner:
 
         while not self.abort.is_set():
             # wait until at least 30ms have been over since last exec
-            time.sleep(helpers.utils.clamp(self.frame_period - (time.time() - self.last_exec), 0, self.frame_period))
+            time.sleep(utils.clamp(self.frame_period - (time.time() - self.last_exec), 0, self.frame_period))
 
             # update exec timestamp
             self.last_exec = time.time()
@@ -43,7 +43,8 @@ class ScriptRunner:
                 self.abort.set()
 
         try:
-            self.script.exit()
+            if self.ok:
+                self.script.exit()
         except Exception:
             self.logger.warning(self.script_name + ": exit caused an exception:\n" + traceback.format_exc())
 
@@ -55,6 +56,8 @@ class ScriptRunner:
         self.join()
 
     def on_data(self, data, source_id):
+        if not self.ok:
+            return
         try:
             self.script.on_data(data, source_id)
         except Exception:
@@ -62,6 +65,8 @@ class ScriptRunner:
 
     def on_client_connected(self, client_id):
         """forward client connect signal"""
+        if not self.ok:
+            return
         try:
             self.script.on_client_connected(client_id)
         except Exception:
@@ -69,6 +74,8 @@ class ScriptRunner:
 
     def on_client_disconnected(self, client_id):
         """forward client disconnect signal"""
+        if not self.ok:
+            return
         try:
             self.script.on_client_disconnected(client_id)
         except Exception:

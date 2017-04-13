@@ -96,7 +96,7 @@ public class ManualScriptLoadFragment extends Fragment implements ScriptFragment
 
     @Override
     public String requestScript() {
-        return "script_loader";
+        return "_ScriptLoader";
     }
 
     @Override

@@ -80,7 +80,7 @@ public class DrawFragment extends Fragment implements ScriptFragmentInterface, V
 
     @Override
     public String requestScript() {
-        return "simple_drawing";
+        return "_SimpleDrawing";
     }
 
     @Override

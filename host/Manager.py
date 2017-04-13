@@ -1,5 +1,6 @@
 import logging
 
+from MatrixGraphicalDisplay import MatrixGraphicalDisplay
 from Canvas import Canvas
 from DiscoveryServer import DiscoveryServer
 from Server import Server
@@ -37,6 +38,7 @@ class Manager:
         self.matrix_serial.connect()
         self.discovery_server.start()
         self.server.start()
+        self.logger.info("manager started threads")
 
     def stop(self):
         "gracefully stop all modules"
@@ -59,7 +61,8 @@ class Manager:
             data_port,
             server_name,
             discovery_port,
-            enable_arduino_connection: bool):
+            enable_arduino_connection: bool,
+            enable_graphical_display):
         """
         Initializes instances of: MatrixSerial, BroadcastReceiver, Server, Canvas and ScriptHandler. Registers 
         manager.stop for a shutdown hook.
@@ -73,6 +76,9 @@ class Manager:
         :param discovery_port: the discovery port at which the DiscoveryServer is listening for discovery requests
         :param enable_arduino_connection: if True, MatrixSerial will attempt to connect to the arduino
             if False, no connection attempt is made; useful for debugging.
+        :param enable_graphical_display: if True, MatrixSerial will attempt to create a tkinter window with the matrix graphics. there must
+            be a main thread calling update_gui every now and then to update the gui; if that is not done, the window is not updated; if it
+            is not called from the main thread, an exception will be logged.
         """
         """initializes all required modules without starting any of them."""
 
@@ -87,7 +93,7 @@ class Manager:
             matrix_width * matrix_height,
             arduino_baud,
             connect=False,  # we shall connect in start()
-            enable_arduino_connection=True)
+            enable_arduino_connection=enable_arduino_connection)
 
         # the discovery server manages everything related to server discovery for clients
         self.discovery_server = DiscoveryServer(
@@ -101,8 +107,6 @@ class Manager:
         self.server = Server(
             self.script_load_request_handler,
             self.script_data_handler,
-            None,
-            None,
             (matrix_width, matrix_height),
             data_port)
 
@@ -124,8 +128,16 @@ class Manager:
         self.server.on_client_connected = self.script_handler.on_client_connected
         self.server.on_client_disconnected = self.script_handler.on_client_disconnected
 
+        self.enable_graphical_display = enable_graphical_display
+        if self.enable_graphical_display:
+            self.gui = MatrixGraphicalDisplay(matrix_width, matrix_height)
+
         # register the manager stop (stop all previously started parts) for exit execution
         CustomAtExit().register(self.stop)
 
         # log that the manager survived init
         self.logger.info("survived initialization")
+
+    def update_gui(self):
+        if self.gui is not None:
+            self.gui.update_with_canvas(self.canvas)
