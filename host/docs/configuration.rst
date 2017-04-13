@@ -18,3 +18,4 @@ All configuration options are command-line arguments. The script will change its
     --errors-to-console              divert errors to console instead of logfile
     --logfile=                       set log file location. best to use absolute paths.
     --start-script=                  set starting script, defaults to 'gameoflife'
+    --enable-gui                     enable a simplistic gui displaying what the matrix should currently show. combine with --disable-arduino-connection for easy testing. will fuck up stopping. recommended for debugging only

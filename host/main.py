@@ -39,7 +39,8 @@ def print_help():
     print("--test                           run all tests but those requiring an arduino + leds be connected")
     print()
     print("--errors-to-console              divert errors to console instead of logfile")
-    print("--set-arduino-port=              set the port the arduino is connected on manually, like /dev/ttyUSB0. if not given, port will be guessed.")
+    print("--set-arduino-port=              set the port the arduino is connected on manually, like /dev/ttyUSB0. if "
+          "not given, port will be guessed.")
     print("--name=                          set the name the ledmatrix will advertise itself as")
     print("--width=                         define horizontal number of leds in matrix")
     print("--height=                        define vertical number of leds in matrix")
@@ -49,7 +50,9 @@ def print_help():
     print("--disable-arduino-connection     disable arduino connection. mostly useful for debugging without an arduino")
     print("--logfile=                       set log file location")
     print("--start-script=                  set starting script, defaults to 'gameoflife'")
-    print("--enable-gui                     enable a simplicistic gui displaying what the matrix should currently show. combine with --disable-arduino-connection for easy testing. will fuck up stopping. recommended for debugging only")
+    print("--enable-gui                     enable a simplistic gui displaying what the matrix should currently show. "
+          "combine with --disable-arduino-connection for easy testing. will fuck up stopping. recommended for "
+          "debugging only")
 
 if __name__ == "__main__":
     # change working directory to main.py location to avoid confusion with scripts folder

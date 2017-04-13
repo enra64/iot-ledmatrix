@@ -25,6 +25,8 @@ Custom scripts must contain a class that is exactly the name of the source file 
 
 For example, if you create a "flashlight" script, the file name would be ``flashlight.py``, and the class name would be ``flashlight``.
 
+For debugging, a simple GUI was implemented. Use the ``--enable-gui`` flag to display it.
+
 The class must inherit from CustomScript, which is documented here:
 
 CustomScript class
