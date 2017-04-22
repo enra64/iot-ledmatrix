@@ -3,7 +3,6 @@ import time
 
 from DiscoveryServer import DiscoveryServer
 from Canvas import Canvas
-from MatrixGraphicalDisplay import MatrixGraphicalDisplay
 from matrix_serial import MatrixSerial
 from ScriptHandler import ScriptHandler
 from colour import Color
@@ -155,14 +154,20 @@ def test_script_handler():
 def test_gui_canvas_display_by_line():
     print(inspect.currentframe().f_code.co_name)
     print("should print blue line bottom left to top right")
-    c = Canvas(10, 10)
-    gui = MatrixGraphicalDisplay(10, 10)
-    blue = Color("blue")
+    try:
+        from MatrixGraphicalDisplay import MatrixGraphicalDisplay
 
-    for i in range(c.width - 1, 0-1, -1):
-        c.draw_pixel(9 - i, i, blue)
-        gui.update_with_canvas(c)
-    gui.get_key()
+        c = Canvas(10, 10)
+        gui = MatrixGraphicalDisplay(10, 10)
+        blue = Color("blue")
+
+        for i in range(c.width - 1, 0-1, -1):
+            c.draw_pixel(9 - i, i, blue)
+            gui.update_with_canvas(c)
+        gui.get_key()
+
+    except ImportError:
+        print("could not import tkinter, probably")
 
 
 def test_script_handler_exception_handling():

@@ -1,6 +1,5 @@
 import logging
 
-from MatrixGraphicalDisplay import MatrixGraphicalDisplay
 from Canvas import Canvas
 from DiscoveryServer import DiscoveryServer
 from Server import Server
@@ -129,8 +128,15 @@ class Manager:
         self.server.on_client_disconnected = self.script_handler.on_client_disconnected
 
         self.enable_graphical_display = enable_graphical_display
+
         if self.enable_graphical_display:
-            self.gui = MatrixGraphicalDisplay(matrix_width, matrix_height)
+            try:
+                from MatrixGraphicalDisplay import MatrixGraphicalDisplay
+                self.gui = MatrixGraphicalDisplay(matrix_width, matrix_height)
+            except ImportError:
+                self.logger.warning("failing to import GUI, disabling it")
+                self.enable_graphical_display = False
+                self.gui = None
 
         # register the manager stop (stop all previously started parts) for exit execution
         CustomAtExit().register(self.stop)
