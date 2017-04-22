@@ -151,6 +151,10 @@ if __name__ == "__main__":
     if matrix_connect_to_arduino and matrix_port is None:
         matrix_port = guess_arduino()
 
+        if matrix_port is None:
+            logging.warning("port was not specified, and arduino was not disabled, but the port guesser did not find a port. ABORT!")
+            sys.exit(1)
+
     logger = logging.getLogger("main")
 
     # set logging level

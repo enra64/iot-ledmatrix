@@ -23,7 +23,7 @@ class _Administration(CustomScript):
         elif command == "shutdown_rpi":
             logging.info("shutting down pi on command")
             CustomAtExit().trigger()
-            os.system('sudo shutdown now')
+            os.system('/sbin/sudo /sbin/shutdown now')
         elif command == "restart_matrix_server":
             logging.info("restarting server script. somewhat finicky...")
             CustomAtExit().trigger()
