@@ -1,16 +1,11 @@
 from colour import Color
 
 import Canvas
-
+from helpers.graphics import *
 
 
 class MatrixGraphicalDisplay:
     def __init__(self, matrix_width = 10, matrix_height = 10):
-        try:
-            from helpers.graphics import GraphWin
-        except ImportError:
-            pass
-
         # create new window
         self.width = matrix_width * 20
         self.height = matrix_height * 20
@@ -35,8 +30,8 @@ class MatrixGraphicalDisplay:
     def update_with_canvas(self, canvas: Canvas):
         """
         Update the window display. Call from main thread only.
-        
-        :param canvas: the canvas to be displayed 
+
+        :param canvas: the canvas to be displayed
         :return: nothing
         """
         for x in range(self.matrix_width):
