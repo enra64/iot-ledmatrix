@@ -9,7 +9,7 @@ class rain(CustomScript):
                  set_frame_rate, get_connected_clients):
         super().__init__(canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
                          set_frame_rate, get_connected_clients)
-        self.set_frame_period(0.2)
+        #self.set_frame_period(0.2)
         self.frame = 0
 
     def update(self, canvas):
