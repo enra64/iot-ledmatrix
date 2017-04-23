@@ -13,7 +13,7 @@ class Flashlight(CustomScript):
 
     def draw(self, canvas: Canvas):
         if self.enable:
-            canvas.clear(Color("white"))
+            canvas.clear(Color(255, 255, 255))
         else:
             canvas.clear()
 

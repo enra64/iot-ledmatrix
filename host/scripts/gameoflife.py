@@ -2,6 +2,8 @@ import numpy as np
 
 from CustomScript import CustomScript
 from Canvas import Canvas
+from helpers.Color import Color
+
 
 class gameoflife(CustomScript):
     def __init__(self, canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
@@ -42,6 +44,7 @@ class gameoflife(CustomScript):
         for x in range(0, canvas.width):
             for y in range(0, canvas.height):
                 if self.game_board[x][y] is True:
-                    canvas.draw_pixel(x, y, self.colorboard[x][y][0], self.colorboard[x][y][1], self.colorboard[x][y][2])
+                    c = Color(self.colorboard[x][y][0], self.colorboard[x][y][1], self.colorboard[x][y][2])
+                    canvas.draw_pixel(x, y, c)
 
         #print(repr(canvas))
