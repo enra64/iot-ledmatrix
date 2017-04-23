@@ -39,8 +39,11 @@ class MatrixGraphicalDisplay:
                 led_rect = Rectangle(Point(x, y), Point(x + 1, y + 1))
                 color_tuple = canvas.get_color(x, y).get_rgb()
                 led_rect.setFill(color_rgb(*color_tuple))
-                led_rect.draw(self.win)
-        self.win.update()
+                if not self.win.isClosed():
+                    led_rect.draw(self.win)
+
+        if not self.win.isClosed():
+            self.win.update()
 
     def get_key(self):
         """

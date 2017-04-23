@@ -1,6 +1,8 @@
 import colorsys
 from typing import Tuple
 
+import random
+
 
 class Color():
     """
@@ -84,6 +86,15 @@ class Color():
         :return: 0-255 value 
         """
         return int(self.__b * 255)
+
+    @staticmethod
+    def random_color():
+        """
+        Return a new completely random color
+        
+        :return: new random color 
+        """
+        return Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
     def set_rgb(self, rgb):
         """
