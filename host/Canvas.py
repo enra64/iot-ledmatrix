@@ -10,7 +10,7 @@ class Canvas:
     A canvas makes it easy to display using the matrix by providing a translation layer between pixels on a cartesian
     coordinate system and color data readable by the arduino and the WS2812B RGB leds.
     
-    The canvas uses colors from the colour library to represent the requested colors. See https://github.com/vaab/colour
+    The canvas uses Color instances to represent all colors. See :ref:`color_class_label`
     
     The user functions are:
     
@@ -116,10 +116,12 @@ class Canvas:
         :return: nothing
         """
         red_index = self.get_red_index(x, y)
+
+        # could be a one-liner, but i think avoiding the tuples involved is slightly faster
+        #self.data_buffer[red_index:red_index + 3] = color.get_rgb()
         self.data_buffer[red_index] = color.get_red()
         self.data_buffer[red_index + 1] = color.get_green()
         self.data_buffer[red_index + 2] = color.get_blue()
-        #self.data_buffer[red_index:red_index + 3] = color.get_rgb()
 
     @staticmethod
     def __get_repr_color(color: Color) -> str:
