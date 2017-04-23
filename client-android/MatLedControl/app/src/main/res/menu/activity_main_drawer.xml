@@ -9,6 +9,10 @@
         android:icon="@drawable/ic_drawing"
         android:title="@string/simple_drawing" />
     <item
+        android:id="@+id/scrolling_text"
+        android:icon="@mipmap/ic_scrolling_text"
+        android:title="@string/scrolling_text" />
+    <item
         android:id="@+id/camera"
         android:icon="@drawable/ic_menu_camera"
         android:title="@string/camera" />

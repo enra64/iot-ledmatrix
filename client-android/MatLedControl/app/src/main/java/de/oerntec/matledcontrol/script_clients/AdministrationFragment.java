@@ -78,6 +78,7 @@ public class AdministrationFragment extends Fragment implements ScriptFragmentIn
     public void onDetach() {
         super.onDetach();
         mMessageSender = null;
+        mExceptionListener = null;
     }
 
     @Override

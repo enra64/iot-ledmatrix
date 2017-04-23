@@ -225,7 +225,7 @@ class Canvas:
         # update data in position
         self.__write_color_at(x, y, color)
 
-    def draw_text(self, text: str, x: int, y: int, color: Color, ignore_height_warning=False):
+    def draw_text(self, text: str, x: int, y: int, color: Color):
         """
         Draw text on the canvas. Rendering over the borders is cut off, so you do not need boundary checking.
         
@@ -233,9 +233,7 @@ class Canvas:
         :param x: the top-left starting position of the text
         :param y: the top-left starting position of the text
         :param color: color of the text
-        :param ignore_height_warning: if true, no warning will be logged that the font does not fit into the available
-            height. if false, a warning will be printed in the log on each such occasion
-        :return: nothing
+        :return: width of the text to be rendered
         """
         assert self.font is not None, "No font loaded! Use set_font(path, size)!"
 
@@ -245,14 +243,14 @@ class Canvas:
             self.logger.warning("Warning: The rendered text is higher than the canvas")
 
         # calculate appropriate render width (draw at most to canvas border, or (if smaller) to text border)
-        available_horizontal_space = self.width - x
+        available_horizontal_space = min(self.width - x, self.width)
         if rendered_text.width < available_horizontal_space:
             render_width = rendered_text.width
         else:
             render_width = available_horizontal_space
 
         # calculate appropriate render height
-        available_vertical_space = self.height - y
+        available_vertical_space = min(self.height - y, self.height)
         if rendered_text.height < available_vertical_space:
             render_height = rendered_text.height
         else:
@@ -261,14 +259,27 @@ class Canvas:
         # render text to our canvas
         font_x = 0
         font_y = 0
+
+        # always start rendering top/leftmost at zero, but move the font appropriately
+        if x < 0:
+            font_x = abs(x)
+            x = 0
+
+        if y < 0:
+            font_y = abs(y)
+            y = 0
+
         for canvas_x in range(x, render_width):
             for canvas_y in range(y, render_height):
-                pixel_enabled = rendered_text.is_enabled(font_x, font_y)
+                in_font_range = font_x < rendered_text.width and font_y < rendered_text.height
+                pixel_enabled = in_font_range and rendered_text.is_enabled(font_x, font_y)
                 if pixel_enabled:
                     self.draw_pixel(canvas_x, canvas_y, color)
                 font_y += 1
             font_x += 1
             font_y = 0
+
+        return rendered_text.width
 
     def draw_rect(self, x: int, y: int, width: int, height: int, color: Color):
         """
