@@ -2,3 +2,4 @@ pyserial==3.3
 freetype-py==1.0.2
 pyzmq==16.0.2
 numpy==1.12.1
+typing==3.6.1
