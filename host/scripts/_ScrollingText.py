@@ -14,8 +14,9 @@ class _ScrollingText(CustomScript):
         self.current_text_width = None
         self.canvas_width = canvas.width
         self.desired_font_size = 11
+        self.desired_font_path = "Inconsolata.otf"
 
-        canvas.set_font("helvetica.otf", self.desired_font_size)
+        canvas.set_font(self.desired_font_path, self.desired_font_size)
 
     def draw(self, canvas: Canvas):
         canvas.clear()
@@ -41,7 +42,7 @@ class _ScrollingText(CustomScript):
         self.current_x -= 1
 
         if canvas.get_last_font_size() != self.desired_font_size:
-            canvas.set_font("helvetica.otf", self.desired_font_size)
+            canvas.set_font(self.desired_font_path, self.desired_font_size)
 
         # wrap around matrix borders
         if self.current_text_width is not None and self.current_x + self.current_text_width < 0:
