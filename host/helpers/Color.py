@@ -52,40 +52,32 @@ class Color():
 
     def set_luminance(self, luminance):
         hls = list(colorsys.rgb_to_hls(self.r, self.g, self.b))
-        hls[1] = luminance
-        self.__set_rgb_no_normalization(colorsys.hls_to_rgb(*hls))
+        self.__set_rgb_no_normalization(colorsys.hls_to_rgb(hls[0], luminance, hls[2]))
 
     def set_hue(self, hue):
-        hls = list(colorsys.rgb_to_hls(self.r, self.g, self.b))
-        hls[0] = hue
-        self.__set_rgb_no_normalization(colorsys.hls_to_rgb(*hls))
+        hls = colorsys.rgb_to_hls(self.r, self.g, self.b)
+        self.__set_rgb_no_normalization(colorsys.hls_to_rgb(hue, hls[1], hls[2]))
 
     def set_value(self, value):
-        hsv = list(colorsys.rgb_to_hsv(self.r, self.g, self.b))
-        hsv[2] = value
-        self.__set_rgb_no_normalization(colorsys.hsv_to_rgb(*hsv))
+        hsv = colorsys.rgb_to_hsv(self.r, self.g, self.b)
+        self.__set_rgb_no_normalization(colorsys.hsv_to_rgb(hsv[0], hsv[1], value))
 
     def set_saturation(self, saturation):
-        hsv = list(colorsys.rgb_to_hsv(self.r, self.g, self.b))
-        hsv[1] = saturation
-        self.__set_rgb_no_normalization(colorsys.hsv_to_rgb(*hsv))
+        hsv = colorsys.rgb_to_hsv(self.r, self.g, self.b)
+        self.__set_rgb_no_normalization(colorsys.hsv_to_rgb(hsv[0], saturation, hsv[2]))
 
     def change_luminance(self, change_function):
-        hls = list(colorsys.rgb_to_hls(self.r, self.g, self.b))
-        hls[1] = change_function(hls[1])
-        self.__set_rgb_no_normalization(colorsys.hls_to_rgb(*hls))
+        hls = colorsys.rgb_to_hls(self.r, self.g, self.b)
+        self.__set_rgb_no_normalization(colorsys.hls_to_rgb(hls[0], change_function(hls[1]), hls[2]))
 
     def change_hue(self, change_function):
-        hls = list(colorsys.rgb_to_hls(self.r, self.g, self.b))
-        hls[0] = change_function(hls[0])
-        self.__set_rgb_no_normalization(colorsys.hls_to_rgb(*hls))
+        hls = colorsys.rgb_to_hls(self.r, self.g, self.b)
+        self.__set_rgb_no_normalization(colorsys.hls_to_rgb(change_function(hls[0]), hls[1], hls[2]))
 
     def change_value(self, change_function):
-        hsv = list(colorsys.rgb_to_hsv(self.r, self.g, self.b))
-        hsv[2] = change_function(hsv[2])
-        self.__set_rgb_no_normalization(colorsys.hsv_to_rgb(*hsv))
+        hsv = colorsys.rgb_to_hsv(self.r, self.g, self.b)
+        self.__set_rgb_no_normalization(colorsys.hsv_to_rgb(hsv[0], hsv[1], change_function(hsv[2])))
 
     def change_saturation(self, change_function):
-        hls = list(colorsys.rgb_to_hls(self.r, self.g, self.b))
-        hls[2] = change_function(hls[2])
-        self.__set_rgb_no_normalization(colorsys.hls_to_rgb(*hls))
+        hls = colorsys.rgb_to_hls(self.r, self.g, self.b)
+        self.__set_rgb_no_normalization(colorsys.hls_to_rgb(hls[0], hls[1], change_function(hls[2])))
