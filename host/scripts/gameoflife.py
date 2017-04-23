@@ -10,9 +10,10 @@ class gameoflife(CustomScript):
                          set_frame_rate, get_connected_clients)
         self.game_board = np.zeros((canvas.height, canvas.width), dtype = bool)
         self.colorboard = np.zeros((canvas.height, canvas.width, 3), dtype = int)
-        self.game_board[2, 5:7] = True
-        self.game_board[3, 4:6] = True
+        self.game_board[0, 0:9] = True
+        self.game_board[1, 0:9] = True
         self.game_board[4, 5] = True
+        self.set_frame_period(1)
 
     def roll_it(self, x, y):
         # rolls the matrix X in a given direction
