@@ -197,6 +197,7 @@ class Canvas:
         :param color: the color that should be converted 
         :return: a tuple containing all byte values in r, g, b order
         """
+        #return [int(round(color.get_red() * 255)), int(round(color.get_blue() * 255)), int(round(color.get_green() * 255))]
         return [int(round(i * 255)) for i in color.get_rgb()]
 
     def clear(self, color: Color = Color('black')):
