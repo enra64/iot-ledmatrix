@@ -1,6 +1,6 @@
 import logging
 
-from colour import Color
+from helpers.Color import Color
 
 from helpers.fonts import Font
 
@@ -115,9 +115,8 @@ class Canvas:
         :param color: the color to be written to the pixel
         :return: nothing
         """
-        color_in_255 = self.__color_to_255_rgb(color)
         red_index = self.get_red_index(x, y)
-        self.data_buffer[red_index:red_index + 3] = color_in_255
+        self.data_buffer[red_index:red_index + 3] = color.get_rgb()
 
     @staticmethod
     def __get_repr_color(color: Color) -> str:
@@ -153,8 +152,7 @@ class Canvas:
         """
         red_index = self.get_red_index(x, y)
         clr = self.data_buffer[red_index:red_index + 3]
-        clr_normalized = tuple([i / 255 for i in clr])
-        return Color(rgb=clr_normalized)
+        return Color.from_rgb(clr)
 
     def __repr__(self) -> str:
         """
@@ -189,25 +187,14 @@ class Canvas:
         """
         self.font = Font(path, size)
 
-    @staticmethod
-    def __color_to_255_rgb(color: Color):
-        """
-        Convert a normalized color to byte colors from 0 to 255
-        
-        :param color: the color that should be converted 
-        :return: a tuple containing all byte values in r, g, b order
-        """
-        #return [int(round(color.get_red() * 255)), int(round(color.get_blue() * 255)), int(round(color.get_green() * 255))]
-        return [int(round(i * 255)) for i in color.get_rgb()]
-
-    def clear(self, color: Color = Color('black')):
+    def clear(self, color: Color = Color(0, 0, 0)):
         """
         Set all pixels to some color
 
         :param color: the color that should be applied
         """
         # convert from 0-1 normalized to 0-255
-        rgb_color = self.__color_to_255_rgb(color)
+        rgb_color = color.get_rgb()
 
         # should be faster than manually zeroing all entries
         if rgb_color == [0, 0, 0]:
