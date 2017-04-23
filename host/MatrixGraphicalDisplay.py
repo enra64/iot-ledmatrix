@@ -36,9 +36,10 @@ class MatrixGraphicalDisplay:
         """
         for x in range(self.matrix_width):
             for y in range(self.matrix_height):
-                led = Rectangle(Point(x, y), Point(x + 1, y + 1))
-                led.setFill(color_rgb(*canvas.get_color(x, y).get_rgb()))
-                led.draw(self.win)
+                led_rect = Rectangle(Point(x, y), Point(x + 1, y + 1))
+                color_tuple = canvas.get_color(x, y).get_rgb()
+                led_rect.setFill(color_rgb(*color_tuple))
+                led_rect.draw(self.win)
         self.win.update()
 
     def get_key(self):

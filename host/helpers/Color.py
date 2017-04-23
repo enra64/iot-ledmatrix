@@ -22,7 +22,8 @@ class Color():
         Get an rgb tuple describing this color
         :return: 0-255 value, (r,g,b) tuple 
         """
-        return int(round(self.r * 255)), int(round(self.g * 255)), int(round(self.b * 255))
+        # fuck rounding, humans cant see shit anyways, and this function gets called _really_ often
+        return int(self.r * 255), int(self.g * 255), int(self.b * 255)
 
     def set_rgb(self, rgb):
         """
