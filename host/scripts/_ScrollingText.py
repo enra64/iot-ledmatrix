@@ -13,8 +13,9 @@ class _ScrollingText(CustomScript):
         self.current_color = Color(255, 255, 255)
         self.current_text_width = None
         self.canvas_width = canvas.width
+        self.desired_font_size = 11
 
-        canvas.set_font("helvetica.otf", 10)
+        canvas.set_font("helvetica.otf", self.desired_font_size)
 
     def draw(self, canvas: Canvas):
         canvas.clear()
@@ -31,11 +32,16 @@ class _ScrollingText(CustomScript):
         elif command == "change_speed":
             speed = data_dictionary['speed']
             self.set_frame_rate((speed + 1) * 2)
+        elif command == "set_font_size":
+            self.desired_font_size = data_dictionary['size']
         else:
             print("unknown command")
 
     def update(self, canvas):
         self.current_x -= 1
+
+        if canvas.get_last_font_size() != self.desired_font_size:
+            canvas.set_font("helvetica.otf", self.desired_font_size)
 
         # wrap around matrix borders
         if self.current_text_width is not None and self.current_x + self.current_text_width < 0:

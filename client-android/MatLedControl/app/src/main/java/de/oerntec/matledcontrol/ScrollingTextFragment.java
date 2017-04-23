@@ -34,6 +34,7 @@ public class ScrollingTextFragment extends Fragment implements ScriptFragmentInt
     private Button mChooseColorButton;
     private SeekBar mSpeedSeekbar;
     private EditText mTextEdit;
+    private SeekBar mSizeSeekbar;
 
     public ScrollingTextFragment() {
         // Required empty public constructor
@@ -62,6 +63,7 @@ public class ScrollingTextFragment extends Fragment implements ScriptFragmentInt
         mSendTextButton = (Button) v.findViewById(R.id.fragment_scrolling_text_send_text_button);
         mChooseColorButton = (Button) v.findViewById(R.id.fragment_scrolling_text_color_button);
         mSpeedSeekbar = (SeekBar) v.findViewById(R.id.fragment_scrolling_text_seekbar);
+        mSizeSeekbar = (SeekBar) v.findViewById(R.id.fragment_scrolling_text_font_size);
         mTextEdit = (EditText) v.findViewById(R.id.fragment_scrolling_text_text_edit);
 
         mSendTextButton.setOnClickListener(this);
@@ -108,7 +110,36 @@ public class ScrollingTextFragment extends Fragment implements ScriptFragmentInt
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
+
+        mSizeSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                ScrollingTextFragment.this.onSizeChanged(progress);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
         return v;
+    }
+
+    private void onSizeChanged(int size) {
+        try {
+            JSONObject response = new JSONObject();
+            response.put("command", "set_font_size");
+            response.put("size", size);
+            mMessageSender.sendScriptData(response);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void onSpeedChanged(int speed) {

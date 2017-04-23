@@ -29,6 +29,7 @@ class Canvas:
         :param width: width of the canvas in pixels
         :param height: height of the canvas in pixels
         """
+        self.font_size = None
         self.width = width
         self.height = height
         self.led_count = width * height
@@ -190,7 +191,15 @@ class Canvas:
         :param size: size of the font. For a 10x10 matrix, 13 is an acceptable, if rather large, choice.
         :return: nothing
         """
+        self.font_size = size
         self.font = Font(path, size)
+
+    def get_last_font_size(self):
+        """
+        Get the font size of the font that was loaded last, or None
+        :return: integer font size or None, if no font has been set so far
+        """
+        return self.font_size
 
     def clear(self, color: Color = Color(0, 0, 0)):
         """
