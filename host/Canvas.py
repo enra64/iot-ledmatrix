@@ -116,7 +116,10 @@ class Canvas:
         :return: nothing
         """
         red_index = self.get_red_index(x, y)
-        self.data_buffer[red_index:red_index + 3] = color.get_rgb()
+        self.data_buffer[red_index] = color.get_red()
+        self.data_buffer[red_index + 1] = color.get_green()
+        self.data_buffer[red_index + 2] = color.get_blue()
+        #self.data_buffer[red_index:red_index + 3] = color.get_rgb()
 
     @staticmethod
     def __get_repr_color(color: Color) -> str:
