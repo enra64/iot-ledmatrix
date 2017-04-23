@@ -1,4 +1,4 @@
-from colour import Color
+from helpers.Color import Color
 
 from CustomScript import CustomScript
 from Canvas import Canvas
