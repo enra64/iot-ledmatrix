@@ -14,7 +14,7 @@ class _ScrollingText(CustomScript):
         self.current_text_width = None
         self.canvas_width = canvas.width
 
-        canvas.set_font("helvetica.otf", 8)
+        canvas.set_font("helvetica.otf", 10)
 
     def draw(self, canvas: Canvas):
         canvas.clear()
@@ -30,7 +30,7 @@ class _ScrollingText(CustomScript):
             self.current_color = Color.from_rgb(data_dictionary['color'])
         elif command == "change_speed":
             speed = data_dictionary['speed']
-            self.set_frame_rate(speed * 2)
+            self.set_frame_rate((speed + 1) * 2)
         else:
             print("unknown command")
 
