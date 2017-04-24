@@ -28,5 +28,11 @@
     <string name="reboot_rpi">RPi neu starten</string>
     <string name="reconnect">wiederverbinden</string>
     <string name="restart_matrix_control">Matrix-Kontrolle neu initialisieren</string>
-    <string name="sp_last_connected_matrix" translatable="false"></string>
+    <string name="hello_blank_fragment">err</string>
+    <string name="load">err</string>
+    <string name="manual_script_load">err</string>
+    <string name="refresh">Aktualisieren</string>
+    <string name="shut_down_rpi">RPi herunterfahren</string>
+    <string name="view_matrix_log">Matrix-Log ansehen</string>
+    <string name="refreshing_scripts">aktualisiere Skript-Liste</string>
 </resources>

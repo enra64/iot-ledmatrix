@@ -1,4 +1,4 @@
-from colour import Color
+from helpers.Color import Color
 
 from CustomScript import CustomScript
 from Canvas import Canvas
@@ -20,8 +20,8 @@ class _SimpleDrawing(CustomScript):
             for x in range(0, canvas.width):
                 for y in range(0, canvas.height):
                     color = Color(
-                        red=self.client_data[x][y][0] / 255,
-                        green=self.client_data[x][y][1] / 255,
-                        blue=self.client_data[x][y][2] / 255
+                        self.client_data[x][y][0],
+                        self.client_data[x][y][1],
+                        self.client_data[x][y][2]
                     )
                     canvas.draw_pixel(x, y, color)

@@ -1,6 +1,6 @@
 import logging
 
-from colour import Color
+from helpers.Color import Color
 
 from helpers.fonts import Font
 
@@ -10,7 +10,7 @@ class Canvas:
     A canvas makes it easy to display using the matrix by providing a translation layer between pixels on a cartesian
     coordinate system and color data readable by the arduino and the WS2812B RGB leds.
     
-    The canvas uses colors from the colour library to represent the requested colors. See https://github.com/vaab/colour
+    The canvas uses Color instances to represent all colors. See :ref:`color_class_label`
     
     The user functions are:
     
@@ -29,6 +29,7 @@ class Canvas:
         :param width: width of the canvas in pixels
         :param height: height of the canvas in pixels
         """
+        self.font_size = None
         self.width = width
         self.height = height
         self.led_count = width * height
@@ -115,9 +116,13 @@ class Canvas:
         :param color: the color to be written to the pixel
         :return: nothing
         """
-        color_in_255 = self.__color_to_255_rgb(color)
         red_index = self.get_red_index(x, y)
-        self.data_buffer[red_index:red_index + 3] = color_in_255
+
+        # could be a one-liner, but i think avoiding the tuples involved is slightly faster
+        #self.data_buffer[red_index:red_index + 3] = color.get_rgb()
+        self.data_buffer[red_index] = color.get_red()
+        self.data_buffer[red_index + 1] = color.get_green()
+        self.data_buffer[red_index + 2] = color.get_blue()
 
     @staticmethod
     def __get_repr_color(color: Color) -> str:
@@ -153,8 +158,7 @@ class Canvas:
         """
         red_index = self.get_red_index(x, y)
         clr = self.data_buffer[red_index:red_index + 3]
-        clr_normalized = tuple([i / 255 for i in clr])
-        return Color(rgb=clr_normalized)
+        return Color.from_rgb(clr)
 
     def __repr__(self) -> str:
         """
@@ -187,26 +191,24 @@ class Canvas:
         :param size: size of the font. For a 10x10 matrix, 13 is an acceptable, if rather large, choice.
         :return: nothing
         """
+        self.font_size = size
         self.font = Font(path, size)
 
-    @staticmethod
-    def __color_to_255_rgb(color: Color):
+    def get_last_font_size(self):
         """
-        Convert a normalized color to byte colors from 0 to 255
-        
-        :param color: the color that should be converted 
-        :return: a tuple containing all byte values in r, g, b order
+        Get the font size of the font that was loaded last, or None
+        :return: integer font size or None, if no font has been set so far
         """
-        return [int(round(i * 255)) for i in color.get_rgb()]
+        return self.font_size
 
-    def clear(self, color: Color = Color('black')):
+    def clear(self, color: Color = Color(0, 0, 0)):
         """
         Set all pixels to some color
 
         :param color: the color that should be applied
         """
         # convert from 0-1 normalized to 0-255
-        rgb_color = self.__color_to_255_rgb(color)
+        rgb_color = color.get_rgb()
 
         # should be faster than manually zeroing all entries
         if rgb_color == [0, 0, 0]:
@@ -232,7 +234,7 @@ class Canvas:
         # update data in position
         self.__write_color_at(x, y, color)
 
-    def draw_text(self, text: str, x: int, y: int, color: Color, ignore_height_warning=False):
+    def draw_text(self, text: str, x: int, y: int, color: Color):
         """
         Draw text on the canvas. Rendering over the borders is cut off, so you do not need boundary checking.
         
@@ -240,9 +242,7 @@ class Canvas:
         :param x: the top-left starting position of the text
         :param y: the top-left starting position of the text
         :param color: color of the text
-        :param ignore_height_warning: if true, no warning will be logged that the font does not fit into the available
-            height. if false, a warning will be printed in the log on each such occasion
-        :return: nothing
+        :return: width of the text to be rendered
         """
         assert self.font is not None, "No font loaded! Use set_font(path, size)!"
 
@@ -252,14 +252,14 @@ class Canvas:
             self.logger.warning("Warning: The rendered text is higher than the canvas")
 
         # calculate appropriate render width (draw at most to canvas border, or (if smaller) to text border)
-        available_horizontal_space = self.width - x
+        available_horizontal_space = min(self.width - x, self.width)
         if rendered_text.width < available_horizontal_space:
             render_width = rendered_text.width
         else:
             render_width = available_horizontal_space
 
         # calculate appropriate render height
-        available_vertical_space = self.height - y
+        available_vertical_space = min(self.height - y, self.height)
         if rendered_text.height < available_vertical_space:
             render_height = rendered_text.height
         else:
@@ -268,14 +268,27 @@ class Canvas:
         # render text to our canvas
         font_x = 0
         font_y = 0
+
+        # always start rendering top/leftmost at zero, but move the font appropriately
+        if x < 0:
+            font_x = abs(x)
+            x = 0
+
+        if y < 0:
+            font_y = abs(y)
+            y = 0
+
         for canvas_x in range(x, render_width):
             for canvas_y in range(y, render_height):
-                pixel_enabled = rendered_text.is_enabled(font_x, font_y)
+                in_font_range = font_x < rendered_text.width and font_y < rendered_text.height
+                pixel_enabled = in_font_range and rendered_text.is_enabled(font_x, font_y)
                 if pixel_enabled:
                     self.draw_pixel(canvas_x, canvas_y, color)
                 font_y += 1
             font_x += 1
             font_y = 0
+
+        return rendered_text.width
 
     def draw_rect(self, x: int, y: int, width: int, height: int, color: Color):
         """

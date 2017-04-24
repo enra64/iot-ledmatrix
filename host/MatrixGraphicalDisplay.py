@@ -1,4 +1,4 @@
-from colour import Color
+from helpers.Color import Color
 
 import Canvas
 from helpers.graphics import *
@@ -36,10 +36,14 @@ class MatrixGraphicalDisplay:
         """
         for x in range(self.matrix_width):
             for y in range(self.matrix_height):
-                led = Rectangle(Point(x, y), Point(x + 1, y + 1))
-                led.setFill(self.__convert_color(canvas.get_color(x, y)))
-                led.draw(self.win)
-        self.win.update()
+                led_rect = Rectangle(Point(x, y), Point(x + 1, y + 1))
+                color_tuple = canvas.get_color(x, y).get_rgb()
+                led_rect.setFill(color_rgb(*color_tuple))
+                if not self.win.isClosed():
+                    led_rect.draw(self.win)
+
+        if not self.win.isClosed():
+            self.win.update()
 
     def get_key(self):
         """

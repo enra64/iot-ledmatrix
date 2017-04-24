@@ -142,6 +142,10 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.log_viewer:
                 fragment = LogFragment.newInstance();
+                break;
+            case R.id.scrolling_text:
+                fragment = ScrollingTextFragment.newInstance();
+                break;
             default:
                 Log.w("ledmat:main", "unknown menu item clicked");
         }

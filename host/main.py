@@ -17,8 +17,7 @@ def test_serial():
 
 
 def test():
-    tests.test_gui_canvas_display()
-    return
+    tests.test_gui_canvas_display_by_line()
     tests.test_script_handler_exception_handling()
     tests.test_invalid_script_name()
     tests.test_canvas_pixel_line()

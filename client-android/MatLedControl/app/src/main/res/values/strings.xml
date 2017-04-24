@@ -39,4 +39,5 @@
     <string name="refresh">Refresh</string>
     <string name="view_matrix_log">View Matrix Log</string>
     <string name="shut_down_rpi">shut down RPI</string>
+    <string name="scrolling_text">Scrolling text</string>
 </resources>

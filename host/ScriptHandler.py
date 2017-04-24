@@ -58,13 +58,16 @@ class ScriptHandler:
         return self.is_script_running
 
     def on_client_connected(self, id):
-        self.current_script_runner.on_client_connected(id)
+        if self.current_script_runner is not None:
+            self.current_script_runner.on_client_connected(id)
 
     def on_client_disconnected(self, id):
-        self.current_script_runner.on_client_disconnected(id)
+        if self.current_script_runner is not None:
+            self.current_script_runner.on_client_disconnected(id)
 
     def on_data(self, data, source_id):
-        self.current_script_runner.on_data(data, source_id)
+        if self.current_script_runner is not None:
+            self.current_script_runner.on_data(data, source_id)
 
     def stop_current_script(self):
         if self.current_script_runner is None:
@@ -75,4 +78,5 @@ class ScriptHandler:
         self.is_script_running = False
 
     def join(self):
-        self.current_script_runner.join()
+        if self.current_script_runner is not None:
+            self.current_script_runner.join()

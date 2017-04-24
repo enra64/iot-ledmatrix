@@ -5,7 +5,7 @@ from DiscoveryServer import DiscoveryServer
 from Canvas import Canvas
 from matrix_serial import MatrixSerial
 from ScriptHandler import ScriptHandler
-from colour import Color
+from helpers.Color import Color
 
 # begin serial test
 from Server import Server
@@ -50,7 +50,7 @@ def test_canvas_pixel_line():
     print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
 
-    blue = Color("blue")
+    blue = Color(0, 0, 255)
 
     for i in range(c.width - 1, 0-1, -1):
         c.draw_pixel(9 - i, i, blue)
@@ -61,7 +61,7 @@ def test_canvas_rect():
     print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
 
-    blue = Color("blue")
+    blue = Color(0, 0, 255)
 
     c.draw_rect(2, 2, 4, 4, blue)
     print(repr(c))
@@ -71,7 +71,7 @@ def test_canvas_font():
     print(inspect.currentframe().f_code.co_name)
     c = Canvas(10, 10)
     c.set_font("helvetica.otf", 13)
-    blue = Color("blue")
+    blue = Color(0, 0, 255)
     c.draw_text("h", 0, 0, blue)
     print(repr(c))
 
@@ -80,7 +80,7 @@ def test_canvas_draw_pixel_line(serial):
     print(inspect.currentframe().f_code.co_name)
     c = Canvas(156, 1)
 
-    blue = Color("blue")
+    blue = Color(0, 0, 255)
 
     while True:
         for i in range(c.width):
@@ -159,7 +159,7 @@ def test_gui_canvas_display_by_line():
 
         c = Canvas(10, 10)
         gui = MatrixGraphicalDisplay(10, 10)
-        blue = Color("blue")
+        blue = Color(0, 0, 255)
 
         for i in range(c.width - 1, 0-1, -1):
             c.draw_pixel(9 - i, i, blue)
