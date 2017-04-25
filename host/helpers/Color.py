@@ -6,6 +6,11 @@ import random
 from helpers import utils
 
 
+def float_is_close(a, b, relative_tolerance=1e-09, absolute_tolerance=0.0):
+    """Check whether two floats are similar. needed for python 3.4"""
+    return abs(a - b) <= max(relative_tolerance * max(abs(a), abs(b)), absolute_tolerance)
+
+
 class Color():
     """
     The color class abstracts the color concept.
@@ -28,6 +33,16 @@ class Color():
         * :meth:`get_green`
         * :meth:`get_blue`
         
+    Following special color generation methods are available: 
+        * :meth:`random_color`
+        * :meth:`random_color_bounded`
+        * :meth:`from_single_color`
+        * :meth:`from_rgb`
+        
+    To quickly get information, you may use
+        * :meth:`is_black`
+        * :meth:`is_white`
+        
     To create new color objects, you can use the constructor, which needs r, g, b parameters, or :meth:`from_rgb`, which
     will return a Color instance from the provided rgb tuple.
     """
@@ -44,9 +59,9 @@ class Color():
         assert 0 <= g <= 255, "green component must be >= 0 and <= 255"
         assert 0 <= b <= 255, "blue component must be >= 0 and <= 255"
 
-        self.__r = r / 255
-        self.__g = g / 255
-        self.__b = b / 255
+        self.__r = r / 255  # type: float
+        self.__g = g / 255  # type: float
+        self.__b = b / 255  # type: float
 
     @staticmethod
     def from_rgb(rgb: Tuple[int]):
@@ -79,6 +94,16 @@ class Color():
         :return: new random color within boundaries
         """
         return Color(random.randint(*red_bounds), random.randint(*green_bounds), random.randint(*blue_bounds))
+
+    @staticmethod
+    def from_single_color(all_component_value: int):
+        """
+        Create a new color where each RGB component has the same value
+        
+        :param all_component_value: the value for each component
+        :return: new color, where rgb = (val, val, val)
+        """
+        return Color(all_component_value, all_component_value, all_component_value)
 
     def get_rgb(self):
         """
@@ -245,3 +270,21 @@ class Color():
         """
         hls = colorsys.rgb_to_hls(self.__r, self.__g, self.__b)
         self.__set_rgb_no_normalization(colorsys.hls_to_rgb(hls[0], hls[1], change_function(hls[2])))
+
+    # noinspection PyChainedComparisons
+    def is_black(self, epsilon: float = 1e-09):
+        """
+        Test wether all components are almost at their minimum value. 
+        :param epsilon: error margin allowed. comparisons are done on 0-1 colors!
+        :return: True if black.
+        """
+        return self.__r < epsilon and self.__g < epsilon and self.__b < epsilon
+
+    # noinspection PyChainedComparisons
+    def is_white(self, epsilon: float = 1e-09):
+        """
+        Test wether all components are almost at their maximum value. 
+        :param epsilon: error margin allowed. comparisons are done on 0-1 colors!
+        :return: True if white.
+        """
+        return self.__r > 1 - epsilon and self.__g > 1 - epsilon and self.__b > 1 - epsilon

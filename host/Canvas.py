@@ -183,7 +183,7 @@ class Canvas:
         return self.data_buffer
 
     @staticmethod
-    def render_text(text:str, font_path: str, size: int) -> Bitmap:
+    def render_text(text:str, font_path: str="Inconsolata.otf", size: int=15) -> Bitmap:
         """
         Render a piece of text. Doing this once and then drawing with it is significantly faster than using draw_text
         with strings
