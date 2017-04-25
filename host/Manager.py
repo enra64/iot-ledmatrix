@@ -1,5 +1,7 @@
 import logging
 
+import sys
+
 from Canvas import Canvas
 from DiscoveryServer import DiscoveryServer
 from Server import Server
@@ -46,6 +48,7 @@ class Manager:
         self.discovery_server.stop()
         self.server.stop()
         self.logger.info("shut down")
+        sys.exit(0)
 
     def load_script(self, script):
         """load specific script"""
