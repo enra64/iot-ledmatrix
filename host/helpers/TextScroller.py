@@ -27,7 +27,7 @@ class TextScroller:
 
         self.current_text_width = None
         self.rendered_text = None
-        self.text = str
+        self.text = text
 
         self.re_render = text is not None
 
