@@ -157,7 +157,7 @@ public class ManualScriptLoadFragment extends Fragment implements ScriptFragment
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        requestScript(scriptName);
+                        ManualScriptLoadFragment.this.mMessageSender.requestScript(scriptName);
                     }
                 });
             }

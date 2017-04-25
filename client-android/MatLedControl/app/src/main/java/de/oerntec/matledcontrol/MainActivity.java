@@ -158,13 +158,8 @@ public class MainActivity extends AppCompatActivity
         mCurrentScriptFragment = (ScriptFragmentInterface) fragment;
 
         // the discovery fragment requests no script
-        if (!(fragment instanceof DiscoveryFragment)) {
-            String requestedScript = mCurrentScriptFragment.requestScript();
-            try {
-                mConnection.sendMessage(new JSONObject("{requested_script: " + requestedScript + "}"), "script_load_request");
-            } catch (JSONException ignored) {
-            }
-        }
+        if (!(fragment instanceof DiscoveryFragment))
+            requestScript(mCurrentScriptFragment.requestScript());
 
         // actually load the fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -258,6 +253,14 @@ public class MainActivity extends AppCompatActivity
         }
 
         mConnection.sendMessage(wrapper, "script_data");
+    }
+
+    @Override
+    public void requestScript(String scriptName) {
+        try {
+            mConnection.sendMessage(new JSONObject("{requested_script: " + scriptName + "}"), "script_load_request");
+        } catch (JSONException ignored) {
+        }
     }
 
 
