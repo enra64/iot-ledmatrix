@@ -9,24 +9,25 @@ class _ScrollingText(CustomScript):
         super().__init__(canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
                          set_frame_rate, get_connected_clients)
         self.current_x = 0
-        self.current_text = None
         self.current_color = Color(255, 255, 255)
-        self.current_text_width = None
         self.canvas_width = canvas.width
-        self.desired_font_size = 11
         self.desired_font_path = "Inconsolata.otf"
+        self.desired_font_size = 10
 
-        canvas.set_font(self.desired_font_path, self.desired_font_size)
+        self.current_text_width = None
+        self.rendered_text = None
+        self.current_text = None
 
     def draw(self, canvas: Canvas):
         canvas.clear()
-        if self.current_text is not None and self.current_color is not None:
-            self.current_text_width = canvas.draw_text(self.current_text, self.current_x, 0, self.current_color)
+        if self.rendered_text is not None:
+            self.current_text_width = canvas.draw_text(self.rendered_text, self.current_x, 0, self.current_color)
 
     def on_data(self, data_dictionary, source_id):
         command = data_dictionary['command']
         if command == "change_text":
             self.current_text = data_dictionary['text']
+            self.rendered_text = self.canvas.render_text(self.current_text, self.desired_font_path, self.desired_font_size)
             self.current_x = self.canvas_width
         elif command == "change_color":
             self.current_color = Color.from_rgb(data_dictionary['color'])
@@ -41,10 +42,12 @@ class _ScrollingText(CustomScript):
     def update(self, canvas):
         self.current_x -= 1
 
-        if canvas.get_last_font_size() != self.desired_font_size:
+        if self.current_text is not None and canvas.get_last_font_size() != self.desired_font_size:
+            self.rendered_text = self.canvas.render_text(self.current_text, self.desired_font_path, self.desired_font_size)
             canvas.set_font(self.desired_font_path, self.desired_font_size)
 
         # wrap around matrix borders
-        if self.current_text_width is not None and self.current_x + self.current_text_width < 0:
-            self.current_x = self.canvas_width
+        if self.rendered_text is not None and self.current_text_width is not None:
+            if self.current_x + self.current_text_width < 0:
+                self.current_x = self.canvas_width
 

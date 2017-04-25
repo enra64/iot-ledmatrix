@@ -2,7 +2,7 @@ import logging
 
 from helpers.Color import Color
 
-from helpers.fonts import Font
+from helpers.fonts import Font, Bitmap
 
 
 class Canvas:
@@ -157,8 +157,7 @@ class Canvas:
         :return: a Color instance
         """
         red_index = self.get_red_index(x, y)
-        clr = self.data_buffer[red_index:red_index + 3]
-        return Color.from_rgb(clr)
+        return Color(self.data_buffer[red_index], self.data_buffer[red_index + 1], self.data_buffer[red_index + 2])
 
     def __repr__(self) -> str:
         """
@@ -182,6 +181,20 @@ class Canvas:
         :return: a bytearray with all color values
         """
         return self.data_buffer
+
+    @staticmethod
+    def render_text(text:str, font_path: str, size: int) -> Bitmap:
+        """
+        Render a piece of text. Doing this once and then drawing with it is significantly faster than using draw_text
+        with strings
+        
+        :param text: the text to be rendered 
+        :param font_path: path to the font to be used for rendering
+        :param size: font size. 13 is large.
+        :return: a pre-rendered text object
+        """
+        font = Font(font_path, size)
+        return font.render_text(text)
 
     def set_font(self, path: str, size: int):
         """
@@ -234,11 +247,11 @@ class Canvas:
         # update data in position
         self.__write_color_at(x, y, color)
 
-    def draw_text(self, text: str, x: int, y: int, color: Color):
+    def draw_text(self, text, x: int, y: int, color: Color):
         """
         Draw text on the canvas. Rendering over the borders is cut off, so you do not need boundary checking.
         
-        :param text: the text to be rendered 
+        :param text: the text to be rendered, or a font object generated using render_text".
         :param x: the top-left starting position of the text
         :param y: the top-left starting position of the text
         :param color: color of the text
@@ -246,7 +259,10 @@ class Canvas:
         """
         assert self.font is not None, "No font loaded! Use set_font(path, size)!"
 
-        rendered_text = self.font.render_text(text)
+        if type(text) is str:
+            rendered_text = self.font.render_text(text)
+        else:
+            rendered_text = text
 
         if rendered_text.height > self.height:
             self.logger.warning("Warning: The rendered text is higher than the canvas")

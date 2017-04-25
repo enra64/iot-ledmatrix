@@ -51,8 +51,7 @@ class CustomScript:
         The constructor is the first time the script comes alive. After running through it, calls to update and then draw
         are to be expected. All parameters but canvas are stored in the instance by the CustomScript constructor.
 
-        :param canvas: the canvas object is for information (like width and height) purposes. Not guaranteed to be the
-            same instance that will be given to update or draw.
+        :param canvas: the canvas object that will be drawn with
         :param send_object: send an object to a single client.
         :param send_object_to_all: send an object to all clients
         :param start_script: start another script, stopping this one.
@@ -61,6 +60,7 @@ class CustomScript:
         :param set_frame_rate: set the frame rate with which the script update cycle is called. overwrites set_frame_period.
         :param get_connected_clients: get a list of connected clients' zmq ids
         """
+        self.canvas = canvas
         self.__send_object = send_object
         self.__send_object_to_all = send_object_to_all
         self.__start_script = start_script
