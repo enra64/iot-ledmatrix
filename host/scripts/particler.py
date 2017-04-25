@@ -14,6 +14,12 @@ def ascending(speed):
 
     return _ascending
 
+def exploding(dx, dy):
+    def _exploding(particle):
+        particle.x += dx
+        particle.y += dy
+
+    return _exploding
 
 def kill_at(max_x, max_y):
     def _kill_at(particle):
@@ -25,7 +31,7 @@ def kill_at(max_x, max_y):
 def fire_aging(amount):
     def _age(particle):
         particle.alive += amount
-        particle.col.change_rgb(lambda r, g, b: (r, g * 1.05, b))
+        particle.col.change_rgb(lambda r, g, b: (r, g * 1.04, b))
 
     return _age
 
@@ -58,12 +64,11 @@ def wind(direction, strength):
 
 
 class Particle:
-    def __init__(self, col: Color, size: int, position: Tuple, *strategies):
+    def __init__(self, col: Color, position: Tuple, *strategies):
         self.x, self.y = position
         self.col = col
         self.alive = 0
         self.strategies = strategies
-        self.size = size
 
     def kill(self):
         self.alive = -1  # alive -1 means dead
@@ -95,7 +100,7 @@ def fire_machine(position):
 
         c = copy.copy(random.choice(colors))
 
-        p = Particle(c, random.randint(10, 15), position, *behaviour)
+        p = Particle(c, position, *behaviour)
         yield p
 
     while True:
@@ -104,11 +109,23 @@ def fire_machine(position):
 def random_machine(x, y):
     def create():
         behaviour = age(1), ascending(1), fan_out(1), wind(1, 15), kill_at(10, 10)
-        p = Particle(Color.random_color(), random.randint(10, 15), (x, y), *behaviour)
+        p = Particle(Color.random_color(), (x, y), *behaviour)
         yield p
 
     while True:
         yield create()
+
+def explosion_machine(x, y):
+    dirs = ((-1, -1),(-1, 0),(-1, 1),(0, -1),(0, 0),(0, 1),(1, -1),(1, 0),(1, 1))
+
+    def create():
+        behaviour = exploding(*random.choice(dirs)), fan_out(.3), kill_at(10, 10)
+        p = Particle(Color.random_color(), (x, y), *behaviour)
+        yield p
+
+    while True:
+        yield create()
+
 
 class Emitter(object):
     def __init__(self):
@@ -137,6 +154,7 @@ class Emitter(object):
 
     def draw(self, canvas):
         for ptcl in self.particles:
+            # HINT: if you get an exception from here, the kill_at function may not be the last behaviour.
             canvas.draw_pixel(int(ptcl.x), int(ptcl.y), ptcl.col)
 
 
@@ -151,7 +169,8 @@ class particler(CustomScript):
         self.emitter = Emitter()
         #self.emitter.add_factory(smoke_machine((2, 9)))
         #self.emitter.add_factory(random_machine(8, 9))
-        self.emitter.add_factory(fire_machine((4, 9)))
+        #self.emitter.add_factory(fire_machine((4, 9)))
+        self.emitter.add_factory(explosion_machine(4, 5))
 
     def update(self, canvas):
         self.emitter.update()
