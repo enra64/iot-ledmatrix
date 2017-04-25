@@ -1,24 +1,11 @@
-from random import randint, choice
+import random
+from typing import Tuple
+
+import copy
 
 from Canvas import Canvas
 from CustomScript import CustomScript
 from helpers.Color import Color
-
-
-class Particle():
-    def __init__(self, col, size, *strategies):
-        self.x, self.y = 0, 0
-        self.col = col
-        self.alive = 0
-        self.strategies = strategies
-        self.size = size
-
-    def kill(self):
-        self.alive = -1  # alive -1 means dead
-
-    def move(self):
-        for s in self.strategies:
-            s(self)
 
 
 def ascending(speed):
@@ -35,6 +22,12 @@ def kill_at(max_x, max_y):
 
     return _kill_at
 
+def fire_aging(amount):
+    def _age(particle):
+        particle.alive += amount
+        particle.col.change_rgb(lambda r, g, b: (r, g * 1.05, b))
+
+    return _age
 
 def age(amount):
     def _age(particle):
@@ -44,44 +37,85 @@ def age(amount):
 
 
 def fan_out(modifier):
+    """
+    
+    :param modifier: larger values create more fanout. try ~0-2. 
+    :return: 
+    """
     def _fan_out(particle):
-        d = particle.alive / modifier
-        d += 1
-        particle.x += randint(0, 2 * int(d)) - d
+        addition = random.random() * modifier - (modifier / 2)
+        particle.x += addition
 
     return _fan_out
 
 
 def wind(direction, strength):
     def _wind(particle):
-        if randint(0, 100) < strength:
+        if random.randint(0, 100) < strength:
             particle.x += direction
 
     return _wind
 
 
-def smoke_machine():
+class Particle:
+    def __init__(self, col: Color, size: int, position: Tuple, *strategies):
+        self.x, self.y = position
+        self.col = col
+        self.alive = 0
+        self.strategies = strategies
+        self.size = size
+
+    def kill(self):
+        self.alive = -1  # alive -1 means dead
+
+    def move(self):
+        for s in self.strategies:
+            s(self)
+
+
+def smoke_machine(position):
     colors = {0: Color(128, 128, 128),
               1: Color(80, 80, 80),
               2: Color(200, 200, 200)}
 
     def create():
-        #for _ in range(choice([0, 0, 0, 0, 0, 0, 0, 1, 2, 3])):
-        behaviour = age(1), ascending(1), fan_out(400), wind(1, 15), kill_at(10, 10)
-        p = Particle(colors[randint(0, 2)], randint(10, 15), *behaviour)
+        behaviour = age(1), ascending(1), fan_out(1), wind(1, 15), kill_at(10, 10)
+        p = Particle(random.choice(colors), random.randint(10, 15), position, *behaviour)
         yield p
 
     while True:
         yield create()
 
+def fire_machine(position):
+    # get 10 random fiery colors
+    colors = [Color.random_color_bounded((180, 255), (80, 150), (0, 5)) for _ in range(10)]
+
+    def create():
+        behaviour = fire_aging(1), ascending(1), fan_out(1.2), wind(1, 15), kill_at(10, 10)
+
+        c = copy.copy(random.choice(colors))
+
+        p = Particle(c, random.randint(10, 15), position, *behaviour)
+        yield p
+
+    while True:
+        yield create()
+
+def random_machine(x, y):
+    def create():
+        behaviour = age(1), ascending(1), fan_out(1), wind(1, 15), kill_at(10, 10)
+        p = Particle(Color.random_color(), random.randint(10, 15), (x, y), *behaviour)
+        yield p
+
+    while True:
+        yield create()
 
 class Emitter(object):
-    def __init__(self, pos=(0, 0)):
+    def __init__(self):
         self.particles = []
-        self.pos = pos
         self.factories = []
 
-    def add_factory(self, factory, pre_fill=5):
+    def add_factory(self, factory, pre_fill=1):
         self.factories.append(factory)
         tmp = []
         for _ in range(pre_fill):
@@ -112,8 +146,12 @@ class particler(CustomScript):
         super().__init__(canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
                          set_frame_rate, get_connected_clients)
 
-        self.emitter = Emitter((4, 9))
-        self.emitter.add_factory(smoke_machine())
+        self.set_frame_rate(20)
+
+        self.emitter = Emitter()
+        #self.emitter.add_factory(smoke_machine((2, 9)))
+        #self.emitter.add_factory(random_machine(8, 9))
+        self.emitter.add_factory(fire_machine((4, 9)))
 
     def update(self, canvas):
         self.emitter.update()

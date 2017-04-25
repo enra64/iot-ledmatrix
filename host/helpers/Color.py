@@ -3,6 +3,8 @@ from typing import Tuple
 
 import random
 
+from helpers import utils
+
 
 class Color():
     """
@@ -55,6 +57,29 @@ class Color():
         """
         return Color(rgb[0], rgb[1], rgb[2])
 
+    @staticmethod
+    def random_color():
+        """
+        Return a new completely random color
+        
+        :return: new random color 
+        """
+        return Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+
+    @staticmethod
+    def random_color_bounded(red_bounds: Tuple[int, int] = (0, 255),
+                             green_bounds: Tuple[int, int] = (0, 255),
+                             blue_bounds: Tuple[int, int] = (0, 255)):
+        """
+        Return a new random color with boundaries for the possible color extremes
+        
+        :param red_bounds: A tuple of (min_val_incl, max_val_incl) for red
+        :param green_bounds: A tuple of (min_val_incl, max_val_incl) for green
+        :param blue_bounds: A tuple of (min_val_incl, max_val_incl) for blue
+        :return: new random color within boundaries
+        """
+        return Color(random.randint(*red_bounds), random.randint(*green_bounds), random.randint(*blue_bounds))
+
     def get_rgb(self):
         """
         Get an rgb tuple describing this color
@@ -87,15 +112,6 @@ class Color():
         """
         return int(self.__b * 255)
 
-    @staticmethod
-    def random_color():
-        """
-        Return a new completely random color
-        
-        :return: new random color 
-        """
-        return Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
-
     def set_rgb(self, rgb):
         """
         Set an rgb tuple that will replace this color
@@ -106,6 +122,18 @@ class Color():
         self.__r = rgb[0] / 255
         self.__g = rgb[1] / 255
         self.__b = rgb[2] / 255
+
+    def change_rgb(self, changer):
+        """
+        Change the RGB values.
+        
+        :param changer: function(r, g, b) returning the new (r, g, b). In- and output are 0-1!
+        :return: nothing
+        """
+        r, g, b = changer(self.__r, self.__g, self.__b)
+        self.__r = utils.clamp(r, 0, 1)
+        self.__g = utils.clamp(g, 0, 1)
+        self.__b = utils.clamp(b, 0, 1)
 
     def __set_rgb_no_normalization(self, rgb):
         """
