@@ -18,4 +18,10 @@ public interface MessageSender {
      * @param json json data to be wrapped in a script_data message
      */
     void sendScriptData(JSONObject json);
+
+    /**
+     * Request the listed script
+     * @param scriptName name of the script
+     */
+    void requestScript(String scriptName);
 }

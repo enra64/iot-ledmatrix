@@ -40,4 +40,8 @@
     <string name="view_matrix_log">View Matrix Log</string>
     <string name="shut_down_rpi">shut down RPI</string>
     <string name="scrolling_text">Scrolling text</string>
+    <string name="scrolling_speed">Scrolling speed</string>
+    <string name="choose_color">choose color</string>
+    <string name="send_text">send text</string>
+    <string name="font_size">Font size</string>
 </resources>
