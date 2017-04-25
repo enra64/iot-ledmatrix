@@ -3,7 +3,7 @@ from CustomScript import CustomScript
 from helpers.Color import Color
 
 
-class _ScrollingText:
+class TextScroller:
     """
     This class is designed to help with scrolling text over the canvas. Following functions are expected to be forwarded:
     * :meth:`update` to update the text position

@@ -257,9 +257,8 @@ class Canvas:
         :param color: color of the text
         :return: width of the text to be rendered
         """
-        assert self.font is not None, "No font loaded! Use set_font(path, size)!"
-
         if type(text) is str:
+            assert self.font is not None, "No font loaded! Use set_font(path, size)!"
             rendered_text = self.font.render_text(text)
         else:
             rendered_text = text
