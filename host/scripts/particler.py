@@ -3,6 +3,8 @@ from typing import Tuple
 
 import copy
 
+from pympler.tracker import SummaryTracker
+
 from Canvas import Canvas
 from CustomScript import CustomScript
 from helpers.Color import Color
@@ -14,12 +16,14 @@ def ascending(speed):
 
     return _ascending
 
+
 def exploding(dx, dy):
     def _exploding(particle):
         particle.x += dx
         particle.y += dy
 
     return _exploding
+
 
 def kill_at(max_x, max_y):
     def _kill_at(particle):
@@ -28,12 +32,14 @@ def kill_at(max_x, max_y):
 
     return _kill_at
 
+
 def fire_aging(amount):
     def _age(particle):
         particle.alive += amount
         particle.col.change_rgb(lambda r, g, b: (r, g * 1.04, b))
 
     return _age
+
 
 def age(amount):
     def _age(particle):
@@ -48,6 +54,7 @@ def fan_out(modifier):
     :param modifier: larger values create more fanout. try ~0-2. 
     :return: 
     """
+
     def _fan_out(particle):
         addition = random.random() * modifier - (modifier / 2)
         particle.x += addition
@@ -69,6 +76,7 @@ class Particle:
         self.col = col
         self.alive = 0
         self.strategies = strategies
+        self.in_use = False
 
     def kill(self):
         self.alive = -1  # alive -1 means dead
@@ -78,20 +86,23 @@ class Particle:
             s(self)
 
 
-def smoke_machine(position):
+def smoke_machine(position, next_particle):
     colors = {0: Color(128, 128, 128),
               1: Color(80, 80, 80),
               2: Color(200, 200, 200)}
 
     def create():
-        behaviour = age(1), ascending(1), fan_out(1), wind(1, 15), kill_at(10, 10)
-        p = Particle(random.choice(colors), random.randint(10, 15), position, *behaviour)
+        p = next_particle()
+        p.col = random.choice(colors)
+        p.x, p.y = position[0], position[1]
+        p.strategies = age(1), ascending(1), fan_out(1), wind(1, 15), kill_at(10, 10)
         yield p
 
     while True:
         yield create()
 
-def fire_machine(position):
+
+def fire_machine(position, next_particle):
     # get 10 random fiery colors
     colors = [Color.random_color_bounded((180, 255), (80, 150), (0, 5)) for _ in range(10)]
 
@@ -106,21 +117,25 @@ def fire_machine(position):
     while True:
         yield create()
 
-def random_machine(x, y):
+
+def random_machine(position, next_particle):
     def create():
         behaviour = age(1), ascending(1), fan_out(1), wind(1, 15), kill_at(10, 10)
-        p = Particle(Color.random_color(), (x, y), *behaviour)
+        p = Particle(Color.random_color(), position, *behaviour)
         yield p
 
     while True:
         yield create()
 
-def explosion_machine(x, y):
-    dirs = ((-1, -1),(-1, 0),(-1, 1),(0, -1),(0, 0),(0, 1),(1, -1),(1, 0),(1, 1))
+
+def explosion_machine(position, next_particle):
+    dirs = ((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
 
     def create():
-        behaviour = exploding(*random.choice(dirs)), fan_out(.3), kill_at(10, 10)
-        p = Particle(Color.random_color(), (x, y), *behaviour)
+        p = next_particle()
+        p.col = Color.random_color()
+        p.x, p.y = position[0], position[1]
+        p.strategies = exploding(*random.choice(dirs)), fan_out(.3), kill_at(10, 10)
         yield p
 
     while True:
@@ -129,8 +144,13 @@ def explosion_machine(x, y):
 
 class Emitter(object):
     def __init__(self):
-        self.particles = []
+        self.online_particles = []
+        self.offline_particles = []
         self.factories = []
+
+        default_color = Color()
+        for _ in range(50):
+            self.offline_particles.append(Particle(default_color, (0, 0), None))
 
     def add_factory(self, factory, pre_fill=1):
         self.factories.append(factory)
@@ -140,22 +160,32 @@ class Emitter(object):
             tmp.extend(n)
             for p in tmp:
                 p.move()
-        self.particles.extend(tmp)
+        self.online_particles.extend(tmp)
+
+    def get_next_particle(self) -> Particle:
+        return self.offline_particles.pop(0)
+
+    def recycle_particle(self, particle):
+        # move particle
+        self.online_particles.remove(particle)
+        self.offline_particles.append(particle)
 
     def update(self):
         for f in self.factories:
             new_particle = next(f)
-            self.particles.extend(new_particle)
+            self.online_particles.extend(new_particle)
 
-        for p in self.particles[:]:
+        for p in self.online_particles:
             p.move()
             if p.alive == -1:
-                self.particles.remove(p)
+                self.recycle_particle(p)
+
+                print("%i online, %i offline" % (len(self.online_particles), len(self.offline_particles)))
 
     def draw(self, canvas):
-        for ptcl in self.particles:
+        for particle in self.online_particles:
             # HINT: if you get an exception from here, the kill_at function may not be the last behaviour.
-            canvas.draw_pixel(int(ptcl.x), int(ptcl.y), ptcl.col)
+            canvas.draw_pixel(int(particle.x), int(particle.y), particle.col)
 
 
 class particler(CustomScript):
@@ -167,13 +197,21 @@ class particler(CustomScript):
         self.set_frame_rate(20)
 
         self.emitter = Emitter()
-        #self.emitter.add_factory(smoke_machine((2, 9)))
-        #self.emitter.add_factory(random_machine(8, 9))
-        #self.emitter.add_factory(fire_machine((4, 9)))
-        self.emitter.add_factory(explosion_machine(4, 5))
+        self.emitter.add_factory(smoke_machine((2, 9), self.emitter.get_next_particle))
+        # self.emitter.add_factory(random_machine(8, 9))
+        # self.emitter.add_factory(fire_machine((4, 9)))
+        # self.emitter.add_factory(explosion_machine((4, 5), self.emitter.get_next_particle))
+        self.frame = 0
 
     def update(self, canvas):
+        self.frame += 1
+        if self.frame % 1000 == 0:
+            tracker = SummaryTracker()
+
         self.emitter.update()
+        if self.frame % 1000 == 0:
+            print(tracker.print_diff())
 
     def draw(self, canvas: Canvas):
+        canvas.clear()
         self.emitter.draw(canvas)
