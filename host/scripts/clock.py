@@ -30,9 +30,9 @@ class clock(CustomScript):
 
     def __set_minute_or_hour(self, time, canvas):
         if self.display_minute:
-            self.__set_text("%01i" % time.minute, canvas)
+            self.__set_text("%02i" % time.minute, canvas)
         else:
-            self.__set_text("%01i" % time.hour, canvas)
+            self.__set_text("%02i" % time.hour, canvas)
 
     def update(self, canvas):
         time = datetime.datetime.now().time()
