@@ -275,6 +275,7 @@ class Canvas:
 
         # calculate appropriate render height
         available_vertical_space = min(self.height - y, self.height)
+        #print(str(available_vertical_space))
         if rendered_text.height < available_vertical_space:
             render_height = rendered_text.height
         else:
@@ -293,8 +294,8 @@ class Canvas:
             font_y = abs(y)
             y = 0
 
-        for canvas_x in range(x, render_width):
-            for canvas_y in range(y, render_height):
+        for canvas_x in range(x, x + render_width):
+            for canvas_y in range(y, y + render_height):
                 in_font_range = font_x < rendered_text.width and font_y < rendered_text.height
                 pixel_enabled = in_font_range and rendered_text.is_enabled(font_x, font_y)
                 if pixel_enabled:

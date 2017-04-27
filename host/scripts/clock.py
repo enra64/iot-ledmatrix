@@ -1,19 +1,20 @@
 import datetime
 
 import Canvas
+from time import sleep
 from CustomScript import CustomScript
 from helpers.Color import Color
 from helpers.TextScroller import TextScroller
 
 
 class clock(CustomScript):
-
     def __init__(self, canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
                  set_frame_rate, get_connected_clients):
         super().__init__(canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
                          set_frame_rate, get_connected_clients)
 
-        self.set_frame_rate(15)
+        #self.set_frame_period(0.020)
+        self.set_frame_rate(20)
 
         self.display_minute = True
         self.color_delta = None
@@ -25,14 +26,16 @@ class clock(CustomScript):
 
     def __set_text(self, text, canvas):
         self.text = canvas.render_text(text, size = 12)
-        self.x = 0#(canvas.width - self.text.width) // 2
-        self.y = 0#(canvas.height - self.text.height) // 2
+        self.x = 0# (canvas.width - self.text.width) // 2
+        self.y = 1# (canvas.height - self.text.height) // 2
 
-    def __set_minute_or_hour(self, time, canvas):
+    def __set_minute_or_hour(self, current_time, canvas):
+        canvas.clear()
         if self.display_minute:
-            self.__set_text("%02i" % time.minute, canvas)
+            self.__set_text("%02i" % current_time.minute, canvas)
         else:
-            self.__set_text("%02i" % time.hour, canvas)
+            self.__set_text("%02i" % current_time.hour, canvas)
+            #sleep(0.3)
 
     def update(self, canvas):
         time = datetime.datetime.now().time()

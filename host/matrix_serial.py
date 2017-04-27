@@ -86,7 +86,6 @@ class MatrixSerial:
         # wait for arduino reset
         time.sleep(2)
 
-
         # begin handshake
         self.serial.write(b'hello')
 
@@ -145,8 +144,6 @@ class MatrixSerial:
 
         # we need to wait some time before writing the next set of data. testing required for better accuracy
         time.sleep(0.009)
-
-        ack = ""
 
         # write out internal buffer to arduino
         self.serial.write(self.buffer)
