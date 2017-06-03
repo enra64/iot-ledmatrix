@@ -35,4 +35,9 @@
     <string name="shut_down_rpi">RPi herunterfahren</string>
     <string name="view_matrix_log">Matrix-Log ansehen</string>
     <string name="refreshing_scripts">aktualisiere Skript-Liste</string>
+    <string name="choose_color">farbe wählen</string>
+    <string name="font_size">Schriftgröße</string>
+    <string name="scrolling_speed">Geschwindigkeit</string>
+    <string name="scrolling_text">Scroll-Text</string>
+    <string name="send_text">Text abschicken</string>
 </resources>
