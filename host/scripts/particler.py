@@ -3,7 +3,7 @@ from typing import Tuple
 
 import copy
 
-from pympler.tracker import SummaryTracker
+#from pympler.tracker import SummaryTracker
 
 from Canvas import Canvas
 from CustomScript import CustomScript
@@ -205,12 +205,10 @@ class particler(CustomScript):
 
     def update(self, canvas):
         self.frame += 1
-        if self.frame % 1000 == 0:
-            tracker = SummaryTracker()
+        #if self.frame % 1000 == 0: tracker = SummaryTracker()
 
         self.emitter.update()
-        if self.frame % 1000 == 0:
-            print(tracker.print_diff())
+        #if self.frame % 1000 == 0: print(tracker.print_diff())
 
     def draw(self, canvas: Canvas):
         canvas.clear()
