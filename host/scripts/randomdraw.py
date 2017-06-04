@@ -16,7 +16,7 @@ class randomdraw(CustomScript):
         # count the number of neighbours
         canvas.clear()
         for y in range(0, 25):
-            canvas.draw_pixel(randint(0, 9), randint(0, 9), Color(randint(0, 255), randint(0, 255), randint(0, 255)))
+            canvas.draw_pixel(randint(0, canvas.width), randint(0, canvas.height), Color(randint(0, 255), randint(0, 255), randint(0, 255)))
 
 
             # print(repr(canvas))
