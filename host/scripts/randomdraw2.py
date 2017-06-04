@@ -18,8 +18,8 @@ class randomdraw2(CustomScript):
     def update(self, canvas):
         # count the number of neighbours
         canvas.clear()
-        for x in range(0, 9):
-            for y in range(0, 9):
+        for x in range(0, canvas.width):
+            for y in range(0, canvas.height):
                 noise=int(snoise2( (x+self.xoff) / self.freq, y / self.freq, self.octaves) * 127.0 + 128.0)
                 if(noise > 200):
                     canvas.draw_pixel(x, y, Color(1, 41, 95))
