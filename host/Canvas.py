@@ -22,12 +22,13 @@ class Canvas:
     * clear(color)
     """
 
-    def __init__(self, width, height):
+    def __init__(self, width, height, rotation=90):
         """
         Initialise a new canvas object.
 
         :param width: width of the canvas in pixels
         :param height: height of the canvas in pixels
+        :param rotation: how far the matrix display should be rotated. clockwise. valid values are: 0, 90, 180, 270
         """
         self.font_size = None
         self.width = width
@@ -43,6 +44,28 @@ class Canvas:
 
         # get a logger
         self.logger = logging.getLogger("canvas")
+
+        if rotation != 0 and rotation != 90 and rotation != 180 and rotation != 270:
+            raise ValueError("valid rotation values are 0/90/180/270")
+
+        self.rotation = rotation
+
+    def __rotate_input(self, x, y):
+        """
+        Rotate cartesian input coordinates to align the matrix with its physical rotation
+
+        :param x: x coordinate of the led in the matrix (counted left-to-right)
+        :param y: y coordinate of the led in the matrix (counted top-to-bottom)
+        :return: x, y tuple appropriately rotated
+        """
+        if self.rotation == 0:
+            return x, y
+        elif self.rotation == 90:
+            return self.width - x - 1, self.height - y -1
+        elif self.rotation == 180:
+            return self.width - x - 1, self.height - y -1
+        else:
+            return self.width - x - 1, self.height - y -1
 
     def get_pixel_index(self, x, y):
         """
@@ -80,8 +103,10 @@ class Canvas:
         """
         # this variable will have the final index
         index = 0
-        x=(self.width-1)-x
-        y=(self.height-1)-y
+
+        # rotate as per constructor specifications
+        x, y = self.__rotate_input(x, y)
+
         # distinguish between row direction
         if y % 2 == 1:
             # odd rows are left-to-right, x can just be added
