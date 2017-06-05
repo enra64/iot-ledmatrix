@@ -64,7 +64,8 @@ class Manager:
             server_name,
             discovery_port,
             enable_arduino_connection: bool,
-            enable_graphical_display):
+            enable_graphical_display: bool,
+            matrix_rotation:int):
         """
         Initializes instances of: MatrixSerial, BroadcastReceiver, Server, Canvas and ScriptHandler. Registers 
         manager.stop for a shutdown hook.
@@ -81,6 +82,7 @@ class Manager:
         :param enable_graphical_display: if True, MatrixSerial will attempt to create a tkinter window with the matrix graphics. there must
             be a main thread calling update_gui every now and then to update the gui; if that is not done, the window is not updated; if it
             is not called from the main thread, an exception will be logged.
+        :param matrix_rotation: clockwise. rotates the matrix, so that you can turn the physical item. 0/90/180/270 are valid.
         """
         """initializes all required modules without starting any of them."""
 
@@ -112,10 +114,12 @@ class Manager:
             (matrix_width, matrix_height),
             data_port)
 
-        # canvas instance which back buffer is sent to the arduino
+        # canvas instance whose back buffer is sent to the arduino
         self.canvas = Canvas(
             matrix_width,
-            matrix_height)
+            matrix_height,
+            matrix_rotation
+        )
 
         # script handler starts and runs custom scripts
         self.script_handler = ScriptHandler(

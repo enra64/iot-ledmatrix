@@ -22,7 +22,7 @@ class Canvas:
     * clear(color)
     """
 
-    def __init__(self, width, height, rotation=90):
+    def __init__(self, width, height, rotation):
         """
         Initialise a new canvas object.
 

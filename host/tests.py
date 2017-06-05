@@ -32,7 +32,7 @@ def red_display_test(serial: MatrixSerial):
 
 def test_pixel_index_conversion():
     print(inspect.currentframe().f_code.co_name)
-    c = Canvas(10, 10)
+    c = Canvas(10, 10, 0)
     for y in range(10):
         for x in range(10):
             print(str(x) + "," + str(y) + "=" + str(c.get_pixel_index(x, y)))
@@ -40,7 +40,7 @@ def test_pixel_index_conversion():
 
 def test_canvas_line():
     print(inspect.currentframe().f_code.co_name)
-    c = Canvas(10, 10)
+    c = Canvas(10, 10, 0)
 
     c.draw_line(0, 0, 9, 5, Color())
     print(repr(c))
@@ -48,7 +48,7 @@ def test_canvas_line():
 
 def test_canvas_pixel_line():
     print(inspect.currentframe().f_code.co_name)
-    c = Canvas(10, 10)
+    c = Canvas(10, 10, 0)
 
     blue = Color(0, 0, 255)
 
@@ -59,7 +59,7 @@ def test_canvas_pixel_line():
 
 def test_canvas_rect():
     print(inspect.currentframe().f_code.co_name)
-    c = Canvas(10, 10)
+    c = Canvas(10, 10, 0)
 
     blue = Color(0, 0, 255)
 
@@ -69,7 +69,7 @@ def test_canvas_rect():
 
 def test_canvas_font():
     print(inspect.currentframe().f_code.co_name)
-    c = Canvas(10, 10)
+    c = Canvas(10, 10, 0)
     c.set_font("helvetica.otf", 13)
     blue = Color(0, 0, 255)
     c.draw_text("h", 0, 0, blue)
@@ -78,7 +78,7 @@ def test_canvas_font():
 
 def test_canvas_draw_pixel_line(serial):
     print(inspect.currentframe().f_code.co_name)
-    c = Canvas(156, 1)
+    c = Canvas(156, 1, 0)
 
     blue = Color(0, 0, 255)
 
@@ -104,8 +104,6 @@ def test_broadcast_receiver_and_server():
     server = Server(
         lambda data, source: print("got " + data + " from " + str(source)),
         lambda data, source: print("got " + data + " from " + str(source)),
-        lambda client_id: print(client_id + " has connected"),
-        lambda client_id: print(client_id + " has disconnected"),
         local_data_port=receiver.get_advertised_data_port(),
         matrix_dimensions=(10, 10)
     )
@@ -123,7 +121,7 @@ def __return_list():
 def test_invalid_script_name():
     print(inspect.currentframe().f_code.co_name)
     print("should print or have printed an error about \"invalid-script**dafsdf\" not existing...")
-    c = Canvas(10, 10)
+    c = Canvas(10, 10, 0)
     handler = ScriptHandler(
         c,
         lambda: print("draw cycle finished"),
@@ -137,7 +135,7 @@ def test_invalid_script_name():
 
 def test_script_handler():
     print(inspect.currentframe().f_code.co_name)
-    c = Canvas(10, 10)
+    c = Canvas(10, 10, 0)
     handler = ScriptHandler(
         c,
         lambda: print("draw cycle finished"),
@@ -157,7 +155,7 @@ def test_gui_canvas_display_by_line():
     try:
         from MatrixGraphicalDisplay import MatrixGraphicalDisplay
 
-        c = Canvas(10, 10)
+        c = Canvas(10, 10, 0)
         gui = MatrixGraphicalDisplay(10, 10)
         blue = Color(0, 0, 255)
 
@@ -174,7 +172,7 @@ def test_script_handler_exception_handling():
     print(inspect.currentframe().f_code.co_name)
     print("various exceptions in the code are commented to avoid early aborts")
     print("the following should only log the exceptions and abort executing the script, not die.\n")
-    c = Canvas(10, 10)
+    c = Canvas(10, 10, 0)
     handler = ScriptHandler(
         c,
         lambda: print("draw cycle finished"),

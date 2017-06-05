@@ -52,6 +52,7 @@ def print_help():
     print("--enable-gui                     enable a simplistic gui displaying what the matrix should currently show. "
           "combine with --disable-arduino-connection for easy testing. will fuck up stopping. recommended for "
           "debugging only")
+    print("--rotation=                      set matrix rotation amount. clockwise. valid are 0/90/180/270.")
 
 if __name__ == "__main__":
     # change working directory to main.py location to avoid confusion with scripts folder
@@ -79,7 +80,8 @@ if __name__ == "__main__":
                 "errors-to-console",
                 "logfile=",
                 "start-script=",
-                "enable-gui"
+                "enable-gui",
+                "rotation="
             ]
         )
     except getopt.GetoptError:
@@ -101,6 +103,7 @@ if __name__ == "__main__":
     run = True
     start_script = "gameoflife"
     enable_graphical_display = False
+    matrix_rotation = 0
 
     if len(options) > 0:
         for option, argument in options:
@@ -146,6 +149,8 @@ if __name__ == "__main__":
                 start_script = argument
             elif option == "--enable-gui":
                 enable_graphical_display = True
+            elif option == "--rotation=":
+                matrix_rotation = argument
 
     if matrix_connect_to_arduino and matrix_port is None:
         matrix_port = guess_arduino()
@@ -171,7 +176,9 @@ if __name__ == "__main__":
             matrix_name,
             matrix_discovery_port,
             matrix_connect_to_arduino,
-            enable_graphical_display)
+            enable_graphical_display,
+            matrix_rotation
+        )
         try:
             manager.start()
             manager.load_script(start_script)
