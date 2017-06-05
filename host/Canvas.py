@@ -80,7 +80,7 @@ class Canvas:
         """
         # this variable will have the final index
         index = 0
-
+        x=(self.width-1)-x
         y=(self.height-1)-y
         # distinguish between row direction
         if y % 2 == 1:
