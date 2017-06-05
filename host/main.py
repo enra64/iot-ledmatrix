@@ -149,8 +149,10 @@ if __name__ == "__main__":
                 start_script = argument
             elif option == "--enable-gui":
                 enable_graphical_display = True
-            elif option == "--rotation=":
-                matrix_rotation = argument
+            elif option == "--rotation":
+                matrix_rotation = int(argument)
+            else:
+                print("unrecognized option:" + option)
 
     if matrix_connect_to_arduino and matrix_port is None:
         matrix_port = guess_arduino()
