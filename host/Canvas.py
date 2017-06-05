@@ -81,6 +81,7 @@ class Canvas:
         # this variable will have the final index
         index = 0
 
+        y=(self.height-1)-y
         # distinguish between row direction
         if y % 2 == 1:
             # odd rows are left-to-right, x can just be added
