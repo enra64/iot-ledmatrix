@@ -5,6 +5,14 @@ from helpers.Color import Color
 from helpers.fonts import Font, Bitmap
 
 
+class Rect:
+    def __init__(self, x:int, y:int, width:int, height:int):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+
+
 class Canvas:
     """
     A canvas makes it easy to display using the matrix by providing a translation layer between pixels on a cartesian
@@ -332,9 +340,20 @@ class Canvas:
 
         return rendered_text.width
 
+    def draw_rectangle(self, rect:Rect, color: Color):
+        """
+        Like draw_rect, but with an instance of the Rect class
+
+        :param rect: the specification of the rectangle to be drawn
+        :param color: the color the rectangle should have
+        :return: nothing
+        """
+        self.draw_rect(rect.x, rect.y, rect.width, rect.height, color)
+
     def draw_rect(self, x: int, y: int, width: int, height: int, color: Color):
         """
-        
+        Draw a rectangle, starting from x and y and stopping after having drawn width/height pixels
+
         :param x: x position of pixel; counted from zero beginning on the left, must be smaller than the canvas width
         :param y: y position of pixel; y is zero for the top row of pixels, must be smaller than the canvas height
         :param width: how wide the rectangle should be.
