@@ -61,11 +61,11 @@ class Canvas:
         if self.rotation == 0:
             return x, y
         elif self.rotation == 90:
-            return self.width - x - 1, self.height - y -1
+            return y, self.width - x - 1
         elif self.rotation == 180:
             return self.width - x - 1, self.height - y -1
         else:
-            return self.width - x - 1, self.height - y -1
+            return self.height - y -1, x
 
     def get_pixel_index(self, x, y):
         """
