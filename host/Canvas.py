@@ -6,11 +6,12 @@ from helpers.fonts import Font, Bitmap
 
 
 class Rect:
-    def __init__(self, x:int, y:int, width:int, height:int):
+    def __init__(self, x:int, y:int, width:int, height:int, color:Color=None):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
+        self.color = color
 
 
 class Canvas:
@@ -340,14 +341,23 @@ class Canvas:
 
         return rendered_text.width
 
-    def draw_rectangle(self, rect:Rect, color: Color):
+    def draw_rectangle(self, rect:Rect, color: Color=None):
         """
         Like draw_rect, but with an instance of the Rect class
 
         :param rect: the specification of the rectangle to be drawn
-        :param color: the color the rectangle should have
+        :param color: the color the rectangle should have. if None, the rect color will be used if given, but one of
+            the two **must** exist. This also means that this parameter overrides the rect color!
         :return: nothing
         """
+        # warn if no color is given at all
+        if color is None and rect.color is None:
+            self.logger.warning("No color given for a draw_rectangle call!")
+
+        # if no color parameter is given, use the rect color, but let the direct parameter override it
+        if color is None and rect.color is not None:
+            color = rect.color
+
         self.draw_rect(rect.x, rect.y, rect.width, rect.height, color)
 
     def draw_rect(self, x: int, y: int, width: int, height: int, color: Color):
