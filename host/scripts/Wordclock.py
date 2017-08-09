@@ -1,0 +1,26 @@
+from helpers.Color import Color
+
+from CustomScript import CustomScript
+from Canvas import Canvas
+
+class Wordclock:
+    def __init__(self):
+
+    def get_rectangles(self):
+
+class Flashlight(CustomScript):
+    def __init__(self, canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
+                 set_frame_rate, get_connected_clients):
+        super().__init__(canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
+                         set_frame_rate, get_connected_clients)
+        self.enable = True
+
+    def draw(self, canvas: Canvas):
+        if self.enable:
+            canvas.clear(Color(255, 255, 255))
+        else:
+            canvas.clear()
+
+    def on_data(self, json, source_id):
+        if 'enable' in json:
+            self.enable = json['enable']
