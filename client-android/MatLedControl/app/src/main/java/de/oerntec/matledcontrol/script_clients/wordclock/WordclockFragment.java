@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
-import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 
 import static com.pavelsikun.vintagechroma.colormode.ColorMode.RGB;
 

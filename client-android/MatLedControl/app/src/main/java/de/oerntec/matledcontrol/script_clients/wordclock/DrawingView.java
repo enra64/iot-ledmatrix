@@ -14,27 +14,23 @@ import android.view.View;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class DrawingView extends View implements LocationClickHandler.CombinedOnClickListener {
     private final LocationClickHandler mClickHandler;
-    ArrayList<String[]> lines = new ArrayList<>();
-
-    private int NUMBER_OF_WORDS = 0;
-    private int NUMBER_OF_LINES = 0;
-
     private UpdateRequiredListener mUpdateListener;
 
     //draw: wordclockwords
-    private int textSize = 10, width;
-    Rect wordRects[] = new Rect[NUMBER_OF_WORDS];
-    int wordColors[] = new int[NUMBER_OF_WORDS];
-    int firstWordHeight[] = new int[NUMBER_OF_LINES];
-    int lineWidth[] = new int[NUMBER_OF_LINES];
-    boolean textSizeFinal;
+    private int mViewWidth;
+
+    ArrayList<String[]> mLines = new ArrayList<>();
+    ArrayList<ArrayList<Rect>> mWordBoundingRectangles;
+    ArrayList<ArrayList<Integer>> mWordColors;
+
+    ArrayList<Float> lineWidths;
+    private static final float TEST_TEXT_SIZE = 24f;
 
     //canvas n shit
-    private Paint canvasPaint, textPaint, rectPaint;
+    private Paint canvasPaint, textPaint;
     private Canvas drawCanvas;
     private Bitmap canvasBitmap;
 
@@ -43,41 +39,66 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
 
     public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        //get drawing area setup for interaction
-        textPaint = new Paint();
-        rectPaint = new Paint();
-        //set initial color
-        int paintColor = 0xFFFF0000;
-        Arrays.fill(wordColors, paintColor);
-        rectPaint.setColor(paintColor);
-        rectPaint.setStyle(Paint.Style.STROKE);
-        rectPaint.setStrokeWidth(3);
+
+        // set up paints
+        textPaint = new Paint(Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG);
         canvasPaint = new Paint(Paint.DITHER_FLAG);
 
         mClickHandler = new LocationClickHandler(this);
     }
 
 
-
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        //view given size
-        width = w;
-        super.onSizeChanged(w, h, oldw, oldh);
-        canvasBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+    protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
+        super.onSizeChanged(width, height, oldWidth, oldHeight);
+        this.mViewWidth = width;
+        canvasBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         drawCanvas = new Canvas(canvasBitmap);
-        //Log.d(TAG, "w: "+w+", h: "+h);
-        //create wordclockinterface
-        int prevWidth = 18;
-        while (lineWidth[3] < w) {
-            prevWidth = textSize;
-            textSize++;
-            redraw();
+
+        ArrayList<String[]> lines = new ArrayList<>();
+        String[] line1 = {"HALF","TWENTY"};
+        String[] line2 = {"QUARTER","FIVE"};
+        String[] line3 = {"TEN","MINUTES"};
+        String[] line4 = {"TO","PAST", "THREE"};
+        String[] line5 = {"ONE","TWO", "FOUR"};
+        String[] line6 = {"TWELVE","EIGHT"};
+        String[] line7 = {"ELEVEN","NINE"};
+        String[] line8 = {"TEN","SEVEN", "SIX"};
+        String[] line9 = {"FIVE","O'CLOCK"};
+        String[] line10 = {".",".",".","."};
+        lines.add(line1);lines.add(line2);lines.add(line3);lines.add(line4);
+        lines.add(line5);lines.add(line6);lines.add(line7);lines.add(line8);
+        lines.add(line9);lines.add(line10);
+        //setLines(mLines);
+        setLines(lines);
+    }
+
+    private void updateFontSize(ArrayList<String[]> lines, ArrayList<String> concatenatedLines, String longestLine) {
+        // set the font size so the widest line will fit
+        textPaint.setTextSize(TEST_TEXT_SIZE);
+        textPaint.setTextSize(TEST_TEXT_SIZE * mViewWidth / textPaint.measureText(longestLine));
+
+        // store the new width for each line
+        lineWidths = new ArrayList<>();
+        for(String line : concatenatedLines)
+            lineWidths.add(textPaint.measureText(line));
+
+        // store bounding rectangle for each word
+        mWordBoundingRectangles = new ArrayList<>();
+        int yOffset = 0;
+        for (String[] line : lines) {
+            ArrayList<Rect> lineBoundingRectangles = new ArrayList<>();
+            int xOffset = 0;
+            for(String word : line) {
+                Rect boundingRect = new Rect();
+                textPaint.getTextBounds(word, 0, word.length(), boundingRect);
+                boundingRect.offset(xOffset, yOffset);
+                lineBoundingRectangles.add(boundingRect);
+                xOffset += boundingRect.width();
+            }
+            yOffset += lineBoundingRectangles.get(0).height();
+            mWordBoundingRectangles.add(lineBoundingRectangles);
         }
-        textSize = prevWidth;
-        redraw();
-        textSizeFinal = true;
-        redraw();
     }
 
     @Override
@@ -85,82 +106,75 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         return mClickHandler.onTouchEvent(event);
     }
 
-    void setLines(ArrayList<String[]> lines){
-        this.lines = lines;
-        NUMBER_OF_LINES = lines.size();
+    void setLines(ArrayList<String[]> lines) {
+        this.mLines = lines;
 
-        int wordCount = 0;
-        for(String[] line : lines)
-            wordCount += line.length;
-        NUMBER_OF_WORDS = wordCount;
+        // concatenate all lines; create color int for all words
+        mWordColors = new ArrayList<>();
+        ArrayList<String> concatenatedLines = new ArrayList<>();
+        for (String[] line : lines) {
+            ArrayList<Integer> lineWordColors = new ArrayList<>();
+            StringBuilder sb = new StringBuilder();
+            for (String word : line) {
+                sb.append(word);
+                lineWordColors.add(Color.BLACK);
+            }
+            mWordColors.add(lineWordColors);
+            concatenatedLines.add(sb.toString());
+        }
+
+        // find the widest line
+        float max = Integer.MIN_VALUE;
+        int maxWidthIndex = -1;
+        for (int i = 0; i < concatenatedLines.size(); i++) {
+            float width = textPaint.measureText(concatenatedLines.get(i));
+            if (width > max) {
+                max = width;
+                maxWidthIndex = i;
+            }
+        }
+
+        updateFontSize(mLines, concatenatedLines, concatenatedLines.get(maxWidthIndex));
+        redraw();
     }
 
-    void setChangeListener(UpdateRequiredListener updateRequiredListener){
+    void setChangeListener(UpdateRequiredListener updateRequiredListener) {
         mUpdateListener = updateRequiredListener;
     }
 
     /**
      * Update the color that will be applied to newly clicked words
+     *
      * @param color integer color representation
      */
     public void setColor(@ColorInt int color) {
         mCurrentColor = color;
     }
 
-    public void redraw() {
-        textPaint.setTextSize(textSize);
-        //blank screen
+    private void redraw() {
+        // blank screen
         drawCanvas.drawColor(Color.WHITE);
 
-        int yCounter = 0, wordCount = 0;
-        //y-axis throughput
-        for (String[] stringArray : lines) {
-            Rect rectText;
-            float xOffset, yOffset;
-            int yOffInt;
-            if (!textSizeFinal)
-                lineWidth[yCounter] = 0;
-            //x-axis throughput
-            for (int i = 0; i < stringArray.length; i++) {
-                yOffset = 0;
-                //center text
-                xOffset = (width - lineWidth[yCounter]) / 2;
-                rectText = new Rect();
-                rectPaint.setColor(wordColors[wordCount]);
-                textPaint.setColor(wordColors[wordCount]);
-                textPaint.getTextBounds(stringArray[i], 0, stringArray[i].length(), rectText);
-                //punkte: rechtecke vergrößern
-                if (wordCount > NUMBER_OF_WORDS - 5)
-                    rectText.inset(-30, -30);
-                else
-                    rectText.inset(-5, -5);
-                wordRects[wordCount] = rectText;
-                //erstes Wort? in firstword array eintragen
-                if (i == 0)
-                    firstWordHeight[yCounter] = rectText.height();
-                //for automatic max size and centering
-                if (!textSizeFinal)
-                    lineWidth[yCounter] += rectText.width();
-                //xOffset=alle bisherigen wörter der reihe
-                for (int c = 1; c <= i; c++)
-                    xOffset += wordRects[wordCount - c].width();
-                //addiere die höhen der ersten boxen um den yOffset zu kriegen
-                for (int iterator = 0; iterator <= yCounter; iterator++)
-                    yOffset += firstWordHeight[iterator] + 1;
-                //draw text
-                if (wordCount > NUMBER_OF_WORDS - 5)//punkte
-                    drawCanvas.drawText(stringArray[i], xOffset + 20, yOffset - 30, textPaint);
-                else
-                    drawCanvas.drawText(stringArray[i], xOffset, yOffset, textPaint);
-                //retrieve, move, and overwrite the rectangle to the correct position
-                yOffInt = (int) ((yOffset - rectText.height()) + 3);
-                rectText.offsetTo((int) xOffset, yOffInt);
-                wordRects[wordCount] = rectText;
-                wordCount++;
+        float yOffset = 0;
+        for (int lineIndex = 0; lineIndex < mLines.size(); lineIndex++) {
+            float xOffset = (mViewWidth - lineWidths.get(lineIndex)) / 2;
+            String[] line = mLines.get(lineIndex);
+
+            for (int wordIndex = 0; wordIndex < line.length; wordIndex++) {
+                // apply word color
+                textPaint.setColor(mWordColors.get(lineIndex).get(wordIndex));
+
+                // draw text
+                drawCanvas.drawText(line[wordIndex], xOffset, yOffset, textPaint);
+
+                // move next word behind this one
+                xOffset += mWordBoundingRectangles.get(lineIndex).get(wordIndex).width();
             }
-            yCounter++;
+
+            yOffset += mWordBoundingRectangles.get(lineIndex).get(0).height();
         }
-        //reeeedraw
+
+        // reeeedraw
         invalidate();
         mUpdateListener.onWordChanged();
     }
@@ -170,35 +184,36 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
     }
 
-    JSONObject getAsJsonObject(){
+    JSONObject getAsJsonObject() {
         return null;
     }
 
     @Override
     public void onClick(int x, int y) {
-        for (int counter = 0; counter < NUMBER_OF_WORDS; counter++) {
-            if (wordRects[counter].contains(x, y)) {
-                //Log.d(TAG, "short: rect: "+counter);
-                wordColors[counter] = mCurrentColor;
-                redraw();
-                //break loop
-                return;
+        for(int lineIndex = 0; lineIndex < mLines.size(); lineIndex++) {
+            for (int wordIndex = 0; wordIndex < mLines.get(lineIndex).length; wordIndex++) {
+                if (mWordBoundingRectangles.get(lineIndex).get(wordIndex).contains(x, y)) {
+                    mWordColors.get(lineIndex).set(wordIndex, mCurrentColor);
+                    redraw();
+                }
             }
         }
     }
 
     @Override
     public void onLongClick(int x, int y) {
-        for (int counter = 0; counter < NUMBER_OF_WORDS; counter++) {
-            if (wordRects[counter].contains(x, y)) {
-                mUpdateListener.onColorCopied(wordColors[counter]);
-                return;
+        for(int lineIndex = 0; lineIndex < mLines.size(); lineIndex++) {
+            for (int wordIndex = 0; wordIndex < mLines.get(lineIndex).length; wordIndex++) {
+                if (mWordBoundingRectangles.get(lineIndex).get(wordIndex).contains(x, y)) {
+                    mUpdateListener.onColorCopied(mWordColors.get(lineIndex).get(wordIndex));
+                }
             }
         }
     }
 
     interface UpdateRequiredListener {
         void onWordChanged();
+
         void onColorCopied(@ColorInt int color);
     }
 }
