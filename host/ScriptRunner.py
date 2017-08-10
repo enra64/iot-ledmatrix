@@ -93,7 +93,7 @@ class ScriptRunner:
         """
         Change the frame period with which the script will be updated
 
-        :param period: the target frame period. resulting frame rate must be 0 <= f <= 60, in Hz 
+        :param period: the target frame period. resulting frame rate must be 0 <= f <= 60, in Hz, so the input is in sec
         :return: nothing
         """
         self.set_frame_rate(1 / period)
