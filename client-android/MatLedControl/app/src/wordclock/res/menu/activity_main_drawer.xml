@@ -6,18 +6,22 @@
         android:title="@string/choose_device" />
     <item
         android:id="@+id/drawing"
+        android:visible="false"
         android:icon="@drawable/ic_drawing"
         android:title="@string/simple_drawing" />
     <item
         android:id="@+id/scrolling_text"
+        android:visible="false"
         android:icon="@drawable/ic_scrolling_text"
         android:title="@string/scrolling_text" />
     <item
         android:id="@+id/camera"
+        android:visible="false"
         android:icon="@drawable/ic_menu_camera"
         android:title="@string/camera" />
     <item
         android:id="@+id/manual_script_load"
+        android:visible="false"
         android:icon="@drawable/ic_load_script"
         android:title="@string/manual_script_load" />
     <item

@@ -3,21 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="de.oerntec.matledcontrol.script_clients.draw.DrawFragment">
+    tools:context="de.oerntec.matledcontrol.script_clients.wordclock.WordclockFragment">
 
     <Button
-        android:id="@+id/fragment_draw_choose_color_button"
+        android:id="@+id/fragment_wordclock_choose_color_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginRight="8dp"
-        android:text="@string/choose_color"
+        android:text="Choose color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginEnd="8dp" />
 
     <View
-        android:id="@+id/fragment_draw_current_color_view"
+        android:id="@+id/fragment_wordclock_current_color_view"
         android:background="@color/colorAccent"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -25,18 +25,18 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/fragment_draw_choose_color_button"
+        app:layout_constraintBottom_toBottomOf="@+id/fragment_wordclock_choose_color_button"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/fragment_draw_choose_color_button"
-        app:layout_constraintTop_toTopOf="@+id/fragment_draw_choose_color_button"
+        app:layout_constraintRight_toLeftOf="@+id/fragment_wordclock_choose_color_button"
+        app:layout_constraintTop_toTopOf="@+id/fragment_wordclock_choose_color_button"
         app:layout_constraintVertical_bias="0.0"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp" />
 
     <view
-        android:id="@+id/fragment_draw_drawing_view"
-        class="de.oerntec.matledcontrol.script_clients.draw.GridDrawingView"
+        android:id="@+id/fragment_wordclock_drawing_view"
+        class="de.oerntec.matledcontrol.script_clients.wordclock.DrawingView"
         android:layout_width="0dp"
         android:layout_height="439dp"
         android:layout_marginEnd="8dp"

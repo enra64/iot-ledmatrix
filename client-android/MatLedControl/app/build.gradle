@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion "25.0.1"
+    buildToolsVersion "25.0.2"
     defaultConfig {
         applicationId "de.oerntec.matledcontrol"
         minSdkVersion 21
@@ -17,6 +17,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    productFlavors {
+        main {
+        }
+        wordclock {
+            applicationId "de.oerntec.wordclockcontrol"
+        }
+    }
 }
 
 dependencies {
@@ -27,10 +34,10 @@ dependencies {
     compile group: 'org.zeromq', name: 'jeromq', version: '0.3.5'
 
     // begin wonky libs i include because i didnt wanna code myself
-    compile 'com.android.support:appcompat-v7:25.3.0'
-    compile 'com.android.support:support-v4:25.3.0'
-    compile 'com.android.support:support-v13:25.3.0'
-    compile 'com.android.support:design:25.3.0'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:support-v4:25.3.1'
+    compile 'com.android.support:support-v13:25.3.1'
+    compile 'com.android.support:design:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.jraska:console-timber-tree:0.4.3'
     compile 'com.pavelsikun:vintage-chroma:1.5'

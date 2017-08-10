@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="choose_device">Wähle eine WordClock</string>
+    <string name="connect_to_device_question">Mit WordClock verbinden?</string>
+    <string name="device_denied_connection_request_msg">Die WordClock hat die Verbindungsanfrage abgelehnt</string>
+    <string name="restart_device_control">WordClock-Kontrolle neu initialisieren</string>
+    <string name="view_device_log">WordClock-Log ansehen</string>
+    <string name="searching_for_devices">Suche nach WordClocks</string>
+</resources>

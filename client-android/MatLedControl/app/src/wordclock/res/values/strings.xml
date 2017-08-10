@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">WordClock Control</string>
+    <string name="searching_for_devices">Searching for WordClocks</string>
+    <string name="connect_to_device_question">Connect to WordClock?</string>
+    <string name="choose_device">Choose WordClock</string>
+    <string name="device_denied_connection_request_msg">The WordClock did not accept your connection request</string>
+    <string name="device_denied_connection_request_title">WordClock denied connection</string>
+    <string name="restart_device_control">restart WordClock control</string>
+    <string name="view_device_log">View WordClock Log</string>
+    <string name="err_could_not_communicate">Could not communicate with WordClock</string>
+</resources>

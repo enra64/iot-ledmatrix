@@ -1,18 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE resources [
-    <!ENTITY device_name_singular "WordClock">
-    <!ENTITY device_name_plural "WordClocks">
-    ]>
-
 <resources>
-    <string name="app_name">MatLedControl</string>
-    <string name="choose_server">Wähle eine &device_name_singular;</string>
-    <string name="connect_to_device_question">Mit &device_name_singular; verbinden?</string>
     <string name="draw">Zeichnen</string>
     <string name="enter_text_for_sending_to_server">text an den server</string>
     <string name="error_occurred">Eine Exception ist aufgetreten!</string>
-    <string name="device_denied_connection_request_msg">Die &device_name_singular; hat die Verbindungsanfrage abgelehnt</string>
-    <string name="device_denied_connection_request_title">Verbindung abgelehnt</string>
+    <string name="device_denied_connection_request_title">Verbindungsanfrage abgelehnt</string>
     <string name="navigation_drawer_close">Navigation-Drawer schließen</string>
     <string name="navigation_drawer_open">Navigation-Drawer öffnen</string>
     <string name="no">@android:string/no</string>
@@ -32,13 +23,11 @@
     <string name="notice">Hinweis</string>
     <string name="reboot_rpi">RPi neu starten</string>
     <string name="reconnect">wiederverbinden</string>
-    <string name="restart_device_control">&device_name_singular;-Kontrolle neu initialisieren</string>
     <string name="hello_blank_fragment">err</string>
     <string name="load">err</string>
     <string name="manual_script_load">err</string>
     <string name="refresh">Aktualisieren</string>
     <string name="shut_down_rpi">RPi herunterfahren</string>
-    <string name="view_device_log">&device_name_singular;-Log ansehen</string>
     <string name="refreshing_scripts">aktualisiere Skript-Liste</string>
     <string name="choose_color">farbe wählen</string>
     <string name="font_size">Schriftgröße</string>
@@ -46,4 +35,9 @@
     <string name="scrolling_text">Scroll-Text</string>
     <string name="send_text">Text abschicken</string>
     <string name="err_could_not_communicate">Konnte nicht mit %1$s kommunizieren</string>
+    <string name="choose_device">Wähle eine Matrix</string>
+    <string name="connect_to_device_question">Mit Matrix verbinden?</string>
+    <string name="device_denied_connection_request_msg">Die Matrix hat die Verbindungsanfrage abgelehnt</string>
+    <string name="restart_device_control">Matrix-Kontrolle neu initialisieren</string>
+    <string name="view_device_log">Matrix-Log ansehen</string>
 </resources>

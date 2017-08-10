@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         // load discovery fragment per default
-        loadFragment(R.id.matrix_discovery);
+        loadFragment(R.id.device_discovery);
     }
 
     @Override
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.drawing:
                 fragment = DrawFragment.newInstance();
                 break;
-            case R.id.matrix_discovery:
+            case R.id.device_discovery:
                 fragment = DiscoveryFragment.newInstance(Build.MODEL, DISCOVERY_PORT);
                 break;
             case R.id.camera:
@@ -338,7 +338,7 @@ public class MainActivity extends AppCompatActivity
                     Toast.makeText(MainActivity.this, matrix.name + " lost connection", Toast.LENGTH_SHORT).show();
                 //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
                 getSupportActionBar().setSubtitle(null);
-                loadFragment(R.id.matrix_discovery);
+                loadFragment(R.id.device_discovery);
             }
         });
     }
