@@ -27,5 +27,5 @@
     <item
         android:id="@+id/log_viewer"
         android:icon="@drawable/ic_log"
-        android:title="@string/view_matrix_log" />
+        android:title="@string/view_device_log" />
 </menu>

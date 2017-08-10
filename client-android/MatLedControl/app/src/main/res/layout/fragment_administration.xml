@@ -69,7 +69,7 @@
                 android:id="@+id/admin_restart_matrix_control"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/restart_matrix_control" />
+                android:text="@string/restart_device_control" />
 
         </LinearLayout>
     </ScrollView>

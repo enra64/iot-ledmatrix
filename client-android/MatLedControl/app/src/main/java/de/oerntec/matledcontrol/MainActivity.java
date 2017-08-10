@@ -1,6 +1,5 @@
 package de.oerntec.matledcontrol;
 
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
@@ -100,7 +99,7 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        String lastMatrix = prefs.getString(getString(R.string.sp_last_connected_matrix), null);
+        String lastMatrix = prefs.getString(getString(R.string.sp_last_connected_device), null);
 
         if (lastMatrix != null) {
             try {
@@ -188,7 +187,7 @@ public class MainActivity extends AppCompatActivity
     private void saveMatrix(LedMatrix matrix) {
         try {
             SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(this).edit();
-            prefs.putString(getString(R.string.sp_last_connected_matrix), matrix.toJsonString()).apply();
+            prefs.putString(getString(R.string.sp_last_connected_device), matrix.toJsonString()).apply();
         } catch (JSONException e) {
             onException(this, e, "Could not serialize matrix for storage");
         }
@@ -260,6 +259,9 @@ public class MainActivity extends AppCompatActivity
         try {
             mConnection.sendMessage(new JSONObject("{requested_script: " + scriptName + "}"), "script_load_request");
         } catch (JSONException ignored) {
+        } catch (NullPointerException e){
+            Toast.makeText(this, getString(R.string.err_could_not_communicate), Toast.LENGTH_SHORT).show();
+            Log.i("mainactivity", "could not request script " + scriptName);
         }
     }
 
@@ -309,8 +311,8 @@ public class MainActivity extends AppCompatActivity
             });
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(R.string.matrix_denied_title);
-            builder.setMessage(R.string.matrix_denied_msg);
+            builder.setTitle(R.string.device_denied_connection_request_title);
+            builder.setMessage(R.string.device_denied_connection_request_msg);
             builder.setPositiveButton(R.string.ok, null);
             builder.show();
         }
