@@ -1,30 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE resources [
+    <!ENTITY device_name_singular "WordClock">
+    <!ENTITY device_name_plural "WordClocks">
+    ]>
+
 <resources>
     <string name="app_name">MatLedControl</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="draw">Draw</string>
     <string name="simple_drawing">Simple Drawing</string>
     <string name="choose_server">Choose Server</string>
-    <string name="searching_for_matrices">Searching for Matrices</string>
-    <string name="connect_to_matrix">Connect to matrix?</string>
+    <string name="searching_for_devices">Searching for &device_name_plural;</string>
+    <string name="connect_to_device_question">Connect to &device_name_singular;?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="error_occurred">An exception occurred!</string>
-    <string name="ok">Ok</string>
-    <string name="sp_last_connected_matrix" translatable="false">last_connected_matrix</string>
-    <string name="matrix_denied_msg">The matrix did not accept your connection request</string>
-    <string name="matrix_denied_title">Matrix denied connection</string>
+    <string name="ok">@android:string/ok</string>
+    <string name="sp_last_connected_device" translatable="false">last_connected_matrix</string>
+    <string name="device_denied_connection_request_msg">The &device_name_singular; did not accept your connection request</string>
+    <string name="device_denied_connection_request_title">&device_name_singular; denied connection</string>
     <string name="print_tester_debug">Echo test (debug)</string>
     <string name="enter_text_for_sending_to_server">enter text for sending to server</string>
     <string name="send">Send</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="camera">Camera</string>
     <string name="load_specific_script">load specific script</string>
-    <string name="restart_matrix_control">restart matrix control</string>
+    <string name="restart_device_control">restart &device_name_singular; control</string>
     <string name="echo_test">echo test</string>
     <string name="reboot_rpi">reboot rpi</string>
     <string name="notice">Notice</string>
@@ -37,11 +41,12 @@
     <string name="refreshing_scripts">refreshing scripts</string>
     <string name="manual_script_load">Manual script load</string>
     <string name="refresh">Refresh</string>
-    <string name="view_matrix_log">View Matrix Log</string>
+    <string name="view_device_log">View &device_name_singular; Log</string>
     <string name="shut_down_rpi">shut down RPI</string>
     <string name="scrolling_text">Scrolling text</string>
     <string name="scrolling_speed">Scrolling speed</string>
     <string name="choose_color">choose color</string>
     <string name="send_text">send text</string>
     <string name="font_size">Font size</string>
+    <string name="err_could_not_communicate">Could not communicate with &device_name_singular;</string>
 </resources>
