@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.pavelsikun.vintagechroma.ChromaDialog;
 import com.pavelsikun.vintagechroma.IndicatorMode;
@@ -18,6 +19,8 @@ import com.pavelsikun.vintagechroma.OnColorSelectedListener;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
@@ -60,10 +63,10 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
         colorButton.setOnClickListener(this);
 
         mDrawingView = (DrawingView) v.findViewById(R.id.fragment_wordclock_drawing_view);
-        LedMatrix currentMatrix = mMessageSender.getCurrentMatrix();
+        mDrawingView.setColor(DEFAULT_COLOR);
         mDrawingView.setChangeListener(this);
 
-        mColorView = v.findViewById(R.id.fragment_draw_current_color_view);
+        mColorView = v.findViewById(R.id.fragment_wordclock_current_color_view);
         mColorView.setBackgroundColor(DEFAULT_COLOR);
         return v;
     }
@@ -94,12 +97,24 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
     public void onMessage(JSONObject data) {
         // ignore incoming messages
         try {
-            final JSONArray wordLines = data.getJSONArray("lines");
-
+            updateDrawingViewWords(data.getJSONArray("configuration"));
         } catch (JSONException e) {
             e.printStackTrace();
             Log.w("wordclockfragment", "indecipherable json data");
         }
+    }
+
+    private void updateDrawingViewWords(JSONArray lines) throws JSONException {
+        ArrayList<String[]> lineList = new ArrayList<>();
+        for (int i = 0; i < lines.length(); i++){
+            JSONArray line = lines.getJSONArray(i);
+            String[] lineArray = new String[line.length()];
+            for(int j = 0; j < line.length(); j++)
+                lineArray[j] = line.getString(j);
+            lineList.add(lineArray);
+        }
+
+        mDrawingView.setLines(lineList);
     }
 
     @Override
@@ -122,6 +137,13 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
     @Override
     public void onWordChanged() {
         mMessageSender.sendScriptData(mDrawingView.getAsJsonObject());
+    }
+
+    @Override
+    public void onColorCopied(@ColorInt int color) {
+        mColorView.setBackgroundColor(color);
+        mDrawingView.setColor(color);
+        Toast.makeText(WordclockFragment.this.getContext(), R.string.color_copied, Toast.LENGTH_SHORT).show();
     }
 
 

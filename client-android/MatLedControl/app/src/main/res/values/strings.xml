@@ -44,5 +44,7 @@
     <string name="restart_device_control">restart Matrix control</string>
     <string name="view_device_log">View Matrix Log</string>
     <string name="err_could_not_communicate">Could not communicate with Matrix</string>
+    <string name="wordclock_color_selection">Wordclock colors</string>
+    <string name="color_copied">Color copied</string>
 
 </resources>

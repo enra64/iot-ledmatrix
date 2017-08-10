@@ -32,6 +32,7 @@ import de.oerntec.matledcontrol.script_clients.LogFragment;
 import de.oerntec.matledcontrol.script_clients.ManualScriptLoadFragment;
 import de.oerntec.matledcontrol.script_clients.camera.Camera2BasicFragment;
 import de.oerntec.matledcontrol.script_clients.draw.DrawFragment;
+import de.oerntec.matledcontrol.script_clients.wordclock.WordclockFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, DiscoveryFragment.DiscoveryFragmentInteractionListener, ExceptionListener, ScriptFragmentInterface, ConnectionListener, MessageSender {
@@ -132,6 +133,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.camera:
                 fragment = Camera2BasicFragment.newInstance();
+                break;
+            case R.id.wordclock_color_selection:
+                fragment = WordclockFragment.newInstance();
                 break;
             case R.id.administration:
                 fragment = AdministrationFragment.newInstance();

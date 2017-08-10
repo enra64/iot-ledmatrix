@@ -20,6 +20,10 @@
         android:icon="@drawable/ic_menu_camera"
         android:title="@string/camera" />
     <item
+        android:id="@+id/wordclock_color_selection"
+        android:icon="@android:drawable/ic_lock_idle_low_battery"
+        android:title="@string/wordclock_color_selection" />
+    <item
         android:id="@+id/manual_script_load"
         android:visible="false"
         android:icon="@drawable/ic_load_script"
