@@ -1,5 +1,7 @@
 package de.oerntec.matledcontrol.script_clients.wordclock;
 
+import android.graphics.Point;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.view.MotionEvent;
 
@@ -9,7 +11,10 @@ import android.view.MotionEvent;
  */
 class LocationClickHandler {
     private CombinedOnClickListener combinedOnClickListener;
-    private long lastTouchStartTime = 0;
+    private Handler longClickHandler = new Handler();
+    private boolean longClickExecuted = false;
+    private MotionEvent.PointerCoords lastPointCoordinates = new MotionEvent.PointerCoords();
+
 
     LocationClickHandler(CombinedOnClickListener combinedOnClickListener) {
         this.combinedOnClickListener = combinedOnClickListener;
@@ -18,14 +23,21 @@ class LocationClickHandler {
     boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                lastTouchStartTime = SystemClock.elapsedRealtime() + 600;
+                longClickHandler.postDelayed(longClickCheck, 500);
+                event.getPointerCoords(0, lastPointCoordinates);
                 break;
+            case MotionEvent.ACTION_MOVE:
+                //event.getPointerCoords(0, lastPointCoordinates);
+                //break;
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
-                if (SystemClock.elapsedRealtime() < lastTouchStartTime)
+                // only do a short-click if we did not fire the onLongClick event
+                if (!longClickExecuted)
                     combinedOnClickListener.onClick((int) event.getX(), (int) event.getY());
-                else
-                    combinedOnClickListener.onLongClick((int) event.getX(), (int) event.getY());
+
+                // reset long click state
+                longClickHandler.removeCallbacks(longClickCheck);
+                longClickExecuted = false;
                 break;
             default:
                 return false;
@@ -38,4 +50,12 @@ class LocationClickHandler {
 
         void onLongClick(int x, int y);
     }
+
+    private Runnable longClickCheck = new Runnable() {
+        @Override
+        public void run() {
+            combinedOnClickListener.onLongClick((int) lastPointCoordinates.x, (int) lastPointCoordinates.y);
+            longClickExecuted = true;
+        }
+    };
 }
