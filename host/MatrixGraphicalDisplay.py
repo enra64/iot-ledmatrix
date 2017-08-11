@@ -1,3 +1,5 @@
+import threading
+
 from helpers.Color import Color
 
 import Canvas
@@ -22,10 +24,22 @@ class MatrixGraphicalDisplay:
         self.led_width = self.width / self.matrix_width
         self.led_height = self.height / self.matrix_height
 
+        # abort flag
+        self.__destroy_flag = threading.Event()
+
     @staticmethod
     def __convert_color(color: Color):
         rgb_255 = [int(round(i * 255)) for i in color.get_rgb()]
         return color_rgb(*rgb_255)
+
+    def destroy(self):
+        """
+        Will close this instance on the next update call
+
+        :return: nothing
+        """
+        # set the abort flag
+        self.__destroy_flag.set()
 
     def update_with_canvas(self, canvas: Canvas):
         """
@@ -34,6 +48,10 @@ class MatrixGraphicalDisplay:
         :param canvas: the canvas to be displayed
         :return: nothing
         """
+        if self.__destroy_flag.is_set():
+            self.win.destroy()
+            return
+
         for x in range(self.matrix_width):
             for y in range(self.matrix_height):
                 led_rect = Rectangle(Point(x, y), Point(x + 1, y + 1))

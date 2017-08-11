@@ -1,6 +1,10 @@
+import logging
+import traceback
 from socket import *
 import json
 import threading
+
+from helpers.custom_atexit import CustomAtExit
 
 
 class DiscoveryServer:
@@ -28,6 +32,8 @@ class DiscoveryServer:
         self.discovery_port = discovery_port
         self.data_port = data_port
         self.abort = threading.Event()
+        self.logger = logging.getLogger("discovery_server")
+
         # create a self description in the json format expected by the clients
         self.self_description = json.dumps(
             {
@@ -41,8 +47,20 @@ class DiscoveryServer:
         """Wait continuously for discovery requests"""
         # config and bind waiting socket
         receiver_socket = socket(AF_INET, SOCK_DGRAM)
-        receiver_socket.bind(('', self.discovery_port))
-        receiver_socket.settimeout(.5)
+        try:
+            receiver_socket.bind(('', self.discovery_port))
+            receiver_socket.settimeout(.5)
+        except OSError as e:
+            if e.errno == 98:
+                self.logger.warning("discovery port {} is blocked. is another instance running?".format(self.discovery_port))
+            else:
+                self.logger.warning("unknown OSError %i occurred :/".format(e.errno))
+                traceback.print_exc()
+
+            # can't run like this
+            CustomAtExit().trigger()
+            self.abort.set()
+
 
         # until the parents stop is called
         while not self.abort.is_set():

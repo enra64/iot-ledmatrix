@@ -186,8 +186,7 @@ if __name__ == "__main__":
             manager.load_script(start_script)
             # enable gui
             if enable_graphical_display:
-                while True:
-                    manager.update_gui()
+                while manager.update_gui():
                     sleep(0.03)
             # wait for exit to be able to catch exceptions
             manager.join()

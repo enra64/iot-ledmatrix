@@ -2,6 +2,7 @@ import logging
 
 from Canvas import Canvas
 from ScriptRunner import ScriptRunner
+from helpers.custom_atexit import CustomAtExit
 
 
 class ScriptHandler:
@@ -48,7 +49,8 @@ class ScriptHandler:
                 self.start_script,
                 self.get_client_list)
 
-        if self.current_script_runner.ok:
+        # don't start the new script if CustomAtExit was triggered
+        if self.current_script_runner.ok and not CustomAtExit().is_shutdown_initiated():
             # no warning to user necessary here, as the script handler already logs a lot of information
             self.logger.info("START: " + script_name)
             self.current_script_runner.start()

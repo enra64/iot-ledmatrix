@@ -197,4 +197,5 @@ class Server:
 
     def join(self):
         """Join the thread running the receiving side of the server"""
-        self.receiver_thread.join()
+        if self.receiver_thread is not None:
+            self.receiver_thread.join()

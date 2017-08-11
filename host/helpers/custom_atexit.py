@@ -4,6 +4,8 @@ import logging
 
 import traceback
 
+import sys
+
 
 class CustomAtExit:
     """
@@ -18,6 +20,7 @@ class CustomAtExit:
             """init functions to be called, register ourselves for the official atexit"""
             self.atexit_functions = {}
             self.logger = logging.getLogger("customatexit")
+            self.__is_shutdown_initiated = False
             atexit.register(self.trigger)
 
         def register(self, function, args=None):
@@ -36,17 +39,27 @@ class CustomAtExit:
         def trigger(self):
             """call all registered functions"""
             self.logger.info("custom atexit triggered.")
-            for function, args in self.atexit_functions.items():
+            self.__is_shutdown_initiated = True
+            for atexit_function, args in self.atexit_functions.items():
                 try:
                     if args is not None:
-                        function(args)
+                        atexit_function(args)
                     else:
-                        function()
+                        atexit_function()
                 except (Exception, AssertionError) as e:
                     if not isinstance(e, KeyboardInterrupt):
                         self.logger.error(
                             "exception during exit trigger():\n" +
                             traceback.format_exc())
+
+        def is_shutdown_initiated(self) -> bool:
+            """
+            Returns True if the registered functions have been triggered. After that, you *probably* shouldn't start
+            anything anymore, even though it is possible.
+
+            :return: True if the registered functions have been triggered
+            """
+            return self.__is_shutdown_initiated
 
     # the singleton instance variable
     instance = None

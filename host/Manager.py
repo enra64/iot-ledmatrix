@@ -2,6 +2,8 @@ import logging
 
 import sys
 
+from zmq import ZMQError
+
 from Canvas import Canvas
 from DiscoveryServer import DiscoveryServer
 from Server import Server
@@ -38,8 +40,11 @@ class Manager:
         """starts all required modules"""
         self.matrix_serial.connect()
         self.discovery_server.start()
-        self.server.start()
-        self.logger.info("manager started threads")
+        try:
+            self.server.start()
+            self.logger.info("manager started threads")
+        except ZMQError as e:
+            self.logger.warning("ZMQError occurred: {}".format(e.strerror))
 
     def stop(self):
         "gracefully stop all modules"
@@ -47,6 +52,9 @@ class Manager:
         self.matrix_serial.stop()
         self.discovery_server.stop()
         self.server.stop()
+        if self.gui is not None:
+            self.gui.destroy()
+            self.gui = None
         self.logger.info("shut down")
         sys.exit(0)
 
@@ -151,6 +159,12 @@ class Manager:
         # log that the manager survived init
         self.logger.info("survived initialization")
 
-    def update_gui(self):
+    def update_gui(self) -> bool:
+        """
+        Update the gui, and return false if the gui must not be updated anymore
+        :return:
+        """
         if self.gui is not None:
             self.gui.update_with_canvas(self.canvas)
+        else:
+            return False
