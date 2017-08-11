@@ -63,21 +63,18 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         drawCanvas = new Canvas(canvasBitmap);
 
         ArrayList<String[]> lines = new ArrayList<>();
-        String[] line1 = {"HALF","TWENTY"};
-        String[] line2 = {"QUARTER","FIVE"};
-        String[] line3 = {"TEN","MINUTES"};
-        String[] line4 = {"TO","PAST", "THREE"};
-        String[] line5 = {"ONE","TWO", "FOUR"};
-        String[] line6 = {"TWELVE","EIGHT"};
-        String[] line7 = {"ELEVEN","NINE"};
-        String[] line8 = {"TEN","SEVEN", "SIX"};
-        String[] line9 = {"FIVE","O'CLOCK"};
-        String[] line10 = {".",".",".","."};
-        lines.add(line1);lines.add(line2);lines.add(line3);lines.add(line4);
-        lines.add(line5);lines.add(line6);lines.add(line7);lines.add(line8);
-        lines.add(line9);lines.add(line10);
-        //setLines(mLines);
+        lines.add(new String[]{"HALF", "TWENTY"});
+        lines.add(new String[]{"QUARTER", "FIVE"});
+        lines.add(new String[]{"TEN", "MINUTES"});
+        lines.add(new String[]{"TO", "PAST", "THREE"});
+        lines.add(new String[]{"ONE", "TWO", "FOUR"});
+        lines.add(new String[]{"TWELVE", "EIGHT"});
+        lines.add(new String[]{"ELEVEN", "NINE"});
+        lines.add(new String[]{"TEN", "SEVEN", "SIX"});
+        lines.add(new String[]{"FIVE", "O'CLOCK"});
+        lines.add(new String[]{"\u25CF", "\u25CF", "\u25CF", "\u25CF"});
         setLines(lines);
+        //setLines(mLines);
     }
 
     private void updateFontSize(ArrayList<String[]> lines, ArrayList<String> concatenatedLines, String longestLine) {
@@ -89,7 +86,7 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         lineWidths = new ArrayList<>();
         ArrayList<Integer> lineHeights = new ArrayList<>();
         Rect measurementRect = new Rect();
-        for(String line : concatenatedLines){
+        for (String line : concatenatedLines) {
             textPaint.getTextBounds(line, 0, line.length(), measurementRect);
             lineWidths.add(measurementRect.width());
             lineHeights.add(measurementRect.height());
@@ -106,7 +103,7 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
             ArrayList<Rect> lineBoundingRectangles = new ArrayList<>();
             int xOffset = (mViewWidth - lineWidths.get(lineIndex)) / 2;
-            for(String word : lines.get(lineIndex)) {
+            for (String word : lines.get(lineIndex)) {
                 Rect boundingRect = new Rect();
                 textPaint.getTextBounds(word, 0, word.length(), boundingRect);
                 boundingRect.offsetTo(-boundingRect.left, boundingRect.top - boundingRect.bottom);
@@ -207,14 +204,14 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         return null;
     }
 
-    private Point getWord(int x, int y){
-        for(int lineIndex = 0; lineIndex < mLines.size(); lineIndex++) {
+    private Point getWord(int x, int y) {
+        for (int lineIndex = 0; lineIndex < mLines.size(); lineIndex++) {
             for (int wordIndex = 0; wordIndex < mLines.get(lineIndex).length; wordIndex++) {
                 Rect boundingRect = mWordBoundingRectangles.get(lineIndex).get(wordIndex);
                 // found the one?
                 if (boundingRect.contains(x, y))
                     return new Point(lineIndex, wordIndex);
-                // skip this line if the rect is above the y coordinate
+                    // skip this line if the rect is above the y coordinate
                 else if (boundingRect.bottom < y)
                     break;
             }
@@ -225,7 +222,7 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
     @Override
     public void onClick(int x, int y) {
         Point wordCoordinates = getWord(x, y);
-        if (wordCoordinates != null){
+        if (wordCoordinates != null) {
             mWordColors.get(wordCoordinates.x).set(wordCoordinates.y, mCurrentColor);
             redraw();
         }
