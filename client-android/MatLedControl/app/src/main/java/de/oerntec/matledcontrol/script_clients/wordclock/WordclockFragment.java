@@ -42,7 +42,7 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
     private DrawingView mDrawingView;
 
     @ColorInt
-    private int DEFAULT_COLOR = Color.WHITE;
+    private int mCurrentChosenColor = Color.WHITE;
 
 
     public WordclockFragment() {
@@ -62,11 +62,11 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
         colorButton.setOnClickListener(this);
 
         mDrawingView = (DrawingView) v.findViewById(R.id.fragment_wordclock_drawing_view);
-        mDrawingView.setColor(DEFAULT_COLOR);
+        mDrawingView.setColor(mCurrentChosenColor);
         mDrawingView.setChangeListener(this);
 
         mColorView = v.findViewById(R.id.fragment_wordclock_current_color_view);
-        mColorView.setBackgroundColor(DEFAULT_COLOR);
+        mColorView.setBackgroundColor(mCurrentChosenColor);
         return v;
     }
 
@@ -119,7 +119,7 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
     @Override
     public void onClick(View view) {
         new ChromaDialog.Builder()
-                .initialColor(DEFAULT_COLOR)
+                .initialColor(mCurrentChosenColor)
                 .colorMode(RGB)
                 .indicatorMode(IndicatorMode.HEX)
                 .onColorSelected(new OnColorSelectedListener() {
@@ -142,6 +142,7 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
     public void onColorCopied(@ColorInt int color) {
         mColorView.setBackgroundColor(color);
         mDrawingView.setColor(color);
+        mCurrentChosenColor = color;
         Toast.makeText(WordclockFragment.this.getContext(), R.string.color_copied, Toast.LENGTH_SHORT).show();
     }
 
