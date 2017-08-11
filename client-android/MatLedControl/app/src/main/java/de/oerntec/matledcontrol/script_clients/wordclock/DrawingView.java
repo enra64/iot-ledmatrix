@@ -62,6 +62,11 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         canvasBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         drawCanvas = new Canvas(canvasBitmap);
 
+        // force reloading the configuration
+        setLines(mLines);
+    }
+
+    private void loadShittyDebugWordclockConfig(){
         ArrayList<String[]> lines = new ArrayList<>();
         lines.add(new String[]{"HALF", "TWENTY"});
         lines.add(new String[]{"QUARTER", "FIVE"});
@@ -74,7 +79,6 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         lines.add(new String[]{"FIVE", "O'CLOCK"});
         lines.add(new String[]{"\u25CF", "\u25CF", "\u25CF", "\u25CF"});
         setLines(lines);
-        //setLines(mLines);
     }
 
     private void updateFontSize(ArrayList<String[]> lines, ArrayList<String> concatenatedLines, String longestLine) {
