@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.support.annotation.ColorInt;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,6 +16,9 @@ import android.view.View;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+
+import de.oerntec.matledcontrol.R;
 
 public class DrawingView extends View implements LocationClickHandler.CombinedOnClickListener {
     private final LocationClickHandler mClickHandler;
@@ -27,8 +31,10 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
     ArrayList<ArrayList<Rect>> mWordBoundingRectangles;
     ArrayList<ArrayList<Integer>> mWordColors;
 
-    ArrayList<Float> lineWidths;
+    ArrayList<Integer> lineWidths;
     private static final float TEST_TEXT_SIZE = 24f;
+    private int interWordMargin = 2;
+    private int maxLineHeight;
 
     //canvas n shit
     private Paint canvasPaint, textPaint;
@@ -81,23 +87,34 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
 
         // store the new width for each line
         lineWidths = new ArrayList<>();
-        for(String line : concatenatedLines)
-            lineWidths.add(textPaint.measureText(line));
+        ArrayList<Integer> lineHeights = new ArrayList<>();
+        Rect measurementRect = new Rect();
+        for(String line : concatenatedLines){
+            textPaint.getTextBounds(line, 0, line.length(), measurementRect);
+            lineWidths.add(measurementRect.width());
+            lineHeights.add(measurementRect.height());
+        }
+
+        maxLineHeight = Collections.max(lineHeights);
+        int maxLineWidth = Collections.max(lineWidths);
+        int availablePadding = (mViewWidth - maxLineWidth);
+        interWordMargin = availablePadding / 2;
 
         // store bounding rectangle for each word
         mWordBoundingRectangles = new ArrayList<>();
-        int yOffset = 0;
-        for (String[] line : lines) {
+        int yOffset = maxLineHeight;
+        for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
             ArrayList<Rect> lineBoundingRectangles = new ArrayList<>();
-            int xOffset = 0;
-            for(String word : line) {
+            int xOffset = (mViewWidth - lineWidths.get(lineIndex)) / 2;
+            for(String word : lines.get(lineIndex)) {
                 Rect boundingRect = new Rect();
                 textPaint.getTextBounds(word, 0, word.length(), boundingRect);
+                boundingRect.offsetTo(-boundingRect.left, boundingRect.top - boundingRect.bottom);
                 boundingRect.offset(xOffset, yOffset);
                 lineBoundingRectangles.add(boundingRect);
-                xOffset += boundingRect.width();
+                xOffset += boundingRect.width() + interWordMargin;
             }
-            yOffset += lineBoundingRectangles.get(0).height();
+            yOffset += maxLineHeight;
             mWordBoundingRectangles.add(lineBoundingRectangles);
         }
     }
@@ -148,13 +165,13 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
      *
      * @param color integer color representation
      */
-    public void setColor(@ColorInt int color) {
+    void setColor(@ColorInt int color) {
         mCurrentColor = color;
     }
 
     private void redraw() {
         // blank screen
-        drawCanvas.drawColor(Color.WHITE);
+        drawCanvas.drawColor(ContextCompat.getColor(getContext(), R.color.wordclock_background_color));
 
         float yOffset = 0;
         for (int lineIndex = 0; lineIndex < mLines.size(); lineIndex++) {
@@ -166,7 +183,8 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
                 textPaint.setColor(mWordColors.get(lineIndex).get(wordIndex));
 
                 // draw text
-                drawCanvas.drawText(line[wordIndex], xOffset, yOffset, textPaint);
+                Rect boundingRectangle = mWordBoundingRectangles.get(lineIndex).get(wordIndex);
+                drawCanvas.drawText(line[wordIndex], boundingRectangle.left, boundingRectangle.bottom, textPaint);
 
                 // move next word behind this one
                 xOffset += mWordBoundingRectangles.get(lineIndex).get(wordIndex).width();

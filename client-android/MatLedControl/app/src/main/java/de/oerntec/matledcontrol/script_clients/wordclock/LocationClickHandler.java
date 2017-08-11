@@ -1,8 +1,6 @@
 package de.oerntec.matledcontrol.script_clients.wordclock;
 
-import android.graphics.Point;
 import android.os.Handler;
-import android.os.SystemClock;
 import android.view.MotionEvent;
 
 /**
@@ -14,7 +12,7 @@ class LocationClickHandler {
     private Handler longClickHandler = new Handler();
     private boolean longClickExecuted = false;
     private MotionEvent.PointerCoords lastPointCoordinates = new MotionEvent.PointerCoords();
-
+    private static final long LONGPRESS_TIMEOUT = android.view.ViewConfiguration.getLongPressTimeout();
 
     LocationClickHandler(CombinedOnClickListener combinedOnClickListener) {
         this.combinedOnClickListener = combinedOnClickListener;
@@ -23,12 +21,10 @@ class LocationClickHandler {
     boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                longClickHandler.postDelayed(longClickCheck, 500);
+                longClickHandler.postDelayed(longClickCheck, LONGPRESS_TIMEOUT);
                 event.getPointerCoords(0, lastPointCoordinates);
                 break;
             case MotionEvent.ACTION_MOVE:
-                //event.getPointerCoords(0, lastPointCoordinates);
-                //break;
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
                 // only do a short-click if we did not fire the onLongClick event

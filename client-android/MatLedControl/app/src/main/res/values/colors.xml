@@ -10,5 +10,5 @@
     <color name="log_info">#76FF03</color>
     <color name="log_debug">#76FF03</color>
     <color name="log_notset">#76FF03</color>
-
+    <color name="wordclock_background_color">#FFFAFAFA</color>
 </resources>
