@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.support.annotation.ColorInt;
 import android.util.AttributeSet;
@@ -188,27 +189,35 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         return null;
     }
 
-    @Override
-    public void onClick(int x, int y) {
+    private Point getWord(int x, int y){
         for(int lineIndex = 0; lineIndex < mLines.size(); lineIndex++) {
             for (int wordIndex = 0; wordIndex < mLines.get(lineIndex).length; wordIndex++) {
-                if (mWordBoundingRectangles.get(lineIndex).get(wordIndex).contains(x, y)) {
-                    mWordColors.get(lineIndex).set(wordIndex, mCurrentColor);
-                    redraw();
-                }
+                Rect boundingRect = mWordBoundingRectangles.get(lineIndex).get(wordIndex);
+                // found the one?
+                if (boundingRect.contains(x, y))
+                    return new Point(lineIndex, wordIndex);
+                // skip this line if the rect is above the y coordinate
+                else if (boundingRect.bottom < y)
+                    break;
             }
+        }
+        return null;
+    }
+
+    @Override
+    public void onClick(int x, int y) {
+        Point wordCoordinates = getWord(x, y);
+        if (wordCoordinates != null){
+            mWordColors.get(wordCoordinates.x).set(wordCoordinates.y, mCurrentColor);
+            redraw();
         }
     }
 
     @Override
     public void onLongClick(int x, int y) {
-        for(int lineIndex = 0; lineIndex < mLines.size(); lineIndex++) {
-            for (int wordIndex = 0; wordIndex < mLines.get(lineIndex).length; wordIndex++) {
-                if (mWordBoundingRectangles.get(lineIndex).get(wordIndex).contains(x, y)) {
-                    mUpdateListener.onColorCopied(mWordColors.get(lineIndex).get(wordIndex));
-                }
-            }
-        }
+        Point wordCoordinates = getWord(x, y);
+        if (wordCoordinates != null)
+            mUpdateListener.onColorCopied(mWordColors.get(wordCoordinates.x).get(wordCoordinates.y));
     }
 
     interface UpdateRequiredListener {
