@@ -1,4 +1,5 @@
 import datetime
+import json
 from typing import List
 import logging
 
@@ -25,35 +26,8 @@ class Wordclock(CustomScript):
         self.logger = logging.getLogger("script:wordclock")
 
     def __create_word_rectangles(self):
-        self.others = {
-            "to": Rect(0, 3, 2, 1),
-            "past": Rect(2, 3, 4, 1),
-            "minutes": Rect(2, 3, 4, 1)
-        }
-
-        self.minutes = {
-            0: Rect(4, 8, 7, 1),  # basically o'clock
-            5: Rect(1, 2, 4, 5),
-            10: Rect(1, 2, 4, 5),
-            15: Rect(1, 2, 4, 5),
-            20: Rect(1, 2, 4, 5),
-            30: Rect(1, 2, 3, 4)
-        }
-
-        self.hour_rects = {
-            0: Rect(0, 5, 6, 1),
-            1: Rect(0, 4, 3, 1),
-            2: Rect(3, 4, 3, 1),
-            3: Rect(6, 3, 5, 1),
-            4: Rect(6, 4, 4, 1),
-            5: Rect(0, 8, 4, 1),
-            6: Rect(8, 7, 3, 1),
-            7: Rect(3, 7, 5, 1),
-            8: Rect(6, 5, 5, 1),
-            9: Rect(6, 6, 6, 1),
-            10: Rect(0, 7, 3, 1),
-            11: Rect(0, 6, 6, 1)
-        }
+        config_json = json.load(open("assets/merets_wordclock_config.json", "r"))
+        print(config_json)
 
     def __get_rectangles(self, now_time) -> List[Rect]:
         out_rectangles = []
