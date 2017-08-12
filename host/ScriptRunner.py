@@ -15,15 +15,16 @@ class ScriptRunner:
         self.last_exec = time.time()
 
         while not self.abort.is_set():
-            # wait until at least 30ms have been over since last exec
-            time.sleep(utils.clamp(self.frame_period - (time.time() - self.last_exec), 0, self.frame_period))
+            # wait until at least 30ms have been over since last exec OR the abort flag is set
+            self.abort.wait(timeout=utils.clamp(self.frame_period - (time.time() - self.last_exec), 0, self.frame_period))
 
             # update exec timestamp
             self.last_exec = time.time()
 
             # call cycle
             try:
-                self.script.update(canvas)
+                if not self.abort.is_set():
+                    self.script.update(canvas)
             except Exception:
                 self.logger.warning(
                     "abort execution of " + self.script_name + ": update caused an exception: " + traceback.format_exc())
@@ -126,7 +127,8 @@ class ScriptRunner:
         self.logger = logging.getLogger("scriptrunner")
 
         # default to 30ms frame period
-        self.frame_period = 0.030
+        self.default_frame_period = 0.030
+        self.frame_period = self.default_frame_period
 
         # default to bad init
         self.ok = False
@@ -170,6 +172,8 @@ class ScriptRunner:
                                                                                              "of the script must "
                                                                                              "have the exact same name "
                                                                                              "as the file")
+                traceback.print_exc()
+
             except Exception:
                 self.logger.warning(script + ": __init__ caused an exception:\n" + traceback.format_exc())
             else:
