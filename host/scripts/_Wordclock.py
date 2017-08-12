@@ -13,21 +13,28 @@ def round_to_five(integer: int):
     return int(5 * round(float(integer) / 5))
 
 
-class Wordclock(CustomScript):
+class _Wordclock(CustomScript):
     def __init__(self, canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
                  set_frame_rate, get_connected_clients):
         super().__init__(canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
                          set_frame_rate, get_connected_clients)
         # request updates to happen in 5-second-intervals
         set_frame_period(10)
-
-        self.__create_word_rectangles()
-
         self.logger = logging.getLogger("script:wordclock")
 
-    def __create_word_rectangles(self):
-        config_json = json.load(open("assets/merets_wordclock_config.json", "r"))
-        print(config_json)
+        with open("assets/merets_wordclock_config.json", 'r') as config_file:
+            self.config_json = config_file.read()
+
+        self.__load_word_config()
+        self.__send_config()
+
+    def __load_word_config(self):
+        self.config = json.loads(self.config_json)
+        self.hours = self.config["hours"]
+        self.minutes = self.config["minutes"]
+        self.other = self.config["other"]
+
+        print(self.config_json)
 
     def __get_rectangles(self, now_time) -> List[Rect]:
         out_rectangles = []
@@ -56,5 +63,13 @@ class Wordclock(CustomScript):
         for rectangle in word_rectangles:
             canvas.draw_rectangle(rectangle, Color(0, 255, 0))
 
+    def __send_config(self):
+        self.send_object_to_all(
+            {"message_type": "wordclock_configuration", "configuration": self.config["configuration"]})
+
+    def on_client_connected(self, id):
+        self.__send_config()
+
     def on_data(self, json, source_id):
+        print(json)
         pass

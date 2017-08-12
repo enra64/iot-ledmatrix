@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity
         } catch (JSONException ignored) {
         } catch (NullPointerException e){
             Toast.makeText(this, getString(R.string.err_could_not_communicate), Toast.LENGTH_SHORT).show();
-            Log.i("mainactivity", "could not request script " + scriptName);
+            Log.i("mainactivity", "could not request script " + scriptName + "because of the following exception", e);
         }
     }
 

@@ -89,13 +89,14 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
 
     @Override
     public String requestScript() {
-        return "_WordClock";
+        return "_Wordclock";
     }
 
     @Override
     public void onMessage(JSONObject data) {
         // ignore incoming messages
         try {
+
             updateDrawingViewWords(data.getJSONArray("configuration"));
         } catch (JSONException e) {
             e.printStackTrace();
@@ -104,16 +105,22 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
     }
 
     private void updateDrawingViewWords(JSONArray lines) throws JSONException {
-        ArrayList<String[]> lineList = new ArrayList<>();
-        for (int i = 0; i < lines.length(); i++){
+        final ArrayList<String[]> lineList = new ArrayList<>();
+        for (int i = 0; i < lines.length(); i++) {
             JSONArray line = lines.getJSONArray(i);
             String[] lineArray = new String[line.length()];
-            for(int j = 0; j < line.length(); j++)
+            for (int j = 0; j < line.length(); j++)
                 lineArray[j] = line.getString(j);
             lineList.add(lineArray);
         }
 
-        mDrawingView.setLines(lineList);
+        if (getActivity() != null)
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mDrawingView.setLines(lineList);
+                }
+            });
     }
 
     @Override

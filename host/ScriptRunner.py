@@ -25,21 +25,24 @@ class ScriptRunner:
             try:
                 self.script.update(canvas)
             except Exception:
-                self.logger.warning("abort execution of " + self.script_name + ": update caused an exception: " + traceback.format_exc())
+                self.logger.warning(
+                    "abort execution of " + self.script_name + ": update caused an exception: " + traceback.format_exc())
                 self.abort.set()
 
             try:
                 if not self.abort.is_set():
                     self.script.draw(canvas)
             except Exception:
-                self.logger.warning("abort execution of " + self.script_name + ": draw caused an exception: " + traceback.format_exc())
+                self.logger.warning(
+                    "abort execution of " + self.script_name + ": draw caused an exception: " + traceback.format_exc())
                 self.abort.set()
 
             try:
                 if not self.abort.is_set():
                     draw_cycle_finished_callback()
             except Exception:
-                self.logger.error("draw cycle finish callback threw an exception. Errors here likely prohibit any matrix drawing.\n" + traceback.format_exc())
+                self.logger.error(
+                    "draw cycle finish callback threw an exception. Errors here likely prohibit any matrix drawing.\n" + traceback.format_exc())
                 self.abort.set()
 
         try:
@@ -70,7 +73,8 @@ class ScriptRunner:
         try:
             self.script.on_client_connected(client_id)
         except Exception:
-            self.logger.warning(self.script_name + ": on_client_connected caused an exception:\n" + traceback.format_exc())
+            self.logger.warning(
+                self.script_name + ": on_client_connected caused an exception:\n" + traceback.format_exc())
 
     def on_client_disconnected(self, client_id):
         """forward client disconnect signal"""
@@ -79,7 +83,8 @@ class ScriptRunner:
         try:
             self.script.on_client_disconnected(client_id)
         except Exception:
-            self.logger.warning(self.script_name + ": on_client_disconnected caused an exception:\n" + traceback.format_exc())
+            self.logger.warning(
+                self.script_name + ": on_client_disconnected caused an exception:\n" + traceback.format_exc())
 
     def join(self):
         try:
@@ -145,7 +150,7 @@ class ScriptRunner:
                 return
         except SyntaxError:
             self.logger.warning("parsing " + script + " produced a SyntaxError\n" + traceback.format_exc())
-        else: # if import produced no syntax error
+        else:  # if import produced no syntax error
             try:
                 # call custom script constructor
                 self.script = getattr(script_module, script)(
@@ -159,6 +164,12 @@ class ScriptRunner:
                     self.set_frame_rate,
                     get_connected_clients
                 )
+            except AttributeError:
+                self.logger.error(
+                    "scripts/" + script + ".py has no class (/attribute) called " + script + ", but the 'main class' "
+                                                                                             "of the script must "
+                                                                                             "have the exact same name "
+                                                                                             "as the file")
             except Exception:
                 self.logger.warning(script + ": __init__ caused an exception:\n" + traceback.format_exc())
             else:

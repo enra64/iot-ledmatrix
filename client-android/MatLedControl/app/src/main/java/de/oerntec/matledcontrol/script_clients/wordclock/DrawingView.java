@@ -10,33 +10,30 @@ import android.graphics.Rect;
 import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import de.oerntec.matledcontrol.R;
 
 public class DrawingView extends View implements LocationClickHandler.CombinedOnClickListener {
-    private final LocationClickHandler mClickHandler;
+    private final LocationClickHandler mClickHandler = new LocationClickHandler(this);
     private UpdateRequiredListener mUpdateListener;
-
-    //draw: wordclockwords
-    private int mViewWidth;
 
     ArrayList<String[]> mLines = new ArrayList<>();
     ArrayList<ArrayList<Rect>> mWordBoundingRectangles;
     ArrayList<ArrayList<Integer>> mWordColors;
 
-    ArrayList<Integer> lineWidths;
     private static final float TEST_TEXT_SIZE = 24f;
-    private int interWordMargin = 2;
-    private int maxLineHeight;
 
-    //canvas n shit
     private Paint canvasPaint, textPaint;
     private Canvas drawCanvas;
     private Bitmap canvasBitmap;
@@ -50,15 +47,12 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         // set up paints
         textPaint = new Paint(Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG);
         canvasPaint = new Paint(Paint.DITHER_FLAG);
-
-        mClickHandler = new LocationClickHandler(this);
     }
 
 
     @Override
     protected void onSizeChanged(int width, int height, int oldWidth, int oldHeight) {
         super.onSizeChanged(width, height, oldWidth, oldHeight);
-        this.mViewWidth = width;
         canvasBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         drawCanvas = new Canvas(canvasBitmap);
 
@@ -84,11 +78,12 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
     private void updateFontSize(ArrayList<String[]> lines, ArrayList<String> concatenatedLines, String longestLine) {
         // set the font size so the widest line will fit
         textPaint.setTextSize(TEST_TEXT_SIZE);
-        textPaint.setTextSize(TEST_TEXT_SIZE * mViewWidth / textPaint.measureText(longestLine));
+        textPaint.setTextSize(TEST_TEXT_SIZE * getWidth() / textPaint.measureText(longestLine));
 
         // store the new width for each line
-        lineWidths = new ArrayList<>();
+        ArrayList<Integer> lineWidths = new ArrayList<>();
         ArrayList<Integer> lineHeights = new ArrayList<>();
+
         Rect measurementRect = new Rect();
         for (String line : concatenatedLines) {
             textPaint.getTextBounds(line, 0, line.length(), measurementRect);
@@ -96,17 +91,17 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
             lineHeights.add(measurementRect.height());
         }
 
-        maxLineHeight = Collections.max(lineHeights);
+        int maxLineHeight = Collections.max(lineHeights);
         int maxLineWidth = Collections.max(lineWidths);
-        int availablePadding = (mViewWidth - maxLineWidth);
-        interWordMargin = availablePadding / 2;
+        int availablePadding = (getWidth() - maxLineWidth);
+        int interWordMargin = availablePadding / 2;
 
         // store bounding rectangle for each word
         mWordBoundingRectangles = new ArrayList<>();
         int yOffset = maxLineHeight;
         for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
             ArrayList<Rect> lineBoundingRectangles = new ArrayList<>();
-            int xOffset = (mViewWidth - lineWidths.get(lineIndex)) / 2;
+            int xOffset = (getWidth() - lineWidths.get(lineIndex)) / 2;
             for (String word : lines.get(lineIndex)) {
                 Rect boundingRect = new Rect();
                 textPaint.getTextBounds(word, 0, word.length(), boundingRect);
@@ -126,35 +121,37 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
     }
 
     void setLines(ArrayList<String[]> lines) {
-        this.mLines = lines;
+        if(lines.size() > 0){
+            this.mLines = lines;
 
-        // concatenate all lines; create color int for all words
-        mWordColors = new ArrayList<>();
-        ArrayList<String> concatenatedLines = new ArrayList<>();
-        for (String[] line : lines) {
-            ArrayList<Integer> lineWordColors = new ArrayList<>();
-            StringBuilder sb = new StringBuilder();
-            for (String word : line) {
-                sb.append(word);
-                lineWordColors.add(Color.BLACK);
+            // concatenate all lines; create color int for all words
+            mWordColors = new ArrayList<>();
+            ArrayList<String> concatenatedLines = new ArrayList<>();
+            for (String[] line : lines) {
+                ArrayList<Integer> lineWordColors = new ArrayList<>();
+                StringBuilder sb = new StringBuilder();
+                for (String word : line) {
+                    sb.append(word);
+                    lineWordColors.add(Color.BLACK);
+                }
+                mWordColors.add(lineWordColors);
+                concatenatedLines.add(sb.toString());
             }
-            mWordColors.add(lineWordColors);
-            concatenatedLines.add(sb.toString());
-        }
 
-        // find the widest line
-        float max = Integer.MIN_VALUE;
-        int maxWidthIndex = -1;
-        for (int i = 0; i < concatenatedLines.size(); i++) {
-            float width = textPaint.measureText(concatenatedLines.get(i));
-            if (width > max) {
-                max = width;
-                maxWidthIndex = i;
+            // find the widest line
+            float max = Integer.MIN_VALUE;
+            int maxWidthIndex = -1;
+            for (int i = 0; i < concatenatedLines.size(); i++) {
+                float width = textPaint.measureText(concatenatedLines.get(i));
+                if (width > max) {
+                    max = width;
+                    maxWidthIndex = i;
+                }
             }
-        }
 
-        updateFontSize(mLines, concatenatedLines, concatenatedLines.get(maxWidthIndex));
-        redraw();
+            updateFontSize(mLines, concatenatedLines, concatenatedLines.get(maxWidthIndex));
+            redraw();
+        }
     }
 
     void setChangeListener(UpdateRequiredListener updateRequiredListener) {
@@ -171,27 +168,18 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
     }
 
     private void redraw() {
-        // blank screen
+        // blank canvas
         drawCanvas.drawColor(ContextCompat.getColor(getContext(), R.color.wordclock_background_color));
 
-        float yOffset = 0;
         for (int lineIndex = 0; lineIndex < mLines.size(); lineIndex++) {
-            float xOffset = (mViewWidth - lineWidths.get(lineIndex)) / 2;
             String[] line = mLines.get(lineIndex);
 
             for (int wordIndex = 0; wordIndex < line.length; wordIndex++) {
                 // apply word color
-                textPaint.setColor(mWordColors.get(lineIndex).get(wordIndex));
-
-                // draw text
                 Rect boundingRectangle = mWordBoundingRectangles.get(lineIndex).get(wordIndex);
+                textPaint.setColor(mWordColors.get(lineIndex).get(wordIndex));
                 drawCanvas.drawText(line[wordIndex], boundingRectangle.left, boundingRectangle.bottom, textPaint);
-
-                // move next word behind this one
-                xOffset += mWordBoundingRectangles.get(lineIndex).get(wordIndex).width();
             }
-
-            yOffset += mWordBoundingRectangles.get(lineIndex).get(0).height();
         }
 
         // reeeedraw
@@ -205,7 +193,16 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
     }
 
     JSONObject getAsJsonObject() {
-        return null;
+        JSONArray colorArray = new JSONArray();
+        for(ArrayList<Integer> lineList : mWordColors)
+            colorArray.put(new JSONArray(lineList));
+        JSONObject responseWrapper = new JSONObject();
+        try {
+            responseWrapper.put("word_color_config", colorArray);
+        } catch (JSONException e) {
+            Log.wtf("wordcdrw", "how the fuck can you get an exception while parsing the wordclock colors to JSON");
+        }
+        return responseWrapper;
     }
 
     private Point getWord(int x, int y) {

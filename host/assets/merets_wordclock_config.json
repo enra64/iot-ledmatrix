@@ -3,7 +3,8 @@
 "hours":["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven"],
 "minutes":["o'clock", "five", "ten_minutes", "quarter", "twenty", "half"],
 "other":["to", "past", "minutes"],
-"configuration":[["HALF", "TWENTY"],
+"configuration":[
+["HALF", "TWENTY"],
 ["QUARTER", "FIVE"],
 ["TEN", "MINUTES"],
 ["TO", "PAST", "THREE"],
@@ -12,5 +13,32 @@
 ["ELEVEN", "NINE"],
 ["TEN", "SEVEN", "SIX"],
 ["FIVE", "O'CLOCK"],
-[".", ".", ".", "."]]
+[".", ".", ".", "."]],
+"config": [
+  ["HALF", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "minute_big"],
+  ["TWENTY", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "minute_big"],
+  ["QUARTER", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "minute_big"],
+  ["FIVE", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "minute_big"],
+  ["TEN", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "minute_big"],
+  ["MINUTES", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "other"],
+  ["TO", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "other"],
+  ["PAST", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "other"],
+  ["THREE", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "hour"],
+  ["ONE", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "hour"],
+  ["TWO", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "hour"],
+  ["FOUR", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "hour"],
+  ["TWELVE", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "hour"],
+  ["EIGHT", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "hour"],
+  ["ELEVEN", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "hour"],
+  ["NINE", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "hour"],
+  ["TEN", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "hour"],
+  ["SEVEN", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "hour"],
+  ["SIX", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "hour"],
+  ["FIVE", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "hour"],
+  ["O'CLOCK", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "other"],
+  [".", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "minute_small_point"],
+  [".", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "minute_small_point"],
+  [".", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "minute_small_point"],
+  [".", [0,0], {"width": 4, "height": 1, "x": 0, "y": 0}, "minute_small_point"]
+]
 }

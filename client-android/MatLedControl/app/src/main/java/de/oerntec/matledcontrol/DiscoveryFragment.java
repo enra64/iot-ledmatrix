@@ -193,12 +193,14 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
     @Override
     public void onServerListUpdated(final List<LedMatrix> matrices) {
         // since this is called from a separate thread, we must use runOnUiThread to update the lits
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mAvailableMatrices.setAdapter(new DiscoveryAdapter(getContext(), R.layout.matrix_list_item, matrices));
-            }
-        });
+        if (getActivity() != null){
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mAvailableMatrices.setAdapter(new DiscoveryAdapter(getContext(), R.layout.matrix_list_item, matrices));
+                }
+            });
+        }
     }
 
     @Override
