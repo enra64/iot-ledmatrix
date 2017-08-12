@@ -1,6 +1,6 @@
 import datetime
 import json
-from typing import List
+from typing import List, Dict
 import logging
 
 from helpers.Color import Color
@@ -23,12 +23,12 @@ class Word:
         self.info = dict["info"]
 
     @staticmethod
-    def __parse_rect(rectangle_list: List[int]):
+    def __parse_rect(rectangle_list: Dict):
         return Rect(
-            rectangle_list[2],
-            rectangle_list[3],
-            rectangle_list[0],
-            rectangle_list[1]
+            rectangle_list["x"],
+            rectangle_list["y"],
+            rectangle_list["width"],
+            rectangle_list["height"]
         )
 
 
@@ -52,15 +52,15 @@ class _Wordclock(CustomScript):
         self.config = json.loads(self.config_json)
         self.words = []
 
-        for i in range(len(self.config)):
-            self.words.append(Word(i, self.config[i]))
+        for i in range(len(self.config["config"])):
+            self.words.append(Word(i, self.config["config"][i]))
 
     def __get_word_rect(self, category: str, info) -> Rect:
-        category_words = [word for word in self.words if word.category == category]
+        category_words = [word for word in self.words if word.category.lower() == category.lower()]
         for word in category_words:
-            if str(word.info) == str(info):
+            if (str(word.info)).lower() == str(info).lower():
                 return word.rectangle
-        self.logger.warning("unknown word requested with category " + category + " and  info " + str(info))
+        self.logger.warning("unknown word requested with category " + category + " and info " + str(info))
         return None
 
     def __get_minute(self, minute: int):
@@ -103,11 +103,16 @@ class _Wordclock(CustomScript):
         print(len(word_rectangles))
         canvas.clear()
         for rectangle in word_rectangles:
-            canvas.draw_rectangle(rectangle, Color(0, 255, 0))
+            if rectangle is not None:
+                canvas.draw_rectangle(rectangle, Color(0, 255, 0))
 
     def __send_config(self):
         self.send_object_to_all(
-            {"message_type": "wordclock_configuration", "configuration": self.config["configuration"]})
+            {
+                "message_type": "wordclock_configuration",
+                "config": self.config["config"],
+                "lines": self.config["lines"]
+            })
 
     def on_client_connected(self, id):
         self.__send_config()

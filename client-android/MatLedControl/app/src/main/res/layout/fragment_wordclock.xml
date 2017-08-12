@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginRight="8dp"
-        android:text="Choose color"
+        android:text="@string/choose_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginEnd="8dp" />
@@ -51,5 +51,36 @@
         app:layout_constraintBottom_toTopOf="@+id/fragment_wordclock_choose_color_button"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintVertical_bias="0.0" />
+
+    <LinearLayout
+        android:id="@+id/waiting_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/fragment_wordclock_drawing_view"
+        app:layout_constraintLeft_toLeftOf="@+id/fragment_wordclock_drawing_view"
+        app:layout_constraintRight_toRightOf="@+id/fragment_wordclock_drawing_view"
+        app:layout_constraintTop_toTopOf="@+id/fragment_wordclock_drawing_view">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/loading_wordclock_configuration"
+            tools:layout_editor_absoluteX="165dp"
+            tools:layout_editor_absoluteY="208dp" />
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

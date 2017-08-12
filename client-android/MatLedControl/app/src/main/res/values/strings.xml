@@ -46,5 +46,6 @@
     <string name="err_could_not_communicate">Could not communicate with Matrix</string>
     <string name="wordclock_color_selection">Wordclock colors</string>
     <string name="color_copied">Color copied</string>
+    <string name="loading_wordclock_configuration">Loading WordClock configuration...</string>
 
 </resources>

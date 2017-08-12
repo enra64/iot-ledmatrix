@@ -26,6 +26,7 @@ import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
 
+import static android.view.View.GONE;
 import static com.pavelsikun.vintagechroma.colormode.ColorMode.RGB;
 
 public class WordclockFragment extends Fragment implements ScriptFragmentInterface, View.OnClickListener, DrawingView.UpdateRequiredListener {
@@ -40,6 +41,8 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
      * The view that is displaying the drawn stuff to the user
      */
     private DrawingView mDrawingView;
+
+    private View mLoadingScreen;
 
     @ColorInt
     private int mCurrentChosenColor = Color.WHITE;
@@ -64,6 +67,8 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
         mDrawingView = (DrawingView) v.findViewById(R.id.fragment_wordclock_drawing_view);
         mDrawingView.setColor(mCurrentChosenColor);
         mDrawingView.setChangeListener(this);
+
+        mLoadingScreen = v.findViewById(R.id.waiting_layout);
 
         mColorView = v.findViewById(R.id.fragment_wordclock_current_color_view);
         mColorView.setBackgroundColor(mCurrentChosenColor);
@@ -94,31 +99,23 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
 
     @Override
     public void onMessage(JSONObject data) {
-        // ignore incoming messages
         try {
-
-            updateDrawingViewWords(data.getJSONArray("configuration"));
+            loadWordsIntoDrawingView(data);
         } catch (JSONException e) {
             e.printStackTrace();
             Log.w("wordclockfragment", "indecipherable json data");
         }
     }
 
-    private void updateDrawingViewWords(JSONArray lines) throws JSONException {
-        final ArrayList<String[]> lineList = new ArrayList<>();
-        for (int i = 0; i < lines.length(); i++) {
-            JSONArray line = lines.getJSONArray(i);
-            String[] lineArray = new String[line.length()];
-            for (int j = 0; j < line.length(); j++)
-                lineArray[j] = line.getString(j);
-            lineList.add(lineArray);
-        }
+    private void loadWordsIntoDrawingView(final JSONObject lines) throws JSONException {
+        String messageType = lines.getString("message_type");
 
-        if (getActivity() != null)
+        if (getActivity() != null && "wordclock_configuration".equals(messageType))
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mDrawingView.setLines(lineList);
+                    mDrawingView.setLines(lines);
+                    mLoadingScreen.setVisibility(GONE);
                 }
             });
     }

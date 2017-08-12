@@ -18,9 +18,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 import de.oerntec.matledcontrol.R;
 
@@ -28,9 +29,8 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
     private final LocationClickHandler mClickHandler = new LocationClickHandler(this);
     private UpdateRequiredListener mUpdateListener;
 
-    ArrayList<String[]> mLines = new ArrayList<>();
-    ArrayList<ArrayList<Rect>> mWordBoundingRectangles;
-    ArrayList<ArrayList<Integer>> mWordColors;
+    private HashMap<Point, Word> mWords;
+    private int mLineCount;
 
     private static final float TEST_TEXT_SIZE = 24f;
 
@@ -55,27 +55,9 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         super.onSizeChanged(width, height, oldWidth, oldHeight);
         canvasBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         drawCanvas = new Canvas(canvasBitmap);
-
-        // force reloading the configuration
-        setLines(mLines);
     }
 
-    private void loadShittyDebugWordclockConfig(){
-        ArrayList<String[]> lines = new ArrayList<>();
-        lines.add(new String[]{"HALF", "TWENTY"});
-        lines.add(new String[]{"QUARTER", "FIVE"});
-        lines.add(new String[]{"TEN", "MINUTES"});
-        lines.add(new String[]{"TO", "PAST", "THREE"});
-        lines.add(new String[]{"ONE", "TWO", "FOUR"});
-        lines.add(new String[]{"TWELVE", "EIGHT"});
-        lines.add(new String[]{"ELEVEN", "NINE"});
-        lines.add(new String[]{"TEN", "SEVEN", "SIX"});
-        lines.add(new String[]{"FIVE", "O'CLOCK"});
-        lines.add(new String[]{"\u25CF", "\u25CF", "\u25CF", "\u25CF"});
-        setLines(lines);
-    }
-
-    private void updateFontSize(ArrayList<String[]> lines, ArrayList<String> concatenatedLines, String longestLine) {
+    private void updateFontSize(ArrayList<String> concatenatedLines, String longestLine) {
         // set the font size so the widest line will fit
         textPaint.setTextSize(TEST_TEXT_SIZE);
         textPaint.setTextSize(TEST_TEXT_SIZE * getWidth() / textPaint.measureText(longestLine));
@@ -96,22 +78,18 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         int availablePadding = (getWidth() - maxLineWidth);
         int interWordMargin = availablePadding / 2;
 
-        // store bounding rectangle for each word
-        mWordBoundingRectangles = new ArrayList<>();
+        // store bounding rectangle for each displayString
         int yOffset = maxLineHeight;
-        for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
-            ArrayList<Rect> lineBoundingRectangles = new ArrayList<>();
+        for (int lineIndex = 0; lineIndex < mLineCount; lineIndex++) {
             int xOffset = (getWidth() - lineWidths.get(lineIndex)) / 2;
-            for (String word : lines.get(lineIndex)) {
-                Rect boundingRect = new Rect();
-                textPaint.getTextBounds(word, 0, word.length(), boundingRect);
-                boundingRect.offsetTo(-boundingRect.left, boundingRect.top - boundingRect.bottom);
-                boundingRect.offset(xOffset, yOffset);
-                lineBoundingRectangles.add(boundingRect);
-                xOffset += boundingRect.width() + interWordMargin;
+
+            for (Word word : getWordsForLine(mWords, lineIndex)) {
+                textPaint.getTextBounds(word.displayString, 0, word.displayString.length(), word.boundingRectangle);
+                word.boundingRectangle.offsetTo(-word.boundingRectangle.left, word.boundingRectangle.top - word.boundingRectangle.bottom);
+                word.boundingRectangle.offset(xOffset, yOffset);
+                xOffset += word.boundingRectangle.width() + interWordMargin;
             }
             yOffset += maxLineHeight;
-            mWordBoundingRectangles.add(lineBoundingRectangles);
         }
     }
 
@@ -120,21 +98,32 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         return mClickHandler.onTouchEvent(event);
     }
 
-    void setLines(ArrayList<String[]> lines) {
-        if(lines.size() > 0){
-            this.mLines = lines;
+    private List<Word> getWordsForLine(HashMap<Point, Word> wordMap, int lineIndex) {
+        ArrayList<Word> result = new ArrayList<>(5);
+        for (Word w : wordMap.values())
+            if (w.lineIndex == lineIndex)
+                result.add(w);
+        return result;
+    }
+
+    void setLines(JSONObject lines) {
+        try {
+            mLineCount = lines.getInt("lines");
+
+            JSONArray config = lines.getJSONArray("config");
+            mWords = new HashMap<>(config.length());
+
+            for (int i = 0; i < config.length(); i++) {
+                Word newWord = new Word(i, config.getJSONObject(i));
+                mWords.put(newWord.getCoordinates(), newWord);
+            }
 
             // concatenate all lines; create color int for all words
-            mWordColors = new ArrayList<>();
             ArrayList<String> concatenatedLines = new ArrayList<>();
-            for (String[] line : lines) {
-                ArrayList<Integer> lineWordColors = new ArrayList<>();
+            for (int i = 0; i < mLineCount; i++) {
                 StringBuilder sb = new StringBuilder();
-                for (String word : line) {
-                    sb.append(word);
-                    lineWordColors.add(Color.BLACK);
-                }
-                mWordColors.add(lineWordColors);
+                for (Word word : getWordsForLine(mWords, i))
+                    sb.append(word.displayString);
                 concatenatedLines.add(sb.toString());
             }
 
@@ -149,8 +138,11 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
                 }
             }
 
-            updateFontSize(mLines, concatenatedLines, concatenatedLines.get(maxWidthIndex));
+            updateFontSize(concatenatedLines, concatenatedLines.get(maxWidthIndex));
             redraw();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Log.w("wc view parser", "bad json");
         }
     }
 
@@ -171,15 +163,9 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         // blank canvas
         drawCanvas.drawColor(ContextCompat.getColor(getContext(), R.color.wordclock_background_color));
 
-        for (int lineIndex = 0; lineIndex < mLines.size(); lineIndex++) {
-            String[] line = mLines.get(lineIndex);
-
-            for (int wordIndex = 0; wordIndex < line.length; wordIndex++) {
-                // apply word color
-                Rect boundingRectangle = mWordBoundingRectangles.get(lineIndex).get(wordIndex);
-                textPaint.setColor(mWordColors.get(lineIndex).get(wordIndex));
-                drawCanvas.drawText(line[wordIndex], boundingRectangle.left, boundingRectangle.bottom, textPaint);
-            }
+        for (Word word : mWords.values()) {
+            textPaint.setColor(word.color);
+            drawCanvas.drawText(word.displayString, word.boundingRectangle.left, word.boundingRectangle.bottom, textPaint);
         }
 
         // reeeedraw
@@ -194,52 +180,102 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
 
     JSONObject getAsJsonObject() {
         JSONArray colorArray = new JSONArray();
-        for(ArrayList<Integer> lineList : mWordColors)
-            colorArray.put(new JSONArray(lineList));
         JSONObject responseWrapper = new JSONObject();
+
         try {
+            for (Word word : mWords.values())
+                colorArray.put(word.withColorAsJson());
             responseWrapper.put("word_color_config", colorArray);
         } catch (JSONException e) {
-            Log.wtf("wordcdrw", "how the fuck can you get an exception while parsing the wordclock colors to JSON");
+            Log.e("wordcdrw", "how the fuck can you get an exception while parsing the wordclock colors to JSON");
         }
         return responseWrapper;
     }
 
-    private Point getWord(int x, int y) {
-        for (int lineIndex = 0; lineIndex < mLines.size(); lineIndex++) {
-            for (int wordIndex = 0; wordIndex < mLines.get(lineIndex).length; wordIndex++) {
-                Rect boundingRect = mWordBoundingRectangles.get(lineIndex).get(wordIndex);
-                // found the one?
-                if (boundingRect.contains(x, y))
-                    return new Point(lineIndex, wordIndex);
-                    // skip this line if the rect is above the y coordinate
-                else if (boundingRect.bottom < y)
-                    break;
-            }
-        }
+    private Word getWordByTouchCoordinates(int x, int y) {
+        for (Word word : mWords.values())
+            if (word.boundingRectangle.contains(x, y))
+                return word;
         return null;
     }
 
     @Override
     public void onClick(int x, int y) {
-        Point wordCoordinates = getWord(x, y);
-        if (wordCoordinates != null) {
-            mWordColors.get(wordCoordinates.x).set(wordCoordinates.y, mCurrentColor);
+        Word word = getWordByTouchCoordinates(x, y);
+        if (word != null) {
+            word.color = mCurrentColor;
             redraw();
         }
     }
 
     @Override
     public void onLongClick(int x, int y) {
-        Point wordCoordinates = getWord(x, y);
-        if (wordCoordinates != null)
-            mUpdateListener.onColorCopied(mWordColors.get(wordCoordinates.x).get(wordCoordinates.y));
+        Word word = getWordByTouchCoordinates(x, y);
+        if (word != null)
+            mUpdateListener.onColorCopied(word.color);
     }
 
     interface UpdateRequiredListener {
         void onWordChanged();
 
         void onColorCopied(@ColorInt int color);
+    }
+
+    @SuppressWarnings("unused")
+    private class Word {
+        private String displayString;
+        private int xPos, lineIndex;
+        private Rect ledRectangle;
+        private WordCategory category;
+        private String info;
+        private int id;
+        @ColorInt
+        private int color = Color.BLACK;
+        private Rect boundingRectangle = new Rect();
+
+        Word(int id, JSONObject initializer) throws JSONException {
+            this.id = id;
+            displayString = initializer.getString("word");
+            xPos = initializer.getJSONArray("pos").getInt(0);
+            lineIndex = initializer.getJSONArray("pos").getInt(1);
+            ledRectangle = getRectFromJsonArray(initializer.getJSONObject("rect"));
+            category = WordCategory.valueOf(initializer.getString("category"));
+            Object info = initializer.get("info");
+            if (info instanceof String) this.info = (String) info;
+            else this.info = Integer.toString((Integer) info);
+        }
+
+        Point getCoordinates() {
+            return new Point(xPos, lineIndex);
+        }
+
+        private Rect getRectFromJsonArray(JSONObject array) throws JSONException {
+            return new Rect(
+                    array.getInt("x"),
+                    array.getInt("y"),
+                    array.getInt("x") + array.getInt("width"),
+                    array.getInt("y") + array.getInt("height")
+            );
+        }
+
+        private JSONObject withColorAsJson() throws JSONException {
+            JSONObject representation = new JSONObject();
+            representation.put("id", id);
+            representation.put("color", color);
+            return representation;
+        }
+    }
+
+    /**
+     * WordClock words can be one of the following types
+     */
+    @SuppressWarnings("unused")
+    private enum WordCategory {
+        HOUR,
+        OTHER,
+        MINUTE_BIG,
+        MINUTE_SMALL_POINT,
+        MINUTE_SMALL_BAR
     }
 }
 
