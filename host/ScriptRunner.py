@@ -15,16 +15,9 @@ class ScriptRunner:
         self.last_exec = time.time()
 
         while not self.abort.is_set():
-            # wait until at least 30ms have been over since last exec OR the abort flag is set
-            self.abort.wait(timeout=utils.clamp(self.frame_period - (time.time() - self.last_exec), 0, self.frame_period))
-
-            # update exec timestamp
-            self.last_exec = time.time()
-
             # call cycle
             try:
-                if not self.abort.is_set():
-                    self.script.update(canvas)
+                self.script.update(canvas)
             except Exception:
                 self.logger.warning(
                     "abort execution of " + self.script_name + ": update caused an exception: " + traceback.format_exc())
@@ -45,6 +38,12 @@ class ScriptRunner:
                 self.logger.error(
                     "draw cycle finish callback threw an exception. Errors here likely prohibit any matrix drawing.\n" + traceback.format_exc())
                 self.abort.set()
+
+            # wait until at least 30ms have been over since last exec OR the abort flag is set
+            self.abort.wait(timeout=utils.clamp(self.frame_period - (time.time() - self.last_exec), 0, self.frame_period))
+
+            # update exec timestamp
+            self.last_exec = time.time()
 
         try:
             if self.ok:

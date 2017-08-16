@@ -1,4 +1,4 @@
-{"small_minute_type": "MINUTE_SMALL_POINT", "lines": 10, "config":
+{"display_25_as_to_half": false,"small_minute_type": "MINUTE_SMALL_POINT", "lines": 10, "config":
 [{"word": "HALF", "pos": [0,0], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_BIG", "info": 30},
 {"word": "TWENTY", "pos": [1,0], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_BIG", "info": 20},
 

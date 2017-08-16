@@ -18,6 +18,7 @@ class Manager:
     It correctly parametrizes the different modules, has a unified start() and
     stop() function, and can join the module threads when necessary.
     """
+
     def script_load_request_handler(self, script_name: str, source_id):
         """start a new script"""
         self.script_handler.start_script(script_name, source_id)
@@ -73,7 +74,7 @@ class Manager:
             discovery_port,
             enable_arduino_connection: bool,
             enable_graphical_display: bool,
-            matrix_rotation:int):
+            matrix_rotation: int):
         """
         Initializes instances of: MatrixSerial, BroadcastReceiver, Server, Canvas and ScriptHandler. Registers 
         manager.stop for a shutdown hook.
@@ -165,6 +166,6 @@ class Manager:
         :return:
         """
         if self.gui is not None:
-            self.gui.update_with_canvas(self.canvas)
+            return self.gui.update_with_canvas(self.canvas)
         else:
             return False

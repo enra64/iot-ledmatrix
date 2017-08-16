@@ -1,0 +1,33 @@
+{"display_25_as_to_half": true, "small_minute_type": "MINUTE_SMALL_POINT", "lines": 10, "config": [
+  {"word": "----------", "pos": [0,0], "rect": {"width": 10, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_SMALL_BAR", "info": 0},
+
+  {"word": "FÜNF", "pos": [0,1], "rect": {"width": 4, "height": 1, "x": 0, "y": 1}, "category": "MINUTE_BIG", "info": 5},
+{"word": "ZWANZIG", "pos": [1,1], "rect": {"width": 6, "height": 1, "x": 4, "y": 1}, "category": "MINUTE_BIG", "info": 20},
+
+  {"word": "VIERTEL", "pos": [1,2], "rect": {"width": 6, "height": 1, "x": 0, "y": 2}, "category": "MINUTE_BIG", "info": 15},
+{"word": "ZEHN", "pos": [0,2], "rect": {"width": 4, "height": 1, "x": 6, "y": 2}, "category": "MINUTE_BIG", "info": 10},
+
+  {"word": "PUNKT", "pos": [0,3], "rect": {"width": 6, "height": 1, "x": 0, "y": 3}, "category": "MINUTE_BIG", "info": 0},
+{"word": "NACH", "pos": [1,3], "rect": {"width": 4, "height": 1, "x": 6, "y": 3}, "category": "OTHER", "info": "past"},
+
+  {"word": "HALB", "pos": [0,4], "rect": {"width": 4, "height": 1, "x": 0, "y": 4}, "category": "MINUTE_BIG", "info": 30},
+{"word": "VOR", "pos": [1,4], "rect": {"width": 3, "height": 1, "x": 4, "y": 4}, "category": "OTHER", "info": "to"},
+{"word": "ELF", "pos": [2,4], "rect": {"width": 3, "height": 1, "x": 7, "y": 4}, "category": "HOUR", "info": 11},
+
+  {"word": "NEUN", "pos": [0,5], "rect": {"width": 5, "height": 1, "x": 0, "y": 5}, "category": "HOUR", "info": 9},
+{"word": "ZEHN", "pos": [1,5], "rect": {"width": 4, "height": 1, "x": 6, "y": 5}, "category": "HOUR", "info": 10},
+
+  {"word": "VIER", "pos": [0,6], "rect": {"width": 5, "height": 1, "x": 0, "y": 6}, "category": "HOUR", "info": 4},
+  {"word": "SECHS", "pos": [1,6], "rect": {"width": 5, "height": 1, "x": 5, "y": 6}, "category": "HOUR", "info": 6},
+
+  {"word": "DREI", "pos": [0,7], "rect": {"width": 5, "height": 1, "x": 0, "y": 7}, "category": "HOUR", "info": 3},
+{"word": "ZWÖLF", "pos": [1,7], "rect": {"width": 5, "height": 1, "x": 5, "y": 7}, "category": "HOUR", "info": 12},
+
+  {"word": "SIEBEN", "pos": [0,8], "rect": {"width": 6, "height": 1, "x": 0, "y": 8}, "category": "HOUR", "info": 7},
+{"word": "ZWEI", "pos": [1,8], "rect": {"width": 4, "height": 1, "x": 6, "y": 8}, "category": "HOUR", "info": 2},
+
+  {"word": "FÜNF", "pos": [0,9], "rect": {"width": 5, "height": 1, "x": 0, "y": 9}, "category": "HOUR", "info": 5},
+{"word": "EINS", "pos": [1,9], "rect": {"width": 5, "height": 1, "x": 5, "y": 9}, "category": "HOUR", "info": 1},
+
+{"word": "", "pos": [10,0], "rect": {"width": 0, "height": 0, "x": 0, "y": 0}, "category": "OTHER", "info": "minutes"}
+]}

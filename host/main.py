@@ -192,7 +192,7 @@ if __name__ == "__main__":
             manager.join()
 
         except KeyboardInterrupt:
-            logger.info("shutting down on manual command")
+            logger.info("shutting down control system due to manual command")
 
             # force CustomAtExit to ignore the system atexit that it has registered for itself so it does
             # not trigger twice

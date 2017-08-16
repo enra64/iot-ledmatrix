@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
     private final LocationClickHandler mClickHandler = new LocationClickHandler(this);
     private UpdateRequiredListener mUpdateListener;
 
-    private HashMap<Point, Word> mWords;
+    private HashMap<Point, Word> mWords = new HashMap<>();
     private int mLineCount;
 
     private static final float TEST_TEXT_SIZE = 24f;
@@ -103,6 +104,15 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         for (Word w : wordMap.values())
             if (w.lineIndex == lineIndex)
                 result.add(w);
+
+        Collections.sort(result, new Comparator<Word>() {
+            @Override
+            public int compare(Word w1, Word w2) {
+                //noinspection SuspiciousNameCombination
+                return Integer.compare(w1.xPos, w2.xPos);
+            }
+        });
+
         return result;
     }
 
@@ -261,7 +271,7 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         private JSONObject withColorAsJson() throws JSONException {
             JSONObject representation = new JSONObject();
             representation.put("id", id);
-            representation.put("color", color);
+            representation.put("clr", color);
             return representation;
         }
     }

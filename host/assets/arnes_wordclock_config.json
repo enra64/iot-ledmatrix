@@ -1,35 +1,43 @@
-{"small_minute_type": "MINUTE_SMALL_POINT", "lines": 10, "config":
-[{"word": "HALF", "pos": [0,0], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_BIG", "info": 30},
-{"word": "TWENTY", "pos": [1,0], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_BIG", "info": 20},
+{"display_25_as_to_half": true, "small_minute_type": "MINUTE_SMALL_POINT", "lines": 10, "config": [
+  {"word": "ZW", "pos": [0,0], "rect": {"width": 2, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_BIG", "info": 20},
+{"word": "FÜNF", "pos": [1,0], "rect": {"width": 4, "height": 1, "x": 2, "y": 0}, "category": "MINUTE_BIG", "info": 5},
+{"word": "ZEHN", "pos": [2,0], "rect": {"width": 4, "height": 1, "x": 6, "y": 0}, "category": "MINUTE_BIG", "info": 10},
 
-  {"word": "QUARTER", "pos": [0,1], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_BIG", "info": 15},
-{"word": "FIVE", "pos": [1,1], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_BIG", "info": 5},
+  {"word": "AN", "pos": [0,1], "rect": {"width": 2, "height": 1, "x": 0, "y": 1}, "category": "MINUTE_BIG", "info": 20},
+{"word": "*", "pos": [1,1], "rect": {"width": 1, "height": 1, "x": 2, "y": 1}, "category": "OTHER", "info": "placeholder"},
+{"word": "VIERTEL", "pos": [2,1], "rect": {"width": 7, "height": 1, "x": 3, "y": 1}, "category": "MINUTE_BIG", "info": 15},
 
-  {"word": "TEN", "pos": [0,2], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_BIG", "info": 10},
-{"word": "MINUTES", "pos": [1,2], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "OTHER", "info": "minutes"},
+  {"word": "ZIG", "pos": [0,2], "rect": {"width": 3, "height": 1, "x": 0, "y": 2}, "category": "MINUTE_BIG", "info": 20},
+{"word": "VOR", "pos": [1,2], "rect": {"width": 3, "height": 1, "x": 3, "y": 2}, "category": "OTHER", "info": "to"},
+{"word": "NACH", "pos": [3,2], "rect": {"width": 4, "height": 1, "x": 6, "y": 2}, "category": "OTHER", "info": "past"},
 
-  {"word": "TO", "pos": [0,3], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "OTHER", "info": "to"},
-{"word": "PAST", "pos": [1,3], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "OTHER", "info": "past"},
-{"word": "THREE", "pos": [2,3], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "HOUR", "info": 3},
+  {"word": "HALB", "pos": [0,3], "rect": {"width": 4, "height": 1, "x": 0, "y": 3}, "category": "MINUTE_BIG", "info": 30},
+{"word": "*", "pos": [1,3], "rect": {"width": 1, "height": 1, "x": 4, "y": 3}, "category": "OTHER", "info": "placeholder"},
+{"word": "EINS", "pos": [2,3], "rect": {"width": 4, "height": 1, "x": 5, "y": 3}, "category": "HOUR", "info": 1},
+{"word": "*", "pos": [3,3], "rect": {"width": 1, "height": 1, "x": 9, "y": 3}, "category": "OTHER", "info": "placeholder"},
 
-  {"word": "ONE", "pos": [0,4], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "HOUR", "info": 1},
-{"word": "TWO", "pos": [1,4], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "HOUR", "info": 2},
-{"word": "FOUR", "pos": [2,4], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "HOUR", "info": 4},
+  {"word": "SIEBEN", "pos": [0,4], "rect": {"width": 6, "height": 1, "x": 0, "y": 4}, "category": "HOUR", "info": 7},
+{"word": "ZWEI", "pos": [1,4], "rect": {"width": 4, "height": 1, "x": 6, "y": 4}, "category": "HOUR", "info": 2},
 
-  {"word": "TWELVE", "pos": [0,5], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "HOUR", "info": 12},
-{"word": "EIGHT", "pos": [1,5], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "HOUR", "info": 8},
+  {"word": "*", "pos": [0,5], "rect": {"width": 1, "height": 1, "x": 0, "y": 5}, "category": "OTHER", "info": "placeholder"},
+{"word": "DREI", "pos": [1,5], "rect": {"width": 4, "height": 1, "x": 1, "y": 5}, "category": "HOUR", "info": 3},
+{"word": "*", "pos": [2,5], "rect": {"width": 1, "height": 1, "x": 5, "y": 5}, "category": "OTHER", "info": "placeholder"},
+{"word": "VIER", "pos": [3,5], "rect": {"width": 4, "height": 1, "x": 6, "y": 5}, "category": "HOUR", "info": 4},
 
-  {"word": "ELEVEN", "pos": [0,6], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "HOUR", "info": 11},
-{"word": "NINE", "pos": [1,6], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "HOUR", "info": 9},
+  {"word": "ACHT", "pos": [0,6], "rect": {"width": 4, "height": 1, "x": 0, "y": 6}, "category": "HOUR", "info": 8},
+  {"word": "FÜNF", "pos": [1,6], "rect": {"width": 4, "height": 1, "x": 5, "y": 6}, "category": "HOUR", "info": 5},
+{"word": "ELF", "pos": [2,6], "rect": {"width": 3, "height": 1, "x": 8, "y": 6}, "category": "HOUR", "info": 11},
 
-  {"word": "TEN", "pos": [0,7], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "HOUR", "info": 10},
-{"word": "SEVEN", "pos": [1,7], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "HOUR", "info": 7},
-{"word": "SIX", "pos": [2,7], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "HOUR", "info": 6},
+  {"word": "SECHS", "pos": [0,7], "rect": {"width": 5, "height": 1, "x": 0, "y": 7}, "category": "HOUR", "info": 6},
+{"word": "ZWÖLF", "pos": [1,7], "rect": {"width": 5, "height": 1, "x": 5, "y": 7}, "category": "HOUR", "info": 12},
 
-  {"word": "FIVE", "pos": [0,8], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "HOUR", "info": 5},
-{"word": "O'CLOCK", "pos": [1,8], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_BIG", "info": 0},
+  {"word": "NEUN", "pos": [0,8], "rect": {"width": 4, "height": 1, "x": 0, "y": 8}, "category": "HOUR", "info": 9},
+{"word": "*", "pos": [1,8], "rect": {"width": 1, "height": 1, "x": 4, "y": 8}, "category": "OTHER", "info": "placeholder"},
+{"word": "ZEHN", "pos": [2,8], "rect": {"width": 4, "height": 1, "x": 5, "y": 8}, "category": "MINUTE_BIG", "info": 10},
+{"word": "*", "pos": [3,8], "rect": {"width": 1, "height": 1, "x": 9, "y": 8}, "category": "OTHER", "info": "placeholder"},
 
-  {"word": "●", "pos": [0,9], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_SMALL_POINT", "info": 0},
-{"word": "●", "pos": [1,9], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_SMALL_POINT", "info": 1},
-{"word": "●", "pos": [2,9], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_SMALL_POINT", "info": 2},
-{"word": "●", "pos": [3,9], "rect": {"width": 4, "height": 1, "x": 0, "y": 0}, "category": "MINUTE_SMALL_POINT", "info": 3}]}
+
+{"word": "", "pos": [4,8], "rect": {"width": 0, "height": 0, "x": 9, "y": 8}, "category": "OTHER", "info": "minutes"},
+{"word": "", "pos": [5,8], "rect": {"width": 0, "height": 0, "x": 9, "y": 8}, "category": "MINUTE_BIG", "info": 0},
+
+  {"word": "----------", "pos": [0,9], "rect": {"width": 10, "height": 1, "x": 0, "y": 9}, "category": "MINUTE_SMALL_BAR", "info": 0}]}

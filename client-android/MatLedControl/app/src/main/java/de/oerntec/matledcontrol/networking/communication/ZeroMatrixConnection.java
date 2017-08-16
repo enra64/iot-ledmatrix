@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.zeromq.ZMQException;
 
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ClosedSelectorException;
@@ -23,6 +24,8 @@ public class ZeroMatrixConnection extends Thread {
     private final ConnectionListener mConnectionListener;
     private final LedMatrix mMatrix;
     private volatile boolean mContinue = true;
+    private static final int ZMQ_CONTEXT_TERMINATED = 156384765;
+
 
     public ZeroMatrixConnection(LedMatrix matrix, ScriptFragmentInterface listener, ConnectionListener connectionListener){
         // listeners
@@ -70,13 +73,16 @@ public class ZeroMatrixConnection extends Thread {
 
                 mListener.onMessage(recv_json);
             } catch (JSONException e) {
-                Log.w("zmatrixcomm", "undecipherable JSON received " + recv);
+                Log.w("zmatrixcomm", "undecipherable JSON received: " + recv, e);
             } catch (ClosedSelectorException e) {
-                Log.w("zmatrixcomm", "closed selector exception occurred!");
-                e.printStackTrace();
+                Log.w("zmatrixcomm", "closed selector exception occurred!", e);
             } catch (zmq.ZError.IOException e) {
-                Log.w("zmatrixcomm", "ZError.IOException occurred!");
-                e.printStackTrace();
+                Log.w("zmatrixcomm", "ZError.IOException occurred!", e);
+            } catch (ZMQException e){
+                // if the context has been terminated here, a ZMQException about termination is to
+                // be expected, but if it is something else we still want to log it.
+                if(mContinue || e.getErrorCode() != ZMQ_CONTEXT_TERMINATED)
+                    Log.w("zmatrixcomm", "ZMQException occurred!", e);
             }
         }
     }

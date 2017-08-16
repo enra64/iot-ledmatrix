@@ -41,16 +41,16 @@ class MatrixGraphicalDisplay:
         # set the abort flag
         self.__destroy_flag.set()
 
-    def update_with_canvas(self, canvas: Canvas):
+    def update_with_canvas(self, canvas: Canvas) -> bool:
         """
         Update the window display. Call from main thread only.
 
         :param canvas: the canvas to be displayed
-        :return: nothing
+        :return: False if the canvas has been destroyed
         """
         if self.__destroy_flag.is_set():
             self.win.destroy()
-            return
+            return False
 
         for x in range(self.matrix_width):
             for y in range(self.matrix_height):
@@ -62,6 +62,8 @@ class MatrixGraphicalDisplay:
 
         if not self.win.isClosed():
             self.win.update()
+
+        return True
 
     def get_key(self):
         """
