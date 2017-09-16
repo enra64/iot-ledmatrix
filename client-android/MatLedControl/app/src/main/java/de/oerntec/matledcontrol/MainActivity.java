@@ -160,13 +160,13 @@ public class MainActivity extends AppCompatActivity
         // enable later callbacks
         mCurrentScriptFragment = (ScriptFragmentInterface) fragment;
 
-        // the discovery fragment requests no script
-        if (!(fragment instanceof DiscoveryFragment))
-            requestScript(mCurrentScriptFragment.requestScript());
-
         // actually load the fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.main_fragment_container, fragment).commit();
+
+        // every fragment but the discovery fragment must request a script from the server
+        if (!(fragment instanceof DiscoveryFragment))
+            requestScript(mCurrentScriptFragment.requestScript());
 
         // finally, close the drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
