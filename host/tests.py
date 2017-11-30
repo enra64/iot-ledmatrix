@@ -155,13 +155,14 @@ def test_gui_canvas_display_by_line():
     try:
         from MatrixGraphicalDisplay import MatrixGraphicalDisplay
 
-        c = Canvas(10, 10, 0)
-        gui = MatrixGraphicalDisplay(10, 10)
+        c = Canvas(15, 10, 0)
+        gui = MatrixGraphicalDisplay(15, 10)
         blue = Color(0, 0, 255)
 
-        for i in range(c.width - 1, 0-1, -1):
-            c.draw_pixel(9 - i, i, blue)
+        for i in range(c.width - 1, 0-1 + (c.width - c.height), -1):
+            c.draw_pixel(c.width - 1 - i, i - (c.width - c.height), blue)
             gui.update_with_canvas(c)
+
         gui.get_key()
 
     except ImportError:

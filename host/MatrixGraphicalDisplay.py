@@ -1,3 +1,4 @@
+import logging
 import threading
 
 from helpers.Color import Color
@@ -7,11 +8,24 @@ from helpers.graphics import *
 
 
 class MatrixGraphicalDisplay:
-    def __init__(self, matrix_width = 10, matrix_height = 10):
+    def __init__(self, matrix_width, matrix_height, matrix_rotation):
+        """
+        Create a new matrix gui
+
+        :param matrix_width: number of leds in x dimension
+        :param matrix_height: number of leds in y dimension
+        :param matrix_rotation: rotation of matrix. the gui cannot handle this. a warning will be generated if you use
+                                anything but zero to avoid spending two hours on finding this
+        """
+        if matrix_rotation != 0:
+            self.logger = logging.getLogger("MatrixGraphicalDisplay")
+            self.logger.error("the matrix gui cannot display rotation. you do not want to try this.")
+
+
         # create new window
         self.width = matrix_width * 20
         self.height = matrix_height * 20
-        self.win = GraphWin("Matrix test window", width = self.width, height = self.height, autoflush=False)
+        self.win = GraphWin("Matrix test window", width=self.width, height=self.height, autoflush=False)
 
         # translate coordinate system to matrix dimensions
         self.win.setCoords(0, matrix_height, matrix_width, 0)

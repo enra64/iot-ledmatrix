@@ -148,7 +148,7 @@ class Manager:
         if self.enable_graphical_display:
             try:
                 from MatrixGraphicalDisplay import MatrixGraphicalDisplay
-                self.gui = MatrixGraphicalDisplay(matrix_width, matrix_height)
+                self.gui = MatrixGraphicalDisplay(matrix_width, matrix_height, matrix_rotation)
             except ImportError:
                 self.logger.warning("failing to import GUI, disabling it")
                 self.enable_graphical_display = False
