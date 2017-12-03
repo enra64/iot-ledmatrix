@@ -19,6 +19,7 @@ class Word:
         self.rectangle = self.__parse_rect(dict["rect"])
         self.category = dict["category"]
         self.info = dict["info"]
+        self.color = Color(255, 0, 0)
 
     @staticmethod
     def __parse_rect(rectangle_list: Dict):
@@ -54,6 +55,9 @@ class _Wordclock(CustomScript):
         except JSONDecodeError as e:
             self.logger.error(
                 "could not load config file {} due to a decoding error: {}".format(config_file_path, e.msg))
+
+        self.color_config = None
+        self.__load_color_config()
 
     def __load_word_config(self):
         self.config = json.loads(self.config_json)
@@ -95,6 +99,9 @@ class _Wordclock(CustomScript):
     def __get_small_minute(self, minute: int) -> List[Rect]:
         return self.__get_word_rectangles("minute_small_point", minute)
 
+    def __set_color(self, word_id: int, color: Color):
+        self.words[word_id].color = color
+
     def __get_rectangles(self, now_time, explain: bool = False) -> List[Rect]:
         """
         parse a time into rectangles
@@ -105,7 +112,8 @@ class _Wordclock(CustomScript):
         out_rectangles = []
         rounded_minutes = int(5 * round(float(now_time.minute) / 5))
 
-        self.logger.info("rounded minutes are {}".format(rounded_minutes))
+        if explain:
+            self.logger.info("rounded minutes are {}".format(rounded_minutes))
 
         # if we have an *it is*-word, always append it
         if self.__has_other("itis"):
@@ -118,7 +126,8 @@ class _Wordclock(CustomScript):
             out_rectangles.extend(self.__get_hour((now_time.hour + (rounded_minutes // 60)) % 12))
         # special case: fünf vor halb
         elif rounded_minutes == 25:
-            self.logger.info("its 25 past something")
+            if explain:
+                self.logger.info("its 25 past something")
             if self.display_25_as_to_half:
                 out_rectangles.extend(self.__get_other("to"))
                 out_rectangles.extend(self.__get_minute(30))
@@ -128,7 +137,8 @@ class _Wordclock(CustomScript):
                     out_rectangles.extend(self.__get_other("minutes"))
                 out_rectangles.extend(self.__get_minute(20))
 
-            self.logger.info("append '5 minutes' and the hour")
+            if explain:
+                self.logger.info("append '5 minutes' and the hour")
             out_rectangles.extend(self.__get_minute(5))
             out_rectangles.extend(self.__get_hour(now_time.hour % 12))
         # special case: fünf nach halb
@@ -185,10 +195,12 @@ class _Wordclock(CustomScript):
     def draw(self, canvas: Canvas):
         offset_time = datetime.datetime.now() + datetime.timedelta(minutes=self.debug_time_offset)
 
-        word_rectangles = self.__get_rectangles(offset_time, explain=True)
+        explain = False
+        word_rectangles = self.__get_rectangles(offset_time, explain=explain)
 
-        self.print_time(offset_time)
-        self.__debug_print_rectangles(word_rectangles)
+        if explain:
+            self.print_time(offset_time)
+            self.__debug_print_rectangles(word_rectangles)
 
         canvas.clear()
         for rectangle in word_rectangles:
@@ -203,9 +215,45 @@ class _Wordclock(CustomScript):
                 "config": self.config["config"],
                 "lines": self.config["lines"]
             })
+        if self.color_config is not None:
+            self.send_object_to_all(
+                {
+                    "message_type": "wordclock_color_configuration",
+                    "color_config": self.color_config
+                })
 
     def on_client_connected(self, id):
         self.__send_config()
 
     def on_data(self, json, source_id):
+        if "command" in json and json["command"] == "retry sending wordclock config":
+            self.__send_config()
+        elif "word_color_config" in json:
+            self.__save_color_info(json["word_color_config"])
+            self.__parse_color_info(json["word_color_config"])
+
         print(json)
+
+    def __to_rgb(self, android_color_int):
+        r = android_color_int & 0x000000FF
+        g = (android_color_int & 0x0000FF00) >> 8
+        b = (android_color_int & 0x00FF0000) >> 16
+        return Color(r, g, b)
+
+    def __parse_color_info(self, color_array):
+        for color_info in color_array:
+            self.__set_color(color_info["id"], self.__to_rgb(color_info["clr"]))
+
+    def __save_color_info(self, color_array):
+        with open("wordclock_color_config.json", "w") as out_file:
+            json.dump(out_file, color_array)
+
+    def __load_color_config(self):
+        try:
+            with open("wordclock_color_config.json", "r") as in_file:
+                self.color_config = in_file.read()
+                self.__parse_color_info(json.loads(self.color_config))
+        except FileNotFoundError:
+            self.logger.info("no wordclock color config found. first start?")
+        except JSONDecodeError:
+            self.logger.error("bad wordclock color config found! re-send from app...")
