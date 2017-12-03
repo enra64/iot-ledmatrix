@@ -110,10 +110,33 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
     public void onMessage(JSONObject data) {
         try {
             loadWordsIntoDrawingView(data);
+            loadWordColors(data);
         } catch (JSONException e) {
             e.printStackTrace();
             Log.w("wordclockfragment", "indecipherable json data");
         }
+    }
+
+    private void loadWordColors(final JSONObject data) throws JSONException {
+        String messageType = data.getString("message_type");
+
+        if (getActivity() != null && "wordclock_color_configuration".equals(messageType))
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        mDrawingView.setColors(data);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.w("wc view parser", "bad json");
+                        Toast.makeText(
+                                WordclockFragment.this.getContext(),
+                                R.string.device_communication_error,
+                                Toast.LENGTH_LONG).show();
+                    }
+                    mLoadingScreen.setVisibility(GONE);
+                }
+            });
     }
 
     private void loadWordsIntoDrawingView(final JSONObject lines) throws JSONException {

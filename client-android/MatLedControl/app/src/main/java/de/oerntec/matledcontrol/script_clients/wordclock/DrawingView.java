@@ -151,6 +151,21 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         redraw();
     }
 
+    void setColors(JSONObject data) throws JSONException {
+        JSONArray colorConfig = data.getJSONArray("color_config");
+
+        for (int i = 0; i < colorConfig.length(); i++) {
+            JSONObject colorInfo = colorConfig.getJSONObject(i);
+            int wordId = colorInfo.getInt("id");
+            int wordColor = colorInfo.getInt("clr");
+            for (Word word : mWords.values())
+                if (word.id == wordId)
+                    word.color = wordColor;
+        }
+
+        redraw();
+    }
+
     void setChangeListener(UpdateRequiredListener updateRequiredListener) {
         mUpdateListener = updateRequiredListener;
     }
