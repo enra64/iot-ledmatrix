@@ -80,6 +80,15 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
         super.onAttach(context);
         if (context instanceof MessageSender) {
             mMessageSender = (MessageSender) context;
+
+            try {
+                JSONObject com = new JSONObject();
+                com.put("command", "retry sending wordclock config");
+                mMessageSender.sendScriptData(com);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.wtf("wordclockfragment", "ffs putting a string in a json object just crashed");
+            }
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -114,7 +123,16 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mDrawingView.setLines(lines);
+                    try {
+                        mDrawingView.setLines(lines);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.w("wc view parser", "bad json");
+                        Toast.makeText(
+                                WordclockFragment.this.getContext(),
+                                R.string.device_communication_error,
+                                Toast.LENGTH_LONG).show();
+                    }
                     mLoadingScreen.setVisibility(GONE);
                 }
             });

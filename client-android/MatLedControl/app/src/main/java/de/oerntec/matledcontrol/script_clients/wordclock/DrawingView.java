@@ -116,44 +116,39 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         return result;
     }
 
-    void setLines(JSONObject lines) {
-        try {
-            mLineCount = lines.getInt("lines");
+    void setLines(JSONObject lines) throws JSONException {
+        mLineCount = lines.getInt("lines");
 
-            JSONArray config = lines.getJSONArray("config");
-            mWords = new HashMap<>(config.length());
+        JSONArray config = lines.getJSONArray("config");
+        mWords = new HashMap<>(config.length());
 
-            for (int i = 0; i < config.length(); i++) {
-                Word newWord = new Word(i, config.getJSONObject(i));
-                mWords.put(newWord.getCoordinates(), newWord);
-            }
-
-            // concatenate all lines; create color int for all words
-            ArrayList<String> concatenatedLines = new ArrayList<>();
-            for (int i = 0; i < mLineCount; i++) {
-                StringBuilder sb = new StringBuilder();
-                for (Word word : getWordsForLine(mWords, i))
-                    sb.append(word.displayString);
-                concatenatedLines.add(sb.toString());
-            }
-
-            // find the widest line
-            float max = Integer.MIN_VALUE;
-            int maxWidthIndex = -1;
-            for (int i = 0; i < concatenatedLines.size(); i++) {
-                float width = textPaint.measureText(concatenatedLines.get(i));
-                if (width > max) {
-                    max = width;
-                    maxWidthIndex = i;
-                }
-            }
-
-            updateFontSize(concatenatedLines, concatenatedLines.get(maxWidthIndex));
-            redraw();
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.w("wc view parser", "bad json");
+        for (int i = 0; i < config.length(); i++) {
+            Word newWord = new Word(i, config.getJSONObject(i));
+            mWords.put(newWord.getCoordinates(), newWord);
         }
+
+        // concatenate all lines; create color int for all words
+        ArrayList<String> concatenatedLines = new ArrayList<>();
+        for (int i = 0; i < mLineCount; i++) {
+            StringBuilder sb = new StringBuilder();
+            for (Word word : getWordsForLine(mWords, i))
+                sb.append(word.displayString);
+            concatenatedLines.add(sb.toString());
+        }
+
+        // find the widest line
+        float max = Integer.MIN_VALUE;
+        int maxWidthIndex = -1;
+        for (int i = 0; i < concatenatedLines.size(); i++) {
+            float width = textPaint.measureText(concatenatedLines.get(i));
+            if (width > max) {
+                max = width;
+                maxWidthIndex = i;
+            }
+        }
+
+        updateFontSize(concatenatedLines, concatenatedLines.get(maxWidthIndex));
+        redraw();
     }
 
     void setChangeListener(UpdateRequiredListener updateRequiredListener) {
@@ -243,14 +238,23 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         private int color = Color.BLACK;
         private Rect boundingRectangle = new Rect();
 
-        Word(int id, JSONObject initializer) throws JSONException {
+        Word(int id, JSONObject data) throws JSONException {
             this.id = id;
-            displayString = initializer.getString("word");
-            xPos = initializer.getJSONArray("pos").getInt(0);
-            lineIndex = initializer.getJSONArray("pos").getInt(1);
-            ledRectangle = getRectFromJsonArray(initializer.getJSONObject("rect"));
-            category = WordCategory.valueOf(initializer.getString("category"));
-            Object info = initializer.get("info");
+            displayString = data.getString("word");
+            ledRectangle = getRectFromJsonArray(data.getJSONObject("rect"));
+
+            if (data.has("pos")) {
+                xPos = data.getJSONArray("pos").getInt(0);
+                lineIndex = data.getJSONArray("pos").getInt(1);
+            } else {
+                xPos = ledRectangle.left;
+                lineIndex = ledRectangle.top;
+            }
+
+
+
+            category = WordCategory.valueOf(data.getString("category"));
+            Object info = data.get("info");
             if (info instanceof String) this.info = (String) info;
             else this.info = Integer.toString((Integer) info);
         }
@@ -259,12 +263,21 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
             return new Point(xPos, lineIndex);
         }
 
-        private Rect getRectFromJsonArray(JSONObject array) throws JSONException {
+        private Rect getRectFromJsonArray(JSONObject rectData) throws JSONException {
+            // default value 0 for x
+            int x = 0;
+            if (rectData.has("x"))
+                x = rectData.getInt("x");
+
+            // default value 1 for height
+            int height = 0;
+            if (rectData.has("height"))
+                height = rectData.getInt("height");
+
             return new Rect(
-                    array.getInt("x"),
-                    array.getInt("y"),
-                    array.getInt("x") + array.getInt("width"),
-                    array.getInt("y") + array.getInt("height")
+                    x, rectData.getInt("y"),
+                    x + rectData.getInt("width"),
+                    rectData.getInt("y") + height
             );
         }
 
