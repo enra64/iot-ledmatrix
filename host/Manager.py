@@ -145,6 +145,7 @@ class Manager:
 
         self.enable_graphical_display = enable_graphical_display
 
+        self.gui = None
         if self.enable_graphical_display:
             try:
                 from MatrixGraphicalDisplay import MatrixGraphicalDisplay
