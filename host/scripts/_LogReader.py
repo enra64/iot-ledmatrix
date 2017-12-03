@@ -12,11 +12,14 @@ class _LogReader(CustomScript):
 
         if command == "give_me_log_pls":
             log = []
-            with open("ledmatrix.log") as f:
-                # reverse file (inplace)
-                reversed = f.readlines()
-                reversed.reverse()
+            try:
+                with open("ledmatrix.log") as f:
+                    # reverse file (inplace)
+                    reversed = f.readlines()
+                    reversed.reverse()
 
-                for line in reversed:
-                    log.append(line)
-            self.send_object({"message_type": "bogus", "log": log}, source_id)
+                    for line in reversed:
+                        log.append(line)
+                self.send_object({"message_type": "bogus", "log": log}, source_id)
+            except FileNotFoundError:
+                self.send_object({"message_type": "bogus", "log": "Log file not found. The device could be configured to log to its terminal?"}, source_id)
