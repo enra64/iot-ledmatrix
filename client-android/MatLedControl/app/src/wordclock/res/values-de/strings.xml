@@ -8,4 +8,6 @@
     <string name="searching_for_devices">Suche nach WordClocks</string>
     <string name="wordclock_color_selection">Wordclock-Farben</string>
     <string name="device_communication_error">Fehlerhafte WordClock-Kommunikation! Bitte App neustarten.</string>
+    <string name="device_denied_connection_request_title">Wordclock hat die Verbindung abgelehnt</string>
+    <string name="err_could_not_communicate">Verbindung mit WordClock fehlgeschlagen</string>
 </resources>

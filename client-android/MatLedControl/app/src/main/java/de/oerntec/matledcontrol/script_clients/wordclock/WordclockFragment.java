@@ -7,6 +7,9 @@ import android.support.annotation.ColorInt;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -44,6 +47,8 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
 
     private View mLoadingScreen;
 
+    private int mRandomizeColorsActionBarItemId;
+
     @ColorInt
     private int mCurrentChosenColor = Color.WHITE;
 
@@ -72,7 +77,30 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
 
         mColorView = v.findViewById(R.id.fragment_wordclock_current_color_view);
         mColorView.setBackgroundColor(mCurrentChosenColor);
+
+        // allow the randomize icon
+        setHasOptionsMenu(true);
+
         return v;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        MenuItem randomizeColorsItem = menu.add(R.string.randomize_colors);
+        randomizeColorsItem.setIcon(R.drawable.ic_randomize);
+        randomizeColorsItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        mRandomizeColorsActionBarItemId = randomizeColorsItem.getItemId();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == mRandomizeColorsActionBarItemId) {
+            mDrawingView.randomizeColors();
+            onWordChanged();
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

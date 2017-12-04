@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import de.oerntec.matledcontrol.R;
 
@@ -148,6 +149,13 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         }
 
         updateFontSize(concatenatedLines, concatenatedLines.get(maxWidthIndex));
+        redraw();
+    }
+
+    void randomizeColors() {
+        Random rnd = new Random();
+        for (Word word : mWords.values())
+            word.color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
         redraw();
     }
 
