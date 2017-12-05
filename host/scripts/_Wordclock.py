@@ -79,7 +79,7 @@ class _Wordclock(CustomScript):
         for i in range(len(self.config["config"])):
             self.words.append(Word(i, self.config["config"][i]))
 
-    def __get_words(self, category: str, info) -> List[Rect]:
+    def __get_words(self, category: str, info) -> List[Word]:
         category_words = [word for word in self.words if word.category.lower() == category.lower()]
         result = []
         for word in category_words:
@@ -91,8 +91,10 @@ class _Wordclock(CustomScript):
 
         return result
 
-    def __get_minute_bar(self) -> List[Rect]:
-        return self.__get_words("minute_small_bar", "")
+    def __get_minute_bar(self) -> Word:
+        matching_words = self.__get_words("minute_small_bar", 0)
+        assert len(matching_words) == 1
+        return matching_words[0]
 
     def __get_applicable_words(self, now_time, explain: bool = False) -> List[Word]:
         """
@@ -178,8 +180,8 @@ class _Wordclock(CustomScript):
     def update(self, canvas):
         # request updates to happen in 5-second-intervals
         # self.set_frame_period(10)
-        self.set_frame_rate(.3)
-        self.debug_time_offset += 5
+        self.set_frame_rate(24)
+        # self.debug_time_offset += 5
 
     def print_time(self, time):
         formatted_time = ":".join(str(time).split()[1].split(".")[0].split(":")[:2])
@@ -190,12 +192,26 @@ class _Wordclock(CustomScript):
             self.logger.info(
                 "rect at <{}, {}> size [{}, {}]".format(rectangle.x, rectangle.y, rectangle.width, rectangle.height))
 
+    def __draw_minute_rectangle(self, canvas: Canvas, seconds: int, microseconds: int, color: Color):
+        # translate the seconds range into two parts: # of full leds and activation percentage of the last leds
+        time_specification = seconds + (microseconds / 1000000)
+        led_activation = (time_specification / 60) * self.canvas.width
+        fully_activated_leds = int(math.floor(led_activation))
+        remaining_led_percentage = led_activation - fully_activated_leds
+
+        canvas.draw_rect(0, 0, fully_activated_leds, 1, color)
+
+        # only make the last one gradually brighter if not all should be max brightness
+        if fully_activated_leds < canvas.width:
+            color.set_value(remaining_led_percentage)
+            canvas.draw_pixel(fully_activated_leds, 0, color)
+            color.set_value(1)
+
     def draw(self, canvas: Canvas):
         offset_time = datetime.datetime.now() + datetime.timedelta(minutes=self.debug_time_offset)
 
         explain = False
         words = self.__get_applicable_words(offset_time, explain=explain)
-
 
         if explain:
             self.print_time(offset_time)
@@ -205,6 +221,8 @@ class _Wordclock(CustomScript):
         for word in words:
             if word is not None:
                 canvas.draw_rectangle(word.rectangle, word.color)
+
+        self.__draw_minute_rectangle(canvas, offset_time.second, offset_time.microsecond, self.__get_minute_bar().color)
         pass
 
     def __send_config(self):
