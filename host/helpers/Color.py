@@ -32,8 +32,8 @@ class Color():
         * :meth:`get_red`
         * :meth:`get_green`
         * :meth:`get_blue`
-        
-    Following special color generation methods are available: 
+
+    Following special color generation methods are available:
         * :meth:`random_color`
         * :meth:`random_color_bounded`
         * :meth:`from_single_color`
@@ -42,9 +42,15 @@ class Color():
     To quickly get information, you may use
         * :meth:`is_black`
         * :meth:`is_white`
-        
-    To create new color objects, you can use the constructor, which needs r, g, b parameters, or :meth:`from_rgb`, which
-    will return a Color instance from the provided rgb tuple.
+
+    To create new color instances, you may use:
+        * :meth:`__init__`, the constructor with r, g and b parameters
+        * :meth:`from_rgb`, which will return a color instance from the rgb tuple
+        * :meth:`get_copy`, which will return a copy of this color
+
+    To get a copied instance with modified properties, the following methods are available:
+        * :meth:`get_copy_with_value`, which changes the value of the returned copy
+
     """
 
     def __init__(self, r: int = 0, g: int = 0, b: int = 0):
@@ -64,7 +70,7 @@ class Color():
         self.__b = b / 255  # type: float
 
     @staticmethod
-    def from_rgb(rgb: Tuple[int]):
+    def from_rgb(rgb: Tuple[int, int, int]):
         """
         Create a new color instance
         :param rgb: tuple of 0-255 rgb color component values
@@ -112,6 +118,13 @@ class Color():
         """
         # fuck rounding, humans cant see shit anyways, and this function gets called _really_ often
         return int(self.__r * 255), int(self.__g * 255), int(self.__b * 255)
+
+    def get_copy(self):
+        """
+        Get a new copy of this exact color.
+        :return: a new copy of this exact color
+        """
+        return Color.from_rgb(self.get_rgb())
 
     def get_red(self):
         """
@@ -187,6 +200,13 @@ class Color():
         """
         return colorsys.rgb_to_hsv(self.__r, self.__g, self.__b)
 
+    def get_value(self):
+        """
+        Convert this color to HSV and return the hsv value
+        :return: normalized color value
+        """
+        return self.get_hsv()[2]
+
     def set_luminance(self, luminance):
         """
         Change the luminance value.
@@ -219,6 +239,16 @@ class Color():
         assert 0 <= value <= 1, "value must be 1-normalised"
         hsv = colorsys.rgb_to_hsv(self.__r, self.__g, self.__b)
         self.__set_rgb_no_normalization(colorsys.hsv_to_rgb(hsv[0], hsv[1], value))
+
+    def get_copy_with_value(self, value):
+        """
+        Return a copy of this color. The copy has its value set to the given parameter
+        :param value: 0-1 normalized color value per hsv color model
+        :return: copy of this color with modified value
+        """
+        copy = self.get_copy()
+        copy.set_value(value)
+        return copy
 
     def set_saturation(self, saturation):
         """
