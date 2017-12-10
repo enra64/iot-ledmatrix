@@ -144,8 +144,15 @@ class ScriptRunner:
 
         # dynamic import
         try:
-            if os.path.isfile("scripts/" + script + ".py"):
-                script_module = import_module('scripts.' + script)
+            # allow importing scripts what are in their own folder
+            if os.path.isdir("scripts/" + script):
+                script_path = "scripts/{0}/{0}.py".format(script)
+            else:
+                script_path = "scripts/{}.py".format(script)
+
+            if os.path.isfile(script_path):
+                script_module_path = script_path.replace("/", ".").replace(".py", "")
+                script_module = import_module(script_module_path)
             else:
                 self.logger.error(script + " not found, aborting")
                 return
@@ -167,10 +174,9 @@ class ScriptRunner:
                 )
             except AttributeError:
                 self.logger.error(
-                    "scripts/" + script + ".py has no class (/attribute) called " + script + ", but the 'main class' "
-                                                                                             "of the script must "
-                                                                                             "have the exact same name "
-                                                                                             "as the file")
+                    "{} has no class or attribute called {}. "
+                    "The script class must have the exact same name as the script file "
+                    "and, if applicable, the script directory.".format(script_path, script))
                 traceback.print_exc()
 
             except Exception:
