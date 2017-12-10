@@ -6,16 +6,10 @@
 Welcome to iot-ledmatrix's documentation!
 =========================================
 
-.. toctree::
-    :maxdepth: 1
-    :caption: Contents:
+iot-ledmatrix is the code written by `enra64 <github.com/enra64>`_ and `gSilas <https://www.github.com/gSilas>`_ to use their DIY IOT WS2812B RGB LED matrix.
 
-    custom_scripts
-    canvas
-    configuration
-
-iot-ledmatrix is a code base produced to use a diy rgb led matrix made from WS2812B leds.
-The code was written by `enra64 <github.com/enra64>`_ and `gSilas <https://www.github.com/gSilas>`_.
+If you want to build a similar project, feel free to use any of our source code. It is licensed under GPL v3.
+If you are so inclined, you can even use the complete code base and add any functionality you desire using our custom script interface.
 
 The code consists of three parts:
 
@@ -24,7 +18,7 @@ The code consists of three parts:
 * the arduino code required to talk to the leds
 
 This documentation is mostly concerned with the python code used on the rpi, since at the moment the other code
-is only written by enra64.
+is only written by enra64 and not really subject to change.
 
 Raspberry pi (host) code
 ========================
