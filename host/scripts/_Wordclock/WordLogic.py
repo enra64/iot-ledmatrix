@@ -1,15 +1,20 @@
 import datetime
 import json
+import logging
+import math
+from enum import Enum
 from json import JSONDecodeError
 from typing import List, Dict
-import logging
 
-import math
-
+from Canvas import Canvas, Rect
 from helpers.Color import Color
 
-from CustomScript import CustomScript
-from Canvas import Canvas, Rect
+
+class WordType(Enum):
+    other = 0
+    minute_big = 1
+    hour = 2
+    minute_small_bar = 3
 
 
 class Word:
@@ -17,7 +22,7 @@ class Word:
         self.id = id
         self.display_string = dict["word"]
         self.rectangle = self.__parse_rect(dict["rect"])
-        self.category = dict["category"]
+        self.category = WordType[dict["category"].lower()]
         self.info = dict["info"]
         self.color = Color(255, 0, 0)
 
@@ -50,103 +55,187 @@ class WordLogic:
         self.is_half_past_not_half_to = self.config["is_half_past_not_half_to"]
         self.words = []
 
+        self.__parse_words()
+
+    def __parse_words(self):
         for i in range(len(self.config["config"])):
             self.words.append(Word(i, self.config["config"][i]))
 
-    def __get_words(self, category: str, info) -> List[Word]:
-        category_words = [word for word in self.words if word.category.lower() == category.lower()]
+    def get_config(self) -> Dict:
+        return self.config
+
+    def get_all_words(self) -> List[Word]:
+        return self.words
+
+    def __get_words(self, category: WordType, info) -> List[Word]:
+        """
+        Retrieve a list of words applicable for the given category
+        :param category: type of the word we have requested
+        :param info: additional info to identify the word in the category
+        :return: list of words matching the data
+        """
+        category_words = [word for word in self.words if word.category == category]
         result = []
         for word in category_words:
             if (str(word.info)).lower() == str(info).lower():
                 result.append(word)
 
         if len(result) == 0:
-            self.logger.warning("unknown word requested with category " + category + " and info " + str(info))
+            self.logger.warning("unknown word requested with category {} and info {}".format(category.name, info))
 
         return result
 
-    def __get_minute_bar(self) -> Word:
-        matching_words = self.__get_words("minute_small_bar", 0)
-        assert len(matching_words) == 1
-        return matching_words[0]
 
-    def __get_applicable_words(self, now_time, explain: bool = False) -> List[Word]:
+
+    def get_current_rectangles(self, now_time: datetime, canvas: Canvas) -> List[Rect]:
+        rounded_minutes = int(5 * round(float(now_time.minute) / 5))
+
+        result = [word.rectangle for word in self.__get_applicable_words(rounded_minutes, now_time.hour)]
+        result.extend(self.__get_minute_bar_rectangles(canvas, now_time, rounded_minutes))
+        return result
+
+    def __get_other(self, info) -> List[Word]:
+        return self.__get_words(WordType.other, info)
+
+    def __has_other(self, info) -> bool:
+        return len(self.__get_other(info)) > 0
+
+    def __get_minute(self, minute: int) -> List[Word]:
+        return self.__get_words(WordType.minute_big, minute)
+
+    def __get_hour(self, hour: int) -> List[Word]:
+        return self.__get_words(WordType.hour, hour)
+
+    def __oclock(self, result, minutes, hours):
+        if self.__has_other("oclock"):
+            result.extend(self.__get_other("oclock"))
+        result.extend(self.__get_hour((hours + (minutes // 60)) % 12))
+
+    def __twenty_five_past(self, result, minutes, hours):
+        if self.display_25_as_to_half:
+            result.extend(self.__get_other("to"))
+            result.extend(self.__get_minute(30))
+        else:
+            result.extend(self.__get_other("past"))
+            if self.has_specific_minutes_word:
+                result.extend(self.__get_other("minutes"))
+            result.extend(self.__get_minute(20))
+
+        result.extend(self.__get_minute(5))
+        result.extend(self.__get_hour(hours % 12))
+
+    def __half(self, result, _, hours):
+        result.extend(self.__get_minute(30))
+
+        if self.is_half_past_not_half_to:
+            result.extend(self.__get_other("past"))
+            result.extend(self.__get_hour(hours % 12))
+        else:
+            result.extend(self.__get_hour((hours + 1) % 12))
+
+    def __twenty_five_to(self, result, _, hours):
+        if self.display_25_as_to_half:
+            result.extend(self.__get_other("past"))
+            result.extend(self.__get_minute(30))
+        else:
+            result.extend(self.__get_other("to"))
+            if self.has_specific_minutes_word:
+                result.extend(self.__get_other("minutes"))
+            result.extend(self.__get_minute(20))
+
+        result.extend(self.__get_minute(5))
+        result.extend(self.__get_hour(hours % 12))
+
+    def __before_half(self, result, minutes, hours):
+        result.extend(self.__get_minute(minutes))
+        if not (minutes == 15 or minutes == 30) and self.has_specific_minutes_word:
+            result.extend(self.__get_other("minutes"))
+        result.extend(self.__get_other("past"))
+        result.extend(self.__get_hour(hours % 12))
+
+    def __after_half(self, result, minutes, hours):
+        result.extend(self.__get_minute(60 - minutes))
+        # avoid printing
+        if minutes != 15 and self.has_specific_minutes_word:
+            result.extend(self.__get_other("minutes"))
+        result.extend(self.__get_other("to"))
+        result.extend(self.__get_hour((hours + 1) % 12))
+
+    def __get_applicable_words(self, rounded_minutes: int, hours: int) -> List[Word]:
         """
         parse a time into rectangles
         :param now_time: the time to parse
         :param explain: if True, try to explain the choices made
         :return:
         """
-        # bunch of helper functions to sort the words
-        get_other = lambda other: self.__get_words("other", other)
-        has_other = lambda other: len(get_other(other)) > 0
-        get_minute = lambda minute: self.__get_words("minute_big", minute)
-        get_hour = lambda hour: self.__get_words("hour", hour)
 
         result = []
-        rounded_minutes = int(5 * round(float(now_time.minute) / 5))
-
-        if explain:
-            self.logger.info("rounded minutes are {}".format(rounded_minutes))
 
         # if we have an *it is*-word, always append it
-        if has_other("itis"):
-            result.extend(get_other("itis"))
+        if self.__has_other("itis"):
+            result.extend(self.__get_other("itis"))
 
-        # special case: punkt
         if rounded_minutes == 0 or rounded_minutes == 60:
-            if has_other("oclock"):
-                result.extend(get_other("oclock"))
-            result.extend(get_hour((now_time.hour + (rounded_minutes // 60)) % 12))
-        # special case: fünf vor halb
+            self.__oclock(result, rounded_minutes, hours)
         elif rounded_minutes == 25:
-            if explain:
-                self.logger.info("its 25 past something")
-            if self.display_25_as_to_half:
-                result.extend(get_other("to"))
-                result.extend(get_minute(30))
-            else:
-                result.extend(get_other("past"))
-                if self.has_specific_minutes_word:
-                    result.extend(get_other("minutes"))
-                result.extend(get_minute(20))
-
-            if explain:
-                self.logger.info("append '5 minutes' and the hour")
-            result.extend(get_minute(5))
-            result.extend(get_hour(now_time.hour % 12))
-        # special case: fünf nach halb
+            self.__twenty_five_past(result, rounded_minutes, hours)
         elif rounded_minutes == 35:
-            if self.display_25_as_to_half:
-                result.extend(get_other("past"))
-                result.extend(get_minute(30))
-            else:
-                result.extend(get_other("to"))
-                if self.has_specific_minutes_word:
-                    result.extend(get_other("minutes"))
-                result.extend(get_minute(20))
-
-            result.extend(get_minute(5))
-            result.extend(get_hour(now_time.hour % 12))
+            self.__twenty_five_to(result, rounded_minutes, hours)
         elif rounded_minutes == 30:
-            result.extend(get_minute(rounded_minutes))
-            if self.is_half_past_not_half_to:
-                result.extend(get_other("past"))
-                result.extend(get_hour(now_time.hour % 12))
-            else:
-                result.extend(get_hour((now_time.hour + 1) % 12))
+            self.__half(result, rounded_minutes, hours)
         elif rounded_minutes < 35:
-            result.extend(get_minute(rounded_minutes))
-            if not (rounded_minutes == 15 or rounded_minutes == 30) and self.has_specific_minutes_word:
-                result.extend(get_other("minutes"))
-            result.extend(get_other("past"))
-            result.extend(get_hour(now_time.hour % 12))
+            self.__before_half(result, rounded_minutes, hours)
         else:
-            result.extend(get_minute(60 - rounded_minutes))
-            # avoid printing
-            if rounded_minutes != 15 and self.has_specific_minutes_word:
-                result.extend(get_other("minutes"))
-            result.extend(get_other("to"))
-            result.extend(get_hour((now_time.hour + 1) % 12))
+            self.__after_half(result, rounded_minutes, hours)
+
+        return result
+
+    def __get_minute_bar_rectangles(self, canvas: Canvas, now_time: datetime, rounded_minutes) -> List[Rect]:
+        """
+        Get rectangles describing the minute bar.
+
+        The idea for reading the minute bar is: The bar displays the percentage to the next five-minute-block.
+
+        :param canvas:
+        :param now_time:
+        :param rounded_minutes:
+        :return:
+        """
+        result = []
+
+        # get the color for the minute bar
+        color = self.__get_words(WordType.minute_small_bar, 0)[0].color
+
+        # translate the seconds range into two parts: # of full leds and activation percentage of the last leds
+        passed_seconds_in_this_timeblock = \
+            (now_time.minute % 5) * 60 \
+            + now_time.second \
+            + (now_time.microsecond / 1000000)
+        available_seconds_in_this_timeblock = 5 * 60
+        led_activation = (passed_seconds_in_this_timeblock / available_seconds_in_this_timeblock) * canvas.width
+
+        fully_activated_leds = int(math.floor(led_activation))
+        remaining_led_percentage = led_activation - fully_activated_leds
+
+        # use for left aligned rectangle
+        #result.append(Rect(0, 0, fully_activated_leds, 1, color))
+        #result.append(Rect(fully_activated_leds, 0, 1, 1, color.get_copy_with_value(remaining_led_percentage)))
+
+        # use for centered rectangle
+        # fully activated length is always an odd number
+        fully_activated_length = fully_activated_leds - (1 - fully_activated_leds % 2)
+        # begin in center of matrix row
+        begin_full_activation_bar = (canvas.width - fully_activated_length) // 2
+        result.append(Rect(begin_full_activation_bar, 0, fully_activated_length, 1, color))
+
+        # calculate & apply percentage of the not-fully-activated leds
+        # the percentage not covered by fully activated leds
+        remaining_led_percentage = led_activation - fully_activated_length
+        # do not increase value above the one the fully activated lesd use, as that looks strange
+        not_fully_activated_color = color.get_copy_with_value((remaining_led_percentage / 2) * color.get_value())
+        # finally, apply the calculated values
+        result.append(Rect(begin_full_activation_bar - 1, 0, 1, 1, not_fully_activated_color))
+        result.append(Rect(begin_full_activation_bar + fully_activated_length, 0, 1, 1, not_fully_activated_color))
+
 
         return result
