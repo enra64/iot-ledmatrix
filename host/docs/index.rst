@@ -31,6 +31,15 @@ Raspberry pi (host) code
 The raspberry pi code is responsible for pushing the correct colors to the arduino,
 and also constitutes the bridge between the matrix, the internet and an optional android phone.
 
+architecture
+------------
+.. figure:: architecture_diagram.png
+    :alt: architecture diagram for host code
+
+    An overview of the architecture used by the host code
+
+If you're like me, you like to have some semblance of an idea of how the code is structured, so here is an architecture diagram to show exactly that.
+
 custom scripts
 --------------
 Custom scripts enable you to easily create new features for the matrix. They are discussed in detail here: :ref:`custom_script_label`
