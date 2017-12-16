@@ -1,3 +1,5 @@
+import logging
+
 from CustomScript import CustomScript
 
 
@@ -13,7 +15,14 @@ class _LogReader(CustomScript):
         if command == "give_me_log_pls":
             log = []
             try:
-                with open("ledmatrix.log") as f:
+                logfilename = "ledmatrix.log"
+
+                logging_handlers = logging._handlerList
+                for handler in logging_handlers:
+                    if isinstance(handler(), logging.FileHandler):
+                        logfilename = handler().baseFilename
+
+                with open(logfilename) as f:
                     # reverse file (inplace)
                     reversed = f.readlines()
                     reversed.reverse()
