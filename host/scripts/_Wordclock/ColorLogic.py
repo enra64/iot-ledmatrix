@@ -16,9 +16,9 @@ def decode_android_color_int(android_color_int: int) -> Color:
 
 def encode_as_android_color_int(color: Color) -> int:
     r, g, b = color.get_rgb()
-    assert r < 255, "r not in uint8_t bounds"
-    assert g < 255, "g not in uint8_t bounds"
-    assert b < 255, "b not in uint8_t bounds"
+    assert 0 <= r <= 255, "r = {} not in uint8_t bounds".format(r)
+    assert 0 <= g <= 255, "g = {} not in uint8_t bounds".format(g)
+    assert 0 <= b <= 255, "b = {} not in uint8_t bounds".format(b)
 
     return (r << 16) & (g << 8) & (b << 0)
 
