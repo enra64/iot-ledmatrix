@@ -9,6 +9,6 @@
     <string name="restart_device_control">restart WordClock control</string>
     <string name="view_device_log">View WordClock Log</string>
     <string name="err_could_not_communicate">Could not communicate with WordClock</string>
-    <string name="wordclock_color_selection">Wordclock-Colors</string>
+    <string name="wordclock_color_selection">Wordclock colors</string>
     <string name="device_communication_error">WordClock communication error! Please restart the app.</string>
 </resources>

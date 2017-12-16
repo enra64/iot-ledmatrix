@@ -21,7 +21,7 @@
         android:title="@string/camera" />
     <item
         android:id="@+id/wordclock_color_selection"
-        android:icon="@android:drawable/ic_lock_idle_low_battery"
+        android:icon="@drawable/ic_palette"
         android:title="@string/wordclock_color_selection" />
     <item
         android:id="@+id/manual_script_load"

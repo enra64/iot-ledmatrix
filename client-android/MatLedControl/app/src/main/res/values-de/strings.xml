@@ -43,6 +43,6 @@
     <string name="color_copied">Farbe kopiert</string>
     <string name="device_communication_error">Fehlerhafte Ledmatrix-Kommunikation! Bitte App neustarten.</string>
     <string name="loading_wordclock_configuration">Lade Ledmatrix-Konfigurationsdaten</string>
-    <string name="wordclock_color_selection">WordClock-Farben</string>
+    <string name="wordclock_color_selection">Farben der Wordclock</string>
     <string name="randomize_colors">Zufällige Farben</string>
 </resources>
