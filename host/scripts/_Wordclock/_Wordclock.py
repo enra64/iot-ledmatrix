@@ -22,6 +22,7 @@ class _Wordclock(CustomScript):
         config_file_path = "assets/susannes_wordclock_config.json"
         self.color_config_path = "wordclock_color_config.json"
         self.logger.info("using {} and {} as config".format(config_file_path, self.color_config_path))
+        self.timezone = datetime.timezone(datetime.timedelta(hours=1))
 
         try:
             self.word_logic = WordLogic(config_file_path)
@@ -36,7 +37,7 @@ class _Wordclock(CustomScript):
 
     def update(self, canvas):
         #offset_time = datetime.datetime.strptime('Jun 1 2005  4:50PM', '%b %d %Y %I:%M%p')
-        offset_time = datetime.datetime.now() + datetime.timedelta(minutes=self.debug_time_offset)
+        offset_time = datetime.datetime.now(self.timezone) + datetime.timedelta(minutes=self.debug_time_offset)
         self.rectangles = self.word_logic.get_current_rectangles(offset_time, canvas)
 
         # debugging
@@ -50,7 +51,7 @@ class _Wordclock(CustomScript):
                     "rect at <{}, {}> size [{}, {}]".format(rectangle.x, rectangle.y, rectangle.width, rectangle.height))
 
         print_time(offset_time)
-        self.debug_time_offset += 2
+        #self.debug_time_offset += 2
 
     def draw(self, canvas: Canvas):
         canvas.clear()
