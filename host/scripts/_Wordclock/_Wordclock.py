@@ -50,7 +50,7 @@ class _Wordclock(CustomScript):
                 self.logger.info(
                     "rect at <{}, {}> size [{}, {}]".format(rectangle.x, rectangle.y, rectangle.width, rectangle.height))
 
-        print_time(offset_time)
+        #print_time(offset_time)
         #self.debug_time_offset += 2
 
     def draw(self, canvas: Canvas):
