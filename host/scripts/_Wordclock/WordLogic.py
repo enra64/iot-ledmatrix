@@ -24,7 +24,7 @@ class Word:
         self.rectangle = self.__parse_rect(dict["rect"])
         self.category = WordType[dict["category"].lower()]
         self.info = dict["info"]
-        self.color = Color(255, 0, 0)
+        self.color = Color(255, 255, 255)
 
     @staticmethod
     def __parse_rect(rectangle_list: Dict):
@@ -109,6 +109,8 @@ class WordLogic:
     def __oclock(self, result, minutes, hours):
         if self.__has_other("oclock"):
             result.extend(self.__get_other("oclock"))
+        elif self.__has_other("itis"):
+            result.extend(self.__get_other("itis"))
         result.extend(self.__get_hour((hours + (minutes // 60)) % 12))
 
     def __twenty_five_past(self, result, minutes, hours):
@@ -204,7 +206,9 @@ class WordLogic:
         result = []
 
         # get the color for the minute bar
-        color = self.__get_words(WordType.minute_small_bar, 0)[0].color
+        minute_word = self.__get_words(WordType.minute_small_bar, 0)[0]
+        rect = minute_word.rectangle
+        color = minute_word.color
 
         # translate the seconds range into two parts: # of full leds and activation percentage of the last leds
         passed_seconds_in_this_timeblock = \
@@ -212,21 +216,21 @@ class WordLogic:
             + now_time.second \
             + (now_time.microsecond / 1000000)
         available_seconds_in_this_timeblock = 5 * 60
-        led_activation = (passed_seconds_in_this_timeblock / available_seconds_in_this_timeblock) * canvas.width
+        led_activation = (passed_seconds_in_this_timeblock / available_seconds_in_this_timeblock) * rect.width
 
         fully_activated_leds = int(math.floor(led_activation))
         remaining_led_percentage = led_activation - fully_activated_leds
 
         # use for left aligned rectangle
-        #result.append(Rect(0, 0, fully_activated_leds, 1, color))
-        #result.append(Rect(fully_activated_leds, 0, 1, 1, color.get_copy_with_value(remaining_led_percentage)))
+        #result.append(Rect(rect.x, rect.y, fully_activated_leds, rect.height, color))
+        #result.append(Rect(fully_activated_leds, rect.y, 1, rect.height, color.get_copy_with_value(remaining_led_percentage)))
 
         # use for centered rectangle
         # fully activated length is always an odd number
         fully_activated_length = fully_activated_leds - (1 - fully_activated_leds % 2)
         # begin in center of matrix row
         begin_full_activation_bar = (canvas.width - fully_activated_length) // 2
-        result.append(Rect(begin_full_activation_bar, 0, fully_activated_length, 1, color))
+        result.append(Rect(begin_full_activation_bar, rect.y, fully_activated_length, 1, color))
 
         # calculate & apply percentage of the not-fully-activated leds
         # the percentage not covered by fully activated leds
@@ -234,8 +238,8 @@ class WordLogic:
         # do not increase value above the one the fully activated lesd use, as that looks strange
         not_fully_activated_color = color.get_copy_with_value((remaining_led_percentage / 2) * color.get_value())
         # finally, apply the calculated values
-        result.append(Rect(begin_full_activation_bar - 1, 0, 1, 1, not_fully_activated_color))
-        result.append(Rect(begin_full_activation_bar + fully_activated_length, 0, 1, 1, not_fully_activated_color))
+        result.append(Rect(begin_full_activation_bar - 1, rect.y, 1, rect.height, not_fully_activated_color))
+        result.append(Rect(begin_full_activation_bar + fully_activated_length, rect.y, 1, rect.height, not_fully_activated_color))
 
 
         return result

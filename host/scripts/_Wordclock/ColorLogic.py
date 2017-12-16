@@ -7,12 +7,20 @@ from helpers.Color import Color
 from scripts._Wordclock.WordLogic import Word
 
 
-def decode_android_color_int(android_color_int):
+def decode_android_color_int(android_color_int: int) -> Color:
     r = (android_color_int & 0x00FF0000) >> 16
     g = (android_color_int & 0x0000FF00) >> 8
     b = (android_color_int & 0x000000FF) >> 0
     return Color(r, g, b)
 
+
+def encode_as_android_color_int(color: Color) -> int:
+    r, g, b = color.get_rgb()
+    assert(r < 255, "r not in uint8_t bounds")
+    assert(g < 255, "g not in uint8_t bounds")
+    assert(b < 255, "b not in uint8_t bounds")
+
+    return (r << 16) & (g << 8) & (b << 0)
 
 def update_color_info(color_array: Dict, words: List[Word]):
     for color_info in color_array:
@@ -41,4 +49,4 @@ def save_color_info(config_path, color_array):
 
 
 def get_color_config(words: List[Word]):
-    return [{"id": i, "clr": word.color} for i, word in enumerate(words)]
+    return [{"id": i, "clr": encode_as_android_color_int(word.color)} for i, word in enumerate(words)]

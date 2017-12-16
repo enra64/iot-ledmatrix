@@ -1,34 +1,36 @@
 {"display_25_as_to_half": true, "is_half_past_not_half_to": false, "has_specific_minutes_word": false, "small_minute_type": "MINUTE_SMALL_POINT", "lines": 10, "config": [
-  {"word": "----------", "rect": {"width": 10, "x": 0, "y": 0}, "category": "MINUTE_SMALL_BAR", "info": 0},
 
-    {"word": "ESIST", "rect": {"width": 8, "y": 1}, "category": "OTHER", "info": "itis"},
-    {"word": "FÜNF", "rect": {"width": 7, "x": 8, "y": 1}, "category": "MINUTE_BIG", "info": 5},
 
-    {"word": "VIERTEL", "rect": {"width": 9, "y": 2}, "category": "MINUTE_BIG", "info": 15},
-    {"word": "ZEHN", "rect": {"width": 6, "x": 9, "y": 2}, "category": "MINUTE_BIG", "info": 10},
+    {"word": "ESIST", "rect": {"width": 8, "y": 0}, "category": "OTHER", "info": "itis"},
+    {"word": "FÜNF", "rect": {"width": 7, "x": 8, "y": 0}, "category": "MINUTE_BIG", "info": 5},
 
-    {"word": "ZWANZIG", "rect": {"width": 10, "y": 3}, "category": "MINUTE_BIG", "info": 20},
-    {"word": "NACH", "rect": {"width": 5, "x": 10, "y": 3}, "category": "OTHER", "info": "past"},
+    {"word": "VIERTEL", "rect": {"width": 9, "y": 1}, "category": "MINUTE_BIG", "info": 15},
+    {"word": "ZEHN", "rect": {"width": 6, "x": 9, "y": 1}, "category": "MINUTE_BIG", "info": 10},
 
-    {"word": "VOR", "rect": {"width": 5, "y": 4}, "category": "OTHER", "info": "to"},
-    {"word": "HALB", "rect": {"width": 5, "x": 5, "y": 4}, "category": "MINUTE_BIG", "info": 30},
-    {"word": "EINS", "rect": {"width": 5, "x": 10, "y": 4}, "category": "HOUR", "info": 1},
+    {"word": "ZWANZIG", "rect": {"width": 9, "y": 2}, "category": "MINUTE_BIG", "info": 20},
+    {"word": "NACH", "rect": {"width": 6, "x": 9, "y": 2}, "category": "OTHER", "info": "past"},
 
-    {"word": "NEUN", "rect": {"width": 8, "y": 5}, "category": "HOUR", "info": 9},
-    {"word": "ZEHN", "rect": {"width": 7, "x": 8, "y": 5}, "category": "HOUR", "info": 10},
+    {"word": "VOR", "rect": {"width": 4, "y": 3}, "category": "OTHER", "info": "to"},
+    {"word": "HALB", "rect": {"width": 6, "x": 4, "y": 3}, "category": "MINUTE_BIG", "info": 30},
+    {"word": "EINS", "rect": {"width": 5, "x": 10, "y": 3}, "category": "HOUR", "info": 1},
 
-    {"word": "SECHS", "rect": {"width": 9, "y": 6}, "category": "HOUR", "info": 6},
-    {"word": "VIER", "rect": {"width": 6, "x": 9, "y": 6}, "category": "HOUR", "info": 4},
+    {"word": "NEUN", "rect": {"width": 8, "y": 4}, "category": "HOUR", "info": 9},
+    {"word": "ZEHN", "rect": {"width": 7, "x": 8, "y": 4}, "category": "HOUR", "info": 10},
 
-    {"word": "DREI", "rect": {"width": 6, "y": 7}, "category": "HOUR", "info": 3},
-    {"word": "ZWÖLF", "rect": {"width": 9, "x": 6, "y": 7}, "category": "HOUR", "info": 12},
-    {"word": "ZWÖLF", "rect": {"width": 9, "x": 6, "y": 7}, "category": "HOUR", "info": 0},
+    {"word": "SECHS", "rect": {"width": 8, "y": 5}, "category": "HOUR", "info": 6},
+    {"word": "VIER", "rect": {"width": 7, "x": 8, "y": 5}, "category": "HOUR", "info": 4},
 
-    {"word": "SIEBEN", "rect": {"width": 9, "y": 8}, "category": "HOUR", "info": 7},
-    {"word": "ZWEI", "rect": {"width": 6, "x": 9, "y": 8}, "category": "HOUR", "info": 2},
+    {"word": "DREI", "rect": {"width": 6, "y": 6}, "category": "HOUR", "info": 3},
+    {"word": "ZWÖLF", "rect": {"width": 9, "x": 6, "y": 6}, "category": "HOUR", "info": 12},
+    {"word": "ZWÖLF", "rect": {"width": 9, "x": 6, "y": 6}, "category": "HOUR", "info": 0},
 
-    {"word": "ACHT", "rect": {"width": 6, "y": 9}, "category": "HOUR", "info": 8},
-    {"word": "FÜNF", "rect": {"width": 5, "x": 6, "y": 9}, "category": "HOUR", "info": 5},
-    {"word": "ELF", "rect": {"width": 4, "x": 11, "y": 9}, "category": "HOUR", "info": 11}
+    {"word": "SIEBEN", "rect": {"width": 9, "y": 7}, "category": "HOUR", "info": 7},
+    {"word": "ZWEI", "rect": {"width": 6, "x": 9, "y": 7}, "category": "HOUR", "info": 2},
+
+    {"word": "ACHT", "rect": {"width": 6, "y": 8}, "category": "HOUR", "info": 8},
+    {"word": "FÜNF", "rect": {"width": 5, "x": 6, "y": 8}, "category": "HOUR", "info": 5},
+    {"word": "ELF", "rect": {"width": 4, "x": 11, "y": 8}, "category": "HOUR", "info": 11},
+
+  {"word": "----------", "rect": {"width": 10, "x": 0, "y": 9}, "category": "MINUTE_SMALL_BAR", "info": 0}
 ]
 }
