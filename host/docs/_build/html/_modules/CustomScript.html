@@ -1,0 +1,270 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CustomScript &#8212; iot-ledmatrix 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for CustomScript</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">Canvas</span> <span class="k">import</span> <span class="n">Canvas</span>
+
+
+<span class="c1"># noinspection PyMethodMayBeStatic</span>
+<div class="viewcode-block" id="CustomScript"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript">[docs]</a><span class="k">class</span> <span class="nc">CustomScript</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The CustomScript class is the class you want to inherit from to implement a new matrix mode.</span>
+
+<span class="sd">    In addition to the constructor, there are six methods that will be called by the manager:</span>
+<span class="sd">        * :meth:`update`, where the state may be updated</span>
+<span class="sd">        * :meth:`draw`, where the matrix content may be drawn</span>
+<span class="sd">        * :meth:`on_data`, called when messages from clients arrive</span>
+<span class="sd">        * :meth:`exit`, last call before the instance is discarded</span>
+<span class="sd">        * :meth:`on_client_connected`, called with an id parameter when a new client is approved</span>
+<span class="sd">        * :meth:`on_client_disconnected`, called with an id parameter when a client has disconnected</span>
+<span class="sd">    </span>
+<span class="sd">    They have default implementations, so you only need to override them if you need to do anything.</span>
+<span class="sd">        </span>
+<span class="sd">    A few methods can also be called by the script itself (self.&lt;function_name&gt;(&lt;param1...&gt;)):</span>
+<span class="sd">        * :meth:`send_object` to send objects to specific clients</span>
+<span class="sd">        * :meth:`send_object_to_all` to send objects to all clients</span>
+<span class="sd">        * :meth:`start_script` start a script by name. will replace current script.</span>
+<span class="sd">        * :meth:`restart_self` restarts the current script</span>
+<span class="sd">        * :meth:`get_connected_clients` gets a list of approved client ids</span>
+<span class="sd">        * :meth:`set_frame_period` allows to set a custom update cycle period in seconds</span>
+<span class="sd">        * :meth:`set_frame_rate` allows to set a custom update cycle calling rate in Hz</span>
+<span class="sd">        </span>
+<span class="sd">    All of these functions are documented more detailed in their method documentations.</span>
+<span class="sd">    </span>
+<span class="sd">    **Script Lifecycle**</span>
+<span class="sd">    </span>
+<span class="sd">    The constructor will always be called first. Do your initialization here.</span>
+<span class="sd">    Update will always be called before draw. The two functions are called in a loop, and will repeatedly execute.</span>
+<span class="sd">    exit is always the last method call.</span>
+<span class="sd">    </span>
+<span class="sd">    See the method documentations for further information.</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">canvas</span><span class="p">,</span>
+                 <span class="n">send_object</span><span class="p">,</span>
+                 <span class="n">send_object_to_all</span><span class="p">,</span>
+                 <span class="n">start_script</span><span class="p">,</span>
+                 <span class="n">restart_self</span><span class="p">,</span>
+                 <span class="n">set_frame_period</span><span class="p">,</span>
+                 <span class="n">set_frame_rate</span><span class="p">,</span>
+                 <span class="n">get_connected_clients</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The constructor is the first time the script comes alive. After running through it, calls to update and then draw</span>
+<span class="sd">        are to be expected. All parameters but canvas are stored in the instance by the CustomScript constructor.</span>
+
+<span class="sd">        :param canvas: the canvas object that will be drawn with</span>
+<span class="sd">        :param send_object: send an object to a single client.</span>
+<span class="sd">        :param send_object_to_all: send an object to all clients</span>
+<span class="sd">        :param start_script: start another script, stopping this one.</span>
+<span class="sd">        :param restart_self: helper call for start_script(this_one)</span>
+<span class="sd">        :param set_frame_period: set the period with which the script update cycle is called. overwrites set_framerate.</span>
+<span class="sd">        :param set_frame_rate: set the frame rate with which the script update cycle is called. overwrites set_frame_period.</span>
+<span class="sd">        :param get_connected_clients: get a list of connected clients&#39; zmq ids</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">canvas</span> <span class="o">=</span> <span class="n">canvas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__send_object</span> <span class="o">=</span> <span class="n">send_object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__send_object_to_all</span> <span class="o">=</span> <span class="n">send_object_to_all</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__start_script</span> <span class="o">=</span> <span class="n">start_script</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__restart_self</span> <span class="o">=</span> <span class="n">restart_self</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set_frame_period</span> <span class="o">=</span> <span class="n">set_frame_period</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set_frame_rate</span> <span class="o">=</span> <span class="n">set_frame_rate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__get_connected_clients</span> <span class="o">=</span> <span class="n">get_connected_clients</span>
+
+<div class="viewcode-block" id="CustomScript.get_connected_clients"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.get_connected_clients">[docs]</a>    <span class="k">def</span> <span class="nf">get_connected_clients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a list of connected clients. The list will only contain the ids as given by zmq, which may</span>
+<span class="sd">        be used to send data to clients. To send data to all clients, use send_object_to_all.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: list of zmq ids. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__get_connected_clients</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CustomScript.send_object"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.send_object">[docs]</a>    <span class="k">def</span> <span class="nf">send_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send an object to the target id. The object can be anything, but a dict is probably easiest. </span>
+<span class="sd">        No JSON serialization needs to be performed by you.</span>
+
+<span class="sd">        :param obj: the object to be sent</span>
+<span class="sd">        :param target: target id of the client</span>
+<span class="sd">        :return: nothing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__send_object</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CustomScript.send_object_to_all"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.send_object_to_all">[docs]</a>    <span class="k">def</span> <span class="nf">send_object_to_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send an object to all connected clients. TThe object can be anything, but a dict is probably easiest. </span>
+<span class="sd">        No JSON serialization needs to be performed by you.</span>
+<span class="sd">    </span>
+<span class="sd">        :param obj: the object to be sent</span>
+<span class="sd">        :return: nothing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__send_object_to_all</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CustomScript.start_script"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.start_script">[docs]</a>    <span class="k">def</span> <span class="nf">start_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">script_name</span><span class="p">,</span> <span class="n">source_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Will load the class in the scripts/ folder that has the given name in the file with the same name.</span>
+
+<span class="sd">        :param script_name: the name of _both_ the script and the class implementing the callback functions</span>
+<span class="sd">        :param source_id: the id of the client requesting the script to be loaded</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__start_script</span><span class="p">(</span><span class="n">script_name</span><span class="p">,</span> <span class="n">source_id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CustomScript.restart_self"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.restart_self">[docs]</a>    <span class="k">def</span> <span class="nf">restart_self</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Will restart the current script. exit() will be called on this instance. A new instance will be</span>
+<span class="sd">        created. No additional arguments can be given.</span>
+<span class="sd">        </span>
+<span class="sd">        :return: nothing </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__restart_self</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CustomScript.set_frame_period"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.set_frame_period">[docs]</a>    <span class="k">def</span> <span class="nf">set_frame_period</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">period</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the frame period with which the script will be updated</span>
+
+<span class="sd">        :param period: the target frame period. resulting frame rate must be 0 &lt;= f &lt;= 60, in Hz </span>
+<span class="sd">        :return: nothing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set_frame_period</span><span class="p">(</span><span class="n">period</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CustomScript.set_frame_rate"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.set_frame_rate">[docs]</a>    <span class="k">def</span> <span class="nf">set_frame_rate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame_rate</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the frame rate with which the script will be updated</span>
+
+<span class="sd">        :param frame_rate: the target frame rate. must be 0 &lt;= f &lt;= 60, in Hz </span>
+<span class="sd">        :return: nothing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__set_frame_rate</span><span class="p">(</span><span class="n">frame_rate</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CustomScript.on_client_connected"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.on_client_connected">[docs]</a>    <span class="k">def</span> <span class="nf">on_client_connected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called when a client connects</span>
+<span class="sd">    </span>
+<span class="sd">        :param id: id of the client that disconnected </span>
+<span class="sd">        :return: </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="CustomScript.on_client_disconnected"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.on_client_disconnected">[docs]</a>    <span class="k">def</span> <span class="nf">on_client_disconnected</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called when a client disconnects</span>
+<span class="sd">        </span>
+<span class="sd">        :param id: id of the client that disconnected </span>
+<span class="sd">        :return: </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="CustomScript.update"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canvas</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called before draw. Do any updating you want to do here.</span>
+
+<span class="sd">        :param canvas: canvas object for information like width and height</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="CustomScript.draw"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">canvas</span><span class="p">:</span> <span class="n">Canvas</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called after update. Make any modifications of the canvas you want to do here. After this method has finished</span>
+<span class="sd">        executing, the canvas buffer will be sent to the arduino and displayed.</span>
+
+<span class="sd">        :param canvas: the canvas you can draw on. will be displayed on the arduino</span>
+<span class="sd">        :return: nothing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="CustomScript.on_data"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.on_data">[docs]</a>    <span class="k">def</span> <span class="nf">on_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_dictionary</span><span class="p">,</span> <span class="n">source_id</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Called whenever the android app sends data for the script.</span>
+
+<span class="sd">        :param data_dictionary: a dictionary of data received from the android app.</span>
+<span class="sd">        :param source_id: the network id of the sending android device</span>
+<span class="sd">        :return: nothing</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="CustomScript.exit"><a class="viewcode-back" href="../custom_scripts.html#CustomScript.CustomScript.exit">[docs]</a>    <span class="k">def</span> <span class="nf">exit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Called when the manager gracefully wants to stop this script. This instance will be discarded of after.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, enra64, gSilas.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
