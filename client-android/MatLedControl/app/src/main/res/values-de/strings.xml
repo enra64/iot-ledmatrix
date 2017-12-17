@@ -2,7 +2,7 @@
 <resources>
     <string name="draw">Zeichnen</string>
     <string name="enter_text_for_sending_to_server">text an den server</string>
-    <string name="error_occurred">Eine Exception ist aufgetreten!</string>
+    <string name="error_occurreden">Eine Exception ist aufgetreten!</string>
     <string name="device_denied_connection_request_title">Verbindungsanfrage abgelehnt</string>
     <string name="navigation_drawer_close">Navigation-Drawer schließen</string>
     <string name="navigation_drawer_open">Navigation-Drawer öffnen</string>
@@ -45,4 +45,8 @@
     <string name="loading_wordclock_configuration">Lade Ledmatrix-Konfigurationsdaten</string>
     <string name="wordclock_color_selection">Farben der Wordclock</string>
     <string name="randomize_colors">Zufällige Farben</string>
+    <string name="enable_display_at">Anzeige um %d Uhr aktivieren</string>
+    <string name="disable_display_at">Anzeige um %d Uhr deaktivieren</string>
+    <string name="enable_display_time_limits">Anzeigezeit begrenzen</string>
+    <string name="wordclock_settings">WordClock-Einstellungen</string>
 </resources>

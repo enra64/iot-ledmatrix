@@ -34,3 +34,7 @@ class Settings:
 
     def get_configuration_dict(self) -> Dict:
         return self.settings
+
+    def set_configuration_dict(self, settings: Dict):
+        with open("wordclockconfig.json", "w") as settings_file:
+            json.dump(settings, settings_file)

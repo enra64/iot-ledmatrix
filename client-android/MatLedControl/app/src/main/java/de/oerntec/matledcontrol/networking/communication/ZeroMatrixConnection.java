@@ -78,6 +78,8 @@ public class ZeroMatrixConnection extends Thread {
                 Log.w("zmatrixcomm", "closed selector exception occurred!", e);
             } catch (zmq.ZError.IOException e) {
                 Log.w("zmatrixcomm", "ZError.IOException occurred!", e);
+            }  catch (ArrayIndexOutOfBoundsException e) {
+                Log.w("zmatrixcomm", "Array index out of bounds!", e);
             } catch (ZMQException e){
                 // if the context has been terminated here, a ZMQException about termination is to
                 // be expected, but if it is something else we still want to log it.

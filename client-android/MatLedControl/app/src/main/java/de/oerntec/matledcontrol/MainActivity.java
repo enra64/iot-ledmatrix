@@ -33,6 +33,7 @@ import de.oerntec.matledcontrol.script_clients.ManualScriptLoadFragment;
 import de.oerntec.matledcontrol.script_clients.camera.Camera2BasicFragment;
 import de.oerntec.matledcontrol.script_clients.draw.DrawFragment;
 import de.oerntec.matledcontrol.script_clients.wordclock.WordclockFragment;
+import de.oerntec.matledcontrol.script_clients.wordclock_settings.WordclockSettingsFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, DiscoveryFragment.DiscoveryFragmentInteractionListener, ExceptionListener, ScriptFragmentInterface, ConnectionListener, MessageSender {
@@ -149,8 +150,11 @@ public class MainActivity extends AppCompatActivity
             case R.id.scrolling_text:
                 fragment = ScrollingTextFragment.newInstance();
                 break;
+            case R.id.wordclock_settings:
+                fragment = WordclockSettingsFragment.newInstance();
+                break;
             default:
-                Log.w("ledmat:main", "unknown menu item clicked");
+                throw new AssertionError("Unknown menu item clicked");
         }
 
         //noinspection ConstantConditions // according to AS, fragment is always null or always instanceof ScriptFragmentInterface, both of which seems unlikely
@@ -217,7 +221,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onException(Object origin, Exception exception, String info) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.error_occurred);
+        builder.setTitle(R.string.error_occurreden);
         builder.setMessage(info);
         builder.setPositiveButton(R.string.ok, null);
         builder.show();

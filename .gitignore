@@ -1,3 +1,5 @@
 **/.idea/**
 **/__pycache__/**
 host/ledmatrix.log
+host/wordclockconfig.json
+host/wordclock_color_config.json

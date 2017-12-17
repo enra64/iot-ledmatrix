@@ -66,7 +66,7 @@ class _Wordclock(CustomScript):
         self.send_object_to_all(
             {
                 "message_type": "wordclock_settings",
-                "color_config": self.settings.get_configuration_dict()
+                "settings": self.settings.get_configuration_dict()
             })
 
     def on_client_connected(self, id):
@@ -79,3 +79,8 @@ class _Wordclock(CustomScript):
             color_array = json["word_color_config"]
             ColorLogic.update_color_info(color_array, self.word_logic.get_all_words())
             ColorLogic.save_color_info(self.color_config_path, color_array)
+        elif json["command"] == "update_settings":
+            settings = json["settings"]
+            self.settings.set_configuration_dict(settings)
+        else:
+            self.logger.error("wordclock script received unrecognized data: {}".format(json))

@@ -29,6 +29,10 @@
         android:icon="@drawable/ic_load_script"
         android:title="@string/manual_script_load" />
     <item
+        android:id="@+id/wordclock_settings"
+        android:icon="@drawable/ic_administration"
+        android:title="@string/wordclock_settings" />
+    <item
         android:id="@+id/administration"
         android:icon="@drawable/ic_administration"
         android:title="@string/administration" />
