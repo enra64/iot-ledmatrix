@@ -2,9 +2,10 @@ import datetime
 import logging
 from typing import List
 
-from Canvas import Canvas, Rect
+from Canvas import Canvas
 from CustomScript import CustomScript
 from scripts._Wordclock import ColorLogic
+from scripts._Wordclock.Settings import Settings
 from scripts._Wordclock.WordLogic import WordLogic
 
 
@@ -14,7 +15,6 @@ class _Wordclock(CustomScript):
         super().__init__(canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
                          set_frame_rate, get_connected_clients)
         self.logger = logging.getLogger("script:wordclock")
-        self.debug_time_offset = 0
 
         # config_file_path = "assets/arnes_wordclock_config.json"
         # config_file_path = "assets/config_ledmatrix_arnes_wordclock_lines_filled_with_other_letters.json"
@@ -23,10 +23,12 @@ class _Wordclock(CustomScript):
         self.color_config_path = "wordclock_color_config.json"
         self.logger.info("using {} and {} as config".format(config_file_path, self.color_config_path))
         self.timezone = datetime.timezone(datetime.timedelta(hours=1))
+        self.enable = True
 
         try:
             self.word_logic = WordLogic(config_file_path)
             ColorLogic.read_color_config_file(self.color_config_path, self.word_logic.get_all_words())
+            self.settings = Settings()
         except Exception as e:
             raise e
         else:
@@ -36,27 +38,18 @@ class _Wordclock(CustomScript):
             self.set_frame_rate(1)
 
     def update(self, canvas):
-        #offset_time = datetime.datetime.strptime('Jun 1 2005  4:50PM', '%b %d %Y %I:%M%p')
-        offset_time = datetime.datetime.now(self.timezone) + datetime.timedelta(minutes=self.debug_time_offset)
-        self.rectangles = self.word_logic.get_current_rectangles(offset_time, canvas)
+        time = datetime.datetime.now(self.timezone)
+        self.enable = self.settings.is_time_within_limit(time.hour)
 
-        # debugging
-        def print_time(time):
-            formatted_time = ":".join(str(time).split()[1].split(".")[0].split(":")[:3])
-            self.logger.info("showing time {}".format(formatted_time))
-
-        def debug_print_rectangles(word_rectangles: List[Rect]):
-            for rectangle in word_rectangles:
-                self.logger.info(
-                    "rect at <{}, {}> size [{}, {}]".format(rectangle.x, rectangle.y, rectangle.width, rectangle.height))
-
-        #print_time(offset_time)
-        #self.debug_time_offset += 2
+        if self.enable:
+            self.rectangles = self.word_logic.get_current_rectangles(time, canvas)
 
     def draw(self, canvas: Canvas):
         canvas.clear()
-        for rectangle in self.rectangles:
-            canvas.draw_rectangle(rectangle)
+
+        if self.enable:
+            for rectangle in self.rectangles:
+                canvas.draw_rectangle(rectangle)
 
     def __send_config(self):
         self.send_object_to_all(
@@ -69,6 +62,11 @@ class _Wordclock(CustomScript):
             {
                 "message_type": "wordclock_color_configuration",
                 "color_config": ColorLogic.get_color_config(self.word_logic.get_all_words())
+            })
+        self.send_object_to_all(
+            {
+                "message_type": "wordclock_settings",
+                "color_config": self.settings.get_configuration_dict()
             })
 
     def on_client_connected(self, id):
