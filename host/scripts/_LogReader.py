@@ -31,4 +31,4 @@ class _LogReader(CustomScript):
                         log.append(line)
                 self.send_object({"message_type": "bogus", "log": log}, source_id)
             except FileNotFoundError:
-                self.send_object({"message_type": "bogus", "log": "Log file not found. The device could be configured to log to its terminal?"}, source_id)
+                self.send_object({"message_type": "bogus", "log": "No log file found, tried '{}'".format(logfilename)}, source_id)
