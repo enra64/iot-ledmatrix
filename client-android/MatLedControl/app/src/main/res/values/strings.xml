@@ -39,8 +39,7 @@
     <string name="searching_for_devices">Searching for Matrices</string>
     <string name="connect_to_device_question">Connect to Matrix?</string>
     <string name="device_denied_connection_request_msg">The Matrix did not accept your connection request</string>
-    <string name="device_denied_connection_request_title">Matrix
-        denied connection</string>
+    <string name="device_denied_connection_request_title">Matrix denied connection</string>
     <string name="restart_device_control">restart Matrix control</string>
     <string name="view_device_log">View Matrix Log</string>
     <string name="err_could_not_communicate">Could not communicate with Matrix</string>
@@ -53,5 +52,11 @@
     <string name="disable_display_at">Disable display at %d o\'clock</string>
     <string name="enable_display_time_limits">Enable display time limits</string>
     <string name="wordclock_settings">Wordclock settings</string>
-
+    <string name="randomly_choose_colors">Randomly choose colors</string>
+    <string-array name="randomization_intervals">
+        <item>Hourly</item>
+        <item>Daily</item>
+        <item>Weekly</item>
+        <item>Monthly</item>
+    </string-array>
 </resources>

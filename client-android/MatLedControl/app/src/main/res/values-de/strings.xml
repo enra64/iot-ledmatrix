@@ -49,4 +49,10 @@
     <string name="disable_display_at">Anzeige um %d Uhr deaktivieren</string>
     <string name="enable_display_time_limits">Anzeigezeit begrenzen</string>
     <string name="wordclock_settings">WordClock-Einstellungen</string>
+    <string-array name="randomization_intervals">
+        <item>Stündlich</item>
+        <item>Täglich</item>
+        <item>Wöchentlich</item>
+        <item>Monatlich</item>
+    </string-array>
 </resources>

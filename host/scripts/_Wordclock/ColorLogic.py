@@ -22,10 +22,18 @@ def encode_as_android_color_int(color: Color) -> int:
 
     return (r << 16) & (g << 8) & (b << 0)
 
+
 def update_color_info(color_array: Dict, words: List[Word]):
     for color_info in color_array:
         words[color_info["id"]].color = decode_android_color_int(color_info["clr"])
         words[color_info["id"]].rectangle.color = decode_android_color_int(color_info["clr"])
+
+
+def randomize_colors(words: List[Word], config_file_path: str):
+    for word in words:
+        word.color = Color.random_color_bounded((50, 255), (50, 255), (50, 255))
+
+    save_color_info(config_file_path, get_color_config(words))
 
 
 def read_color_config_file(config_file_path, words: List[Word]):
@@ -49,4 +57,5 @@ def save_color_info(config_path, color_array):
 
 
 def get_color_config(words: List[Word]):
+    """return color config of the word list as the json representation used for storage and exchange"""
     return [{"id": i, "clr": encode_as_android_color_int(word.color)} for i, word in enumerate(words)]

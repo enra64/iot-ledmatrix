@@ -8,9 +8,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.json.JSONException;
@@ -20,7 +22,7 @@ import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
 
-public class WordclockSettingsFragment extends Fragment implements ScriptFragmentInterface, CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener {
+public class WordclockSettingsFragment extends Fragment implements ScriptFragmentInterface, CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener, AdapterView.OnItemSelectedListener {
     private MessageSender mMessageSender;
 
     private ConstraintLayout timeSettingsLayout;
@@ -29,6 +31,8 @@ public class WordclockSettingsFragment extends Fragment implements ScriptFragmen
     private CheckBox timeLimitsEnabled;
     private TextView timeSettingsDisableAtText;
     private TextView timeSettingsEnableAtText;
+    private Spinner randomizationSpinner;
+    private CheckBox randomizationEnabled;
 
     public WordclockSettingsFragment() {
         // Required empty public constructor
@@ -53,6 +57,13 @@ public class WordclockSettingsFragment extends Fragment implements ScriptFragmen
         timeLimitsEnabled.setOnCheckedChangeListener(this);
         timeSettingsEnableAt.setOnSeekBarChangeListener(this);
         timeSettingsDisableAt.setOnSeekBarChangeListener(this);
+
+
+        randomizationEnabled = (CheckBox) v.findViewById(R.id.wordclock_settings_randomization_enabled);
+        randomizationSpinner = (Spinner) v.findViewById(R.id.wordclock_settings_randomization_interval_spinner);
+
+        randomizationEnabled.setOnCheckedChangeListener(this);
+        randomizationSpinner.setOnItemSelectedListener(this);
 
         return v;
     }
@@ -114,6 +125,8 @@ public class WordclockSettingsFragment extends Fragment implements ScriptFragmen
         result.put("limit_display_time", timeLimitsEnabled.isChecked());
         result.put("display_time_start_h", timeSettingsEnableAt.getProgress());
         result.put("display_time_stop_h", timeSettingsDisableAt.getProgress());
+        result.put("randomization_enabled", randomizationEnabled.isChecked());
+        result.put("randomization_interval", randomizationSpinner.getSelectedItemPosition());
         return result;
     }
 
@@ -129,16 +142,28 @@ public class WordclockSettingsFragment extends Fragment implements ScriptFragmen
                         boolean timeLimitsEnabled = settings.getBoolean("limit_display_time");
                         int enableAt = settings.getInt("display_time_start_h");
                         int disableAt = settings.getInt("display_time_stop_h");
+                        boolean enableRandomization = settings.getBoolean("randomization_enabled");
+                        int randomizationInterval = settings.getInt("randomization_interval");
 
                         WordclockSettingsFragment.this.timeLimitsEnabled.setChecked(timeLimitsEnabled);
                         setViewAndChildrenEnabled(timeSettingsLayout, timeLimitsEnabled);
                         WordclockSettingsFragment.this.timeSettingsEnableAt.setProgress(enableAt);
                         WordclockSettingsFragment.this.timeSettingsDisableAt.setProgress(disableAt);
+                        WordclockSettingsFragment.this.randomizationEnabled.setChecked(enableRandomization);
+                        WordclockSettingsFragment.this.randomizationSpinner.setSelection(randomizationInterval);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }
             });
+    }
+
+    /**
+     * Randomization interval spinner callbacks
+     */
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        updateRemote();
     }
 
     private void updateRemote() {
@@ -160,7 +185,10 @@ public class WordclockSettingsFragment extends Fragment implements ScriptFragmen
      */
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        setViewAndChildrenEnabled(timeSettingsLayout, isChecked);
+        if(buttonView.getId() == R.id.settings_enable_display_time_limits)
+            setViewAndChildrenEnabled(timeSettingsLayout, isChecked);
+        else if (buttonView.getId() == R.id.wordclock_settings_randomization_enabled)
+            setViewAndChildrenEnabled(randomizationSpinner, isChecked);
         updateRemote();
     }
 
@@ -201,6 +229,18 @@ public class WordclockSettingsFragment extends Fragment implements ScriptFragmen
      */
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    /**
+     * Callback method to be invoked when the selection disappears from this
+     * view. The selection can disappear for instance when touch is activated
+     * or when the adapter becomes empty.
+     *
+     * @param parent The AdapterView that now contains no selected item.
+     */
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
 
     }
 }
