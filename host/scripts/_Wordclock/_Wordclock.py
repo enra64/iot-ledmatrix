@@ -25,8 +25,6 @@ class _Wordclock(CustomScript):
         self.timezone = datetime.timezone(datetime.timedelta(hours=1))
         self.enable = True
 
-        self.minute_offset = 0
-
         try:
             self.word_logic = WordLogic(config_file_path)
             ColorLogic.read_color_config_file(self.color_config_path, self.word_logic.get_all_words())
@@ -37,15 +35,15 @@ class _Wordclock(CustomScript):
             self.__send_config()
             self.rectangles = []
 
-            self.set_frame_rate(1)
+            self.set_frame_rate(6)
 
     def __get_current_time(self) -> datetime:
         """Helper function for getting the correct time"""
-        self.minute_offset += 30
-        return datetime.datetime.now(self.timezone) + datetime.timedelta(minutes=self.minute_offset)
+        return datetime.datetime.now(self.timezone)
 
     def update(self, canvas):
         time = self.__get_current_time()
+
         self.enable = self.settings.is_time_within_limit(time.hour)
 
         if self.settings.should_randomize_colors(time):
