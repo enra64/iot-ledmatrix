@@ -29,6 +29,12 @@ def update_color_info(color_array: Dict, words: List[Word]):
         words[color_info["id"]].rectangle.color = decode_android_color_int(color_info["clr"])
 
 
+def set_color(color: Color, words: List[Word]):
+    for word in words:
+        word.color = color
+        word.rectangle.color = color
+
+
 def randomize_colors(words: List[Word], config_file_path: str):
     for word in words:
         word.color = Color.random_color_bounded((50, 255), (50, 255), (50, 255))
@@ -45,6 +51,7 @@ def read_color_config_file(config_file_path, words: List[Word]):
             update_color_info(color_config, words)
     except FileNotFoundError:
         logger.info("no wordclock color config found at {}. first start?".format(config_file_path))
+        set_color(Color.from_rgb((255, 255, 255)), words)
     except JSONDecodeError as e:
         logger.error("bad wordclock color config at {}! re-send from app...".format(config_file_path))
         raise e
