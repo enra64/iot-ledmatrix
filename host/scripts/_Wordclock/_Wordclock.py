@@ -35,7 +35,7 @@ class _Wordclock(CustomScript):
             self.__send_config()
             self.rectangles = []
 
-            self.set_frame_rate(6)
+            self.set_frame_rate(1)
 
     def __get_current_time(self) -> datetime:
         """Helper function for getting the correct time"""
