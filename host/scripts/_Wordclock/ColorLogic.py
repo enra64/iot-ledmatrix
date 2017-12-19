@@ -20,7 +20,7 @@ def encode_as_android_color_int(color: Color) -> int:
     assert 0 <= g <= 255, "g = {} not in uint8_t bounds".format(g)
     assert 0 <= b <= 255, "b = {} not in uint8_t bounds".format(b)
 
-    return (r << 16) & (g << 8) & (b << 0)
+    return (r << 16) | (g << 8) | (b << 0)
 
 
 def update_color_info(color_array: Dict, words: List[Word]):
