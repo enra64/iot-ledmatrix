@@ -80,8 +80,8 @@ class WordLogic:
             if (str(word.info)).lower() == str(info).lower():
                 result.append(word)
 
-        if len(result) == 0:
-            self.logger.warning("unknown word requested with category {} and info {}".format(category.name, info))
+        #if len(result) == 0:
+        #    self.logger.warning("unknown word requested with category {} and info {}".format(category.name, info))
 
         return result
 
