@@ -7,26 +7,11 @@ from helpers.Color import Color
 from scripts._Wordclock.WordLogic import Word
 
 
-def decode_android_color_int(android_color_int: int) -> Color:
-    r = (android_color_int & 0x00FF0000) >> 16
-    g = (android_color_int & 0x0000FF00) >> 8
-    b = (android_color_int & 0x000000FF) >> 0
-    return Color(r, g, b)
-
-
-def encode_as_android_color_int(color: Color) -> int:
-    r, g, b = color.get_rgb()
-    assert 0 <= r <= 255, "r = {} not in uint8_t bounds".format(r)
-    assert 0 <= g <= 255, "g = {} not in uint8_t bounds".format(g)
-    assert 0 <= b <= 255, "b = {} not in uint8_t bounds".format(b)
-
-    return (r << 16) | (g << 8) | (b << 0)
-
-
 def update_color_info(color_array: Dict, words: List[Word]):
     for color_info in color_array:
-        words[color_info["id"]].color = decode_android_color_int(color_info["clr"])
-        words[color_info["id"]].rectangle.color = decode_android_color_int(color_info["clr"])
+        color = Color.from_aarrggbb_int(color_info["clr"])
+        words[color_info["id"]].color = color
+        words[color_info["id"]].rectangle.color = color
 
 
 def set_color(color: Color, words: List[Word]):
@@ -64,4 +49,4 @@ def save_color_info(config_path, color_array):
 
 def get_color_config(words: List[Word]):
     """return color config of the word list as the json representation used for storage and exchange"""
-    return [{"id": i, "clr": encode_as_android_color_int(word.color)} for i, word in enumerate(words)]
+    return [{"id": i, "clr": word.color.get_aarrggbb_int()} for i, word in enumerate(words)]

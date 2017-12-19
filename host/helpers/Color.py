@@ -46,18 +46,25 @@ class Color():
     To create new color instances, you may use:
         * :meth:`__init__`, the constructor with r, g and b parameters
         * :meth:`from_rgb`, which will return a color instance from the rgb tuple
+        * :meth:`from_aarrggbb_int`, which can parse ARGB color integers (as they are, incidentally, used in android)
         * :meth:`get_copy`, which will return a copy of this color
 
     To get a copied instance with modified properties, the following methods are available:
         * :meth:`get_copy_with_value`, which changes the value of the returned copy
+
+    Alternative representations may be accessed via:
+        * :meth:`get_hls`: get as 0-1 floats in HLS color space
+        * :meth:`get_hsv`, get as 0-1 floats in HSV color space
+        * :meth:`get_aarrggbb_int`, as 32-bit fully opaque ARGB integer
+
 
     """
 
     def __init__(self, r: int = 0, g: int = 0, b: int = 0):
         """
         Create a new color instance.
-        
-        :param r: 0-255 value for red component 
+
+        :param r: 0-255 value for red component
         :param g: 0-255 value for green component
         :param b: 0-255 value for blue component
         """
@@ -74,6 +81,19 @@ class Color():
         self.__b = b / 255  # type: float
 
     @staticmethod
+    def from_aarrggbb_int(android_color_int: int):
+        """
+        Convert an android color int to this color class.
+
+        :param android_color_int:
+        :return:
+        """
+        r = (android_color_int & 0x00FF0000) >> 16
+        g = (android_color_int & 0x0000FF00) >> 8
+        b = (android_color_int & 0x000000FF) >> 0
+        return Color(r, g, b)
+
+    @staticmethod
     def from_rgb(rgb: Tuple[int, int, int]):
         """
         Create a new color instance
@@ -86,8 +106,8 @@ class Color():
     def random_color():
         """
         Return a new completely random color
-        
-        :return: new random color 
+
+        :return: new random color
         """
         return Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
@@ -97,7 +117,7 @@ class Color():
                              blue_bounds: Tuple[int, int] = (0, 255)):
         """
         Return a new random color with boundaries for the possible color extremes
-        
+
         :param red_bounds: A tuple of (min_val_incl, max_val_incl) for red
         :param green_bounds: A tuple of (min_val_incl, max_val_incl) for green
         :param blue_bounds: A tuple of (min_val_incl, max_val_incl) for blue
@@ -109,11 +129,20 @@ class Color():
     def from_single_color(all_component_value: int):
         """
         Create a new color where each RGB component has the same value
-        
+
         :param all_component_value: the value for each component
         :return: new color, where rgb = (val, val, val)
         """
         return Color(all_component_value, all_component_value, all_component_value)
+
+    def get_aarrggbb_int(self) -> int:
+        """
+        Return this color as AARRGGBB, where AA is always 255 (fully opaque).
+
+        :return: color int that can be used to specify a color in android
+        """
+        r, g, b = self.get_rgb()
+        return 0xFF000000 | (r << 16) | (g << 8) | (b << 0)
 
     def get_rgb(self):
         """
