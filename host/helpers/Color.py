@@ -65,6 +65,10 @@ class Color():
         assert 0 <= g <= 255, "green component must be >= 0 and <= 255"
         assert 0 <= b <= 255, "blue component must be >= 0 and <= 255"
 
+        assert isinstance(r, int), "red passed to the Color constructor must be an integer!"
+        assert isinstance(g, int), "green passed to the Color constructor must be an integer!"
+        assert isinstance(b, int), "blue passed to the Color constructor must be an integer!"
+
         self.__r = r / 255  # type: float
         self.__g = g / 255  # type: float
         self.__b = b / 255  # type: float
