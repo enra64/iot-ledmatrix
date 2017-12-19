@@ -9,14 +9,11 @@ from scripts._Wordclock.WordLogic import Word
 
 def update_color_info(color_array: Dict, words: List[Word]):
     for color_info in color_array:
-        color = Color.from_aarrggbb_int(color_info["clr"])
-        words[color_info["id"]].color = color
-        words[color_info["id"]].rectangle.color = color
+        words[color_info["id"]].rectangle.color = Color.from_aarrggbb_int(color_info["clr"])
 
 
 def set_color(color: Color, words: List[Word]):
     for word in words:
-        word.color = color
         word.rectangle.color = color
 
 
@@ -49,4 +46,4 @@ def save_color_info(config_path, color_array):
 
 def get_color_config(words: List[Word]):
     """return color config of the word list as the json representation used for storage and exchange"""
-    return [{"id": i, "clr": word.color.get_aarrggbb_int()} for i, word in enumerate(words)]
+    return [{"id": i, "clr": word.rectangle.color.get_aarrggbb_int()} for i, word in enumerate(words)]

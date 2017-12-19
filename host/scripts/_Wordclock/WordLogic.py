@@ -24,7 +24,6 @@ class Word:
         self.rectangle = self.__parse_rect(dict["rect"])
         self.category = WordType[dict["category"].lower()]
         self.info = dict["info"]
-        self.color = Color(255, 255, 255)
 
     @staticmethod
     def __parse_rect(rectangle_list: Dict):
@@ -32,7 +31,8 @@ class Word:
             rectangle_list.get("x", 0),
             rectangle_list["y"],
             rectangle_list["width"],
-            rectangle_list.get("height", 1)
+            rectangle_list.get("height", 1),
+            Color(255, 255, 255)
         )
 
 
@@ -80,12 +80,10 @@ class WordLogic:
             if (str(word.info)).lower() == str(info).lower():
                 result.append(word)
 
-        #if len(result) == 0:
+        # if len(result) == 0:
         #    self.logger.warning("unknown word requested with category {} and info {}".format(category.name, info))
 
         return result
-
-
 
     def get_current_rectangles(self, now_time: datetime, canvas: Canvas) -> List[Rect]:
         rounded_minutes = int(5 * round(float(now_time.minute) / 5))
@@ -164,13 +162,6 @@ class WordLogic:
         result.extend(self.__get_hour((hours + 1) % 12))
 
     def __get_applicable_words(self, rounded_minutes: int, hours: int) -> List[Word]:
-        """
-        parse a time into rectangles
-        :param now_time: the time to parse
-        :param explain: if True, try to explain the choices made
-        :return:
-        """
-
         result = []
 
         # if we have an *it is*-word, always append it
@@ -208,7 +199,7 @@ class WordLogic:
         # get the color for the minute bar
         minute_word = self.__get_words(WordType.minute_small_bar, 0)[0]
         rect = minute_word.rectangle
-        color = minute_word.color
+        color = minute_word.rectangle.color
 
         # translate the seconds range into two parts: # of full leds and activation percentage of the last leds
         passed_seconds_in_this_timeblock = \
@@ -222,8 +213,8 @@ class WordLogic:
         remaining_led_percentage = led_activation - fully_activated_leds
 
         # use for left aligned rectangle
-        #result.append(Rect(rect.x, rect.y, fully_activated_leds, rect.height, color))
-        #result.append(Rect(fully_activated_leds, rect.y, 1, rect.height, color.get_copy_with_value(remaining_led_percentage)))
+        # result.append(Rect(rect.x, rect.y, fully_activated_leds, rect.height, color))
+        # result.append(Rect(fully_activated_leds, rect.y, 1, rect.height, color.get_copy_with_value(remaining_led_percentage)))
 
         # use for centered rectangle
         # fully activated length is always an odd number
@@ -239,7 +230,7 @@ class WordLogic:
         not_fully_activated_color = color.get_copy_with_value((remaining_led_percentage / 2) * color.get_value())
         # finally, apply the calculated values
         result.append(Rect(begin_full_activation_bar - 1, rect.y, 1, rect.height, not_fully_activated_color))
-        result.append(Rect(begin_full_activation_bar + fully_activated_length, rect.y, 1, rect.height, not_fully_activated_color))
-
+        result.append(
+            Rect(begin_full_activation_bar + fully_activated_length, rect.y, 1, rect.height, not_fully_activated_color))
 
         return result

@@ -67,10 +67,11 @@ class _Wordclock(CustomScript):
                 "config": self.word_logic.get_config()["config"],
                 "lines": self.word_logic.get_config()["lines"]
             })
+        color_config = ColorLogic.get_color_config(self.word_logic.get_all_words())
         self.send_object_to_all(
             {
                 "message_type": "wordclock_color_configuration",
-                "color_config": ColorLogic.get_color_config(self.word_logic.get_all_words())
+                "color_config": color_config
             })
         self.send_object_to_all(
             {
