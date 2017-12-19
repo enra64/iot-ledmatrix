@@ -43,9 +43,8 @@ def read_color_config_file(config_file_path, words: List[Word]):
         with open(config_file_path, "r") as in_file:
             color_config = json.load(in_file)
             update_color_info(color_config, words)
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         logger.info("no wordclock color config found at {}. first start?".format(config_file_path))
-        raise e
     except JSONDecodeError as e:
         logger.error("bad wordclock color config at {}! re-send from app...".format(config_file_path))
         raise e
