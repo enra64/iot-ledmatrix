@@ -3,6 +3,7 @@ package de.oerntec.matledcontrol;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -59,6 +60,12 @@ public class MainActivity extends AppCompatActivity
      */
     private LedMatrix mCurrentMatrix = null;
 
+    /**
+     * True if {@link #onSaveInstanceState(Bundle)} has already been called, but no corresponding
+     * {@link #onRestoreInstanceState(Bundle)} call has been recorded
+     */
+    private boolean instanceStateSaved;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +107,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        instanceStateSaved = false;
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String lastMatrix = prefs.getString(getString(R.string.sp_last_connected_device), null);
@@ -113,6 +121,8 @@ public class MainActivity extends AppCompatActivity
                 Log.w("main", "could not parse stored last matrix!");
             }
         }
+
+
     }
 
 
@@ -124,8 +134,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void loadFragment(@IdRes int id) {
+        if (instanceStateSaved) {
+            Log.i("main", "avoid loading fragment because instance state has already been saved");
+            return;
+        }
+
+
         // thx http://chrisrisner.com/Using-Fragments-with-the-Navigation-Drawer-Activity
-        Fragment fragment = null;
+        Fragment fragment;
         switch (id) {
             case R.id.drawing:
                 fragment = DrawFragment.newInstance();
@@ -178,6 +194,11 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        instanceStateSaved = true;
+        super.onSaveInstanceState(outState);
+    }
 
     /**
      * Called from within this activity to request a connection to the specified matrix
