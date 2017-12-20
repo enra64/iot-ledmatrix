@@ -74,7 +74,8 @@ class Manager:
             discovery_port,
             enable_arduino_connection: bool,
             enable_graphical_display: bool,
-            matrix_rotation: int):
+            matrix_rotation: int,
+            keepalive: bool):
         """
         Initializes instances of: MatrixSerial, BroadcastReceiver, Server, Canvas and ScriptHandler. Registers 
         manager.stop for a shutdown hook.
@@ -92,6 +93,7 @@ class Manager:
             be a main thread calling update_gui every now and then to update the gui; if that is not done, the window is not updated; if it
             is not called from the main thread, an exception will be logged.
         :param matrix_rotation: clockwise. rotates the matrix, so that you can turn the physical item. 0/90/180/270 are valid.
+        :param keepalive: if True, crashed CustomScripts will be restarted
         """
         """initializes all required modules without starting any of them."""
 
@@ -136,7 +138,8 @@ class Manager:
             self.on_draw_cycle_finished,
             self.server.send_object,
             self.server.send_object_all,
-            self.server.get_client_list
+            self.server.get_client_list,
+            keepalive
         )
 
         # give the server the functions to call when clients dis/connect

@@ -12,7 +12,8 @@ class ScriptHandler:
             draw_cycle_finish_callback,
             send_object,
             send_object_to_all,
-            get_client_list):
+            get_client_list,
+            keepalive):
         """
         
         :param canvas: canvas that will be drawn to. can be accessed for the back buffer required to get data to leds 
@@ -20,6 +21,7 @@ class ScriptHandler:
         :param send_object: method to send an object to a single client
         :param send_object_to_all: method to send an object to all clients
         :param get_client_list: method that returns list of zmq (Server) client ids
+        :param keepalive: setting True here will restart scripts that have crashed
         """
         self.current_script_runner = None
         self.canvas = canvas
@@ -28,12 +30,14 @@ class ScriptHandler:
         self.send_object = send_object
         self.send_object_to_all = send_object_to_all
         self.get_client_list = get_client_list
+        self.keepalive = keepalive
         self.logger = logging.getLogger("scripthandler")
 
     def start_script(self, script_name: str, source_id):
         """
         Will load the class in the scripts/ folder that has the given name in the file with the same name.
         
+        :param source_id: reason for why this script is being started
         :param script_name: the name of _both_ the script and the class implementing the callback functions
         """
         if self.is_script_running:
@@ -47,7 +51,8 @@ class ScriptHandler:
                 self.send_object,
                 self.send_object_to_all,
                 self.start_script,
-                self.get_client_list)
+                self.get_client_list,
+                self.keepalive)
 
         # don't start the new script if CustomAtExit was triggered
         if self.current_script_runner.ok and not CustomAtExit().is_shutdown_initiated():

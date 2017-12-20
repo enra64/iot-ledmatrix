@@ -53,6 +53,7 @@ def print_help():
           "combine with --disable-arduino-connection for easy testing. will fuck up stopping. recommended for "
           "debugging only")
     print("--rotation=                      set matrix rotation amount. clockwise. valid are 0/90/180/270.")
+    print("--keepalive                      restart crashed CustomScripts")
 
 if __name__ == "__main__":
     # change working directory to main.py location to avoid confusion with scripts folder
@@ -81,7 +82,8 @@ if __name__ == "__main__":
                 "logfile=",
                 "start-script=",
                 "enable-gui",
-                "rotation="
+                "rotation=",
+                "keepalive"
             ]
         )
     except getopt.GetoptError:
@@ -104,6 +106,7 @@ if __name__ == "__main__":
     start_script = "gameoflife"
     enable_graphical_display = False
     matrix_rotation = 0
+    keepalive = False
 
     if len(options) > 0:
         for option, argument in options:
@@ -147,6 +150,8 @@ if __name__ == "__main__":
                 log_location = argument
             elif option == "--start-script":
                 start_script = argument
+            elif option == "--keepalive":
+                keepalive = True
             elif option == "--enable-gui":
                 enable_graphical_display = True
             elif option == "--rotation":
@@ -179,7 +184,8 @@ if __name__ == "__main__":
             matrix_discovery_port,
             matrix_connect_to_arduino,
             enable_graphical_display,
-            matrix_rotation
+            matrix_rotation,
+            keepalive
         )
         try:
             manager.start()

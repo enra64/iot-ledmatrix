@@ -5,14 +5,16 @@ import time
 import traceback
 from functools import partial
 from importlib import import_module
+from typing import Callable
 
 from helpers import utils
 from Canvas import Canvas
 
 
 class ScriptRunner:
-    def runner(self, canvas: Canvas, draw_cycle_finished_callback):
+    def runner(self, canvas: Canvas, draw_cycle_finished_callback, keepalive):
         self.last_exec = time.time()
+        self.has_crashed = False
 
         while not self.abort.is_set():
             # call cycle
@@ -21,6 +23,7 @@ class ScriptRunner:
             except Exception:
                 self.logger.warning(
                     "abort execution of " + self.script_name + ": update caused an exception: " + traceback.format_exc())
+                self.has_crashed = True
                 self.abort.set()
 
             try:
@@ -29,14 +32,18 @@ class ScriptRunner:
             except Exception:
                 self.logger.warning(
                     "abort execution of " + self.script_name + ": draw caused an exception: " + traceback.format_exc())
+                self.has_crashed = True
                 self.abort.set()
 
             try:
                 if not self.abort.is_set():
                     draw_cycle_finished_callback()
+
+                raise Exception()
             except Exception:
                 self.logger.error(
                     "draw cycle finish callback threw an exception. Errors here likely prohibit any matrix drawing.\n" + traceback.format_exc())
+                self.has_crashed = True
                 self.abort.set()
 
             # wait until at least 30ms have been over since last exec OR the abort flag is set
@@ -44,6 +51,9 @@ class ScriptRunner:
 
             # update exec timestamp
             self.last_exec = time.time()
+
+        if self.has_crashed and keepalive:
+            self.script.restart_self()
 
         try:
             if self.ok:
@@ -113,15 +123,8 @@ class ScriptRunner:
         assert 0 <= frame_rate <= 60, "Frame rate out of bounds."
         self.frame_period = 1 / frame_rate
 
-    def __init__(
-            self,
-            script: str,
-            canvas: Canvas,
-            draw_cycle_finished_callback,
-            send_object,
-            send_object_to_all,
-            start_script,
-            get_connected_clients):
+    def __init__(self, script: str, canvas: Canvas, draw_cycle_finished_callback: Callable, send_object: Callable, send_object_to_all: Callable,
+                 start_script: Callable, get_connected_clients: Callable, keepalive: bool):
         # get me some logger
         self.logger = logging.getLogger("scriptrunner")
 
@@ -167,7 +170,7 @@ class ScriptRunner:
                     send_object_to_all,
                     start_script,
                     # "restart self" helper, simply set script name to this scripts name
-                    partial(start_script, script_name=script),
+                    partial(start_script, script_name=script, source_id="self restart"),
                     self.set_frame_period,
                     self.set_frame_rate,
                     get_connected_clients
@@ -186,7 +189,8 @@ class ScriptRunner:
                     target=self.runner,
                     args=(
                         canvas,
-                        draw_cycle_finished_callback
+                        draw_cycle_finished_callback,
+                        keepalive
                     ),
                     name="CUSTOM SCRIPT RUNNER FOR \"" + script + "\"")
                 self.ok = True
