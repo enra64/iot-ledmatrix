@@ -154,8 +154,18 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
 
     void randomizeColors() {
         Random rnd = new Random();
+
+        float[] availableHues = new float[mWords.size()];
+        float stepSize = 360 / mWords.size();
+        float offset = rnd.nextFloat() * stepSize;
+
+        for (int i = 0; i < mWords.size(); i++)
+            availableHues[i] = stepSize * i + offset;
+
+        int i = rnd.nextInt(mWords.size());
         for (Word word : mWords.values())
-            word.color = Color.argb(255, rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256));
+            word.color = Color.HSVToColor(new float[]{availableHues[i++ % mWords.size()], 1, 0.5f + rnd.nextFloat() * 0.5f});
+
         redraw();
     }
 
