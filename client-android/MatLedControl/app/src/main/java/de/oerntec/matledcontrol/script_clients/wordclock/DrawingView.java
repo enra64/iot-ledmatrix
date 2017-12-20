@@ -154,17 +154,26 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
 
     void randomizeColors() {
         Random rnd = new Random();
+        List<Float> availableHues = new ArrayList<>(mWords.size());
 
-        float[] availableHues = new float[mWords.size()];
+        // generate n = mWords.size() evenly spaced hue values
         float stepSize = 360 / mWords.size();
         float offset = rnd.nextFloat() * stepSize;
-
         for (int i = 0; i < mWords.size(); i++)
-            availableHues[i] = stepSize * i + offset;
+            availableHues.add(stepSize * i + offset);
 
+        // shuffle to avoid putting similar colors next to each other
+        Collections.shuffle(availableHues);
+
+        // random start offset to avoid always starting at blue
         int i = rnd.nextInt(mWords.size());
-        for (Word word : mWords.values())
-            word.color = Color.HSVToColor(new float[]{availableHues[i++ % mWords.size()], 1, 0.5f + rnd.nextFloat() * 0.5f});
+        for (Word word : mWords.values()) {
+            // choose next hue value
+            float hue = availableHues.get(i++ % mWords.size());
+
+            // randomize value a little to further reduce similarity of output
+            word.color = Color.HSVToColor(new float[]{hue, 1, 0.5f + rnd.nextFloat() * 0.5f});
+        }
 
         redraw();
     }
