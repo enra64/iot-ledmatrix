@@ -38,8 +38,6 @@ class ScriptRunner:
             try:
                 if not self.abort.is_set():
                     draw_cycle_finished_callback()
-
-                raise Exception()
             except Exception:
                 self.logger.error(
                     "draw cycle finish callback threw an exception. Errors here likely prohibit any matrix drawing.\n" + traceback.format_exc())
