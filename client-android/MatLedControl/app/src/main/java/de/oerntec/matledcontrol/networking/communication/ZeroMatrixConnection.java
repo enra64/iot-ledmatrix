@@ -55,7 +55,7 @@ public class ZeroMatrixConnection extends Thread {
         if(messageType != null)
             try { message.put("message_type", messageType); } catch (JSONException ignored) { }
 
-        mSocket.send(message.toString());
+        try { mSocket.send(message.toString()); } catch (ArrayIndexOutOfBoundsException ignored) { }
     }
 
     @Override
