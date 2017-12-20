@@ -1,5 +1,5 @@
 import colorsys
-from typing import Tuple
+from typing import Tuple, Callable
 
 import random
 
@@ -93,8 +93,8 @@ class Color():
         b = (android_color_int & 0x000000FF) >> 0
         return Color(r, g, b)
 
-    @staticmethod
-    def from_rgb(rgb: Tuple[int, int, int]):
+    @classmethod
+    def from_rgb(cls, rgb: Tuple[int, int, int]):
         """
         Create a new color instance
         :param rgb: tuple of 0-255 rgb color component values
@@ -102,8 +102,20 @@ class Color():
         """
         return Color(rgb[0], rgb[1], rgb[2])
 
-    @staticmethod
-    def random_color():
+    @classmethod
+    def from_hsv(cls, hue, saturation, value):
+        clr = Color()
+        clr.__set_rgb_no_normalization(colorsys.hsv_to_rgb(hue, saturation, value))
+        return clr
+
+    @classmethod
+    def from_hls(cls, hue, saturation, luminance):
+        clr = Color()
+        clr.__set_rgb_no_normalization(colorsys.hls_to_rgb(hue, luminance, saturation))
+        return clr
+
+    @classmethod
+    def random_color(cls):
         """
         Return a new completely random color
 
@@ -111,8 +123,8 @@ class Color():
         """
         return Color(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
-    @staticmethod
-    def random_color_bounded(red_bounds: Tuple[int, int] = (0, 255),
+    @classmethod
+    def random_color_bounded(cls, red_bounds: Tuple[int, int] = (0, 255),
                              green_bounds: Tuple[int, int] = (0, 255),
                              blue_bounds: Tuple[int, int] = (0, 255)):
         """
@@ -125,8 +137,8 @@ class Color():
         """
         return Color(random.randint(*red_bounds), random.randint(*green_bounds), random.randint(*blue_bounds))
 
-    @staticmethod
-    def from_single_color(all_component_value: int):
+    @classmethod
+    def from_single_color(cls, all_component_value: int):
         """
         Create a new color where each RGB component has the same value
 
@@ -147,7 +159,7 @@ class Color():
     def get_rgb(self):
         """
         Get an rgb tuple describing this color
-        :return: 0-255 value, (r,g,b) tuple 
+        :return: 0-255 value, (r,g,b) tuple
         """
         # fuck rounding, humans cant see shit anyways, and this function gets called _really_ often
         return int(self.__r * 255), int(self.__g * 255), int(self.__b * 255)
@@ -163,7 +175,7 @@ class Color():
         """
         Get red component.
 
-        :return: 0-255 value 
+        :return: 0-255 value
         """
         return int(self.__r * 255)
 
@@ -171,22 +183,22 @@ class Color():
         """
         Get green component.
 
-        :return: 0-255 value 
+        :return: 0-255 value
         """
         return int(self.__g * 255)
 
     def get_blue(self):
         """
         Get blue component.
-        
-        :return: 0-255 value 
+
+        :return: 0-255 value
         """
         return int(self.__b * 255)
 
     def set_rgb(self, rgb):
         """
         Set an rgb tuple that will replace this color
-        
+
         :param rgb: 0-255 values (r,g,b)
         :return: nothing
         """
@@ -197,7 +209,7 @@ class Color():
     def change_rgb(self, changer):
         """
         Change the RGB values.
-        
+
         :param changer: function(r, g, b) returning the new (r, g, b). In- and output are 0-1!
         :return: nothing
         """
@@ -209,7 +221,7 @@ class Color():
     def __set_rgb_no_normalization(self, rgb):
         """
         Set an rgb tuple that will replace this color
-        
+
         :param rgb: 0-1 values (r,g,b)
         :return: nothing
         """
@@ -220,7 +232,7 @@ class Color():
     def get_hls(self):
         """
         Convert this color to HLS and return it as a tuple
-        
+
         :return: tuple of 0-1 HLS values
         """
         return colorsys.rgb_to_hls(self.__r, self.__g, self.__b)
@@ -228,7 +240,7 @@ class Color():
     def get_hsv(self):
         """
         Convert this color to HSV and return it as a tuple
-        
+
         :return: tuple of 0-1 HSV values
         """
         return colorsys.rgb_to_hsv(self.__r, self.__g, self.__b)
@@ -240,10 +252,10 @@ class Color():
         """
         return self.get_hsv()[2]
 
-    def set_luminance(self, luminance):
+    def set_luminance(self, luminance: float):
         """
         Change the luminance value.
-        
+
         :param luminance: float, 1-0
         :return: nothing
         """
@@ -251,29 +263,29 @@ class Color():
         hls = list(colorsys.rgb_to_hls(self.__r, self.__g, self.__b))
         self.__set_rgb_no_normalization(colorsys.hls_to_rgb(hls[0], luminance, hls[2]))
 
-    def set_hue(self, hue):
+    def set_hue(self, hue: float):
         """
-        Set the hue value for this color. The color will be converted to HLS and back.
-        
-        :param hue: new hue value, 0-1 
+        Change the hue value for this color. The color will be converted to HLS and back.
+
+        :param hue: new hue value, 0-1
         :return: nothing
         """
         assert 0 <= hue <= 1, "hue must be 1-normalised"
         hls = colorsys.rgb_to_hls(self.__r, self.__g, self.__b)
         self.__set_rgb_no_normalization(colorsys.hls_to_rgb(hue, hls[1], hls[2]))
 
-    def set_value(self, value):
+    def set_value(self, value: float):
         """
-        Set the value for this color. The color will be converted to HSV and back.
+        Change the value for this color. The color will be converted to HSV and back.
 
-        :param value: new value, 0-1 
+        :param value: new value, 0-1
         :return: nothing
         """
         assert 0 <= value <= 1, "value must be 1-normalised"
         hsv = colorsys.rgb_to_hsv(self.__r, self.__g, self.__b)
         self.__set_rgb_no_normalization(colorsys.hsv_to_rgb(hsv[0], hsv[1], value))
 
-    def get_copy_with_value(self, value):
+    def get_copy_with_value(self, value: float):
         """
         Return a copy of this color. The copy has its value set to the given parameter
         :param value: 0-1 normalized color value per hsv color model
@@ -283,70 +295,70 @@ class Color():
         copy.set_value(value)
         return copy
 
-    def set_saturation(self, saturation):
+    def set_saturation(self, saturation: float):
         """
-        Set the saturation for this color. The color will be converted to HSV and back.
+        Change the saturation for this color. The color will be converted to HSV and back.
 
-        :param saturation: new saturation value, 0-1 
+        :param saturation: new saturation value, 0-1
         :return: nothing
         """
         assert 0 <= saturation <= 1, "saturation must be 1-normalised"
         hsv = colorsys.rgb_to_hsv(self.__r, self.__g, self.__b)
         self.__set_rgb_no_normalization(colorsys.hsv_to_rgb(hsv[0], saturation, hsv[2]))
 
-    def change_luminance(self, change_function):
+    def change_luminance(self, change_function: Callable[[float], float]):
         """
         Change the luminance value according to some function.
-        
-        :param change_function: will have the old luminance value as only parameter, and must return the new luminance value 
+
+        :param change_function: will have the old luminance value as only parameter, and must return the new luminance value
         :return: nothing
         """
         hls = colorsys.rgb_to_hls(self.__r, self.__g, self.__b)
         self.__set_rgb_no_normalization(colorsys.hls_to_rgb(hls[0], change_function(hls[1]), hls[2]))
 
-    def change_hue(self, change_function):
+    def change_hue(self, change_function: Callable[[float], float]):
         """
         Change the hue value according to some function.
 
-        :param change_function: will have the old hue value as only parameter, and must return the new hue value 
+        :param change_function: will have the old hue value as only parameter, and must return the new hue value
         :return: nothing
         """
         hls = colorsys.rgb_to_hls(self.__r, self.__g, self.__b)
         self.__set_rgb_no_normalization(colorsys.hls_to_rgb(change_function(hls[0]), hls[1], hls[2]))
 
-    def change_value(self, change_function):
+    def change_value(self, change_function: Callable[[float], float]):
         """
         Change the value according to some function.
 
-        :param change_function: will have the old value as only parameter, and must return the new value 
+        :param change_function: will have the old value as only parameter, and must return the new value
         :return: nothing
         """
         hsv = colorsys.rgb_to_hsv(self.__r, self.__g, self.__b)
         self.__set_rgb_no_normalization(colorsys.hsv_to_rgb(hsv[0], hsv[1], change_function(hsv[2])))
 
-    def change_saturation(self, change_function):
+    def change_saturation(self, change_function: Callable[[float], float]):
         """
         Change the saturation value according to some function.
 
-        :param change_function: will have the old saturation value as only parameter, and must return the new saturation value 
+        :param change_function: will have the old saturation value as only parameter, and must return the new saturation value
         :return: nothing
         """
         hls = colorsys.rgb_to_hls(self.__r, self.__g, self.__b)
         self.__set_rgb_no_normalization(colorsys.hls_to_rgb(hls[0], hls[1], change_function(hls[2])))
-
     # noinspection PyChainedComparisons
+
     def is_black(self, epsilon: float = 1e-09):
         """
-        Test wether all components are almost at their minimum value. 
+        Test wether all components are almost at their minimum value.
         :param epsilon: error margin allowed. comparisons are done on 0-1 colors!
         :return: True if black.
         """
         return self.__r < epsilon and self.__g < epsilon and self.__b < epsilon
-
     # noinspection PyChainedComparisons
+
     def is_white(self, epsilon: float = 1e-09):
         """
-        Test wether all components are almost at their maximum value. 
+        Test wether all components are almost at their maximum value.
         :param epsilon: error margin allowed. comparisons are done on 0-1 colors!
         :return: True if white.
         """
