@@ -7,9 +7,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.zeromq.ZMQException;
 
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.ClosedSelectorException;
 
+import de.oerntec.matledcontrol.networking.ConnectionTester;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 import zmq.ZMQ;
 
@@ -23,6 +23,7 @@ public class ZeroMatrixConnection extends Thread {
     private final ScriptFragmentInterface mListener;
     private final ConnectionListener mConnectionListener;
     private final LedMatrix mMatrix;
+    private final ConnectionTester mConnectionTester;
     private volatile boolean mContinue = true;
     private static final int ZMQ_CONTEXT_TERMINATED = 156384765;
 
@@ -43,6 +44,8 @@ public class ZeroMatrixConnection extends Thread {
         // request connection with matrix
         sendMessage(new JSONObject(), "connection_request");
         start();
+
+        mConnectionTester = new ConnectionTester(this, 750);
     }
 
     public void sendMessage(JSONObject message, @Nullable String messageType) {
@@ -63,15 +66,27 @@ public class ZeroMatrixConnection extends Thread {
                 recv = mSocket.recvStr();
                 JSONObject recv_json = new JSONObject(recv);
 
-                if (recv_json.getString("message_type").equals("connection_request_response")){
-                    mMatrix.width = recv_json.getInt("matrix_width");
-                    mMatrix.height = recv_json.getInt("matrix_height");
-                    mConnectionListener.onConnectionRequestResponse(mMatrix, recv_json.getBoolean("granted"));
-                } else if (recv_json.getString("message_type").equals("shutdown_notification")){
-                    mConnectionListener.onMatrixDisconnected(mMatrix);
+                String messageType = recv_json.getString("message_type");
+
+                mConnectionTester.setAlive();
+
+                switch (messageType) {
+                    case "connection_request_response":
+                        mMatrix.width = recv_json.getInt("matrix_width");
+                        mMatrix.height = recv_json.getInt("matrix_height");
+                        mConnectionListener.onConnectionRequestResponse(mMatrix, recv_json.getBoolean("granted"));
+                        break;
+                    case "shutdown_notification":
+                        mConnectionListener.onMatrixDisconnected(mMatrix);
+                        break;
+                    case "connection_test_response":
+                        // handled already
+                        break;
+                    default:
+                        mListener.onMessage(recv_json);
                 }
 
-                mListener.onMessage(recv_json);
+
             } catch (JSONException e) {
                 Log.w("zmatrixcomm", "undecipherable JSON received: " + recv, e);
             } catch (ClosedSelectorException e) {
@@ -89,8 +104,14 @@ public class ZeroMatrixConnection extends Thread {
         }
     }
 
+    public void timedOut() {
+        mConnectionListener.onMatrixDisconnected(mMatrix);
+        close();
+    }
+
     public void close() {
         mContinue = false;
+        mConnectionTester.stop();
         sendMessage(new JSONObject(), "shutdown_notification");
         // drop all messages soon if we cannot send
         mSocket.setLinger(10);
