@@ -1,5 +1,6 @@
 import json
 import logging
+import random
 from json import JSONDecodeError
 from typing import List, Dict
 
@@ -18,8 +19,27 @@ def set_color(color: Color, words: List[Word]):
 
 
 def randomize_colors(words: List[Word], config_file_path: str):
+    # generate n = mWords.size() evenly spaced hue values
+    available_hues = []
+    step_size = 1 / len(words)
+    offset = random.random() * step_size
+    for i in range(len(words)):
+        available_hues.append(step_size * i + offset)
+
+    # shuffle to avoid putting similar colors next to each other
+    random.shuffle(available_hues)
+
+    # random start offset to avoid always starting at blue
+    i = random.randrange(len(words))
     for word in words:
-        word.color = Color.random_color_bounded((50, 255), (50, 255), (50, 255))
+        # choose next hue value
+        hue = available_hues[i % len(words)]
+
+        # curse you, python, for not allowing ++
+        i += 1
+
+        # randomize value a little to further reduce similarity of output
+        word.rectangle.color = Color.from_hsv(hue, 1, 0.5 + random.random() * 0.5)
 
     save_color_info(config_file_path, get_color_config(words))
 
@@ -37,6 +57,8 @@ def read_color_config_file(config_file_path, words: List[Word]):
     except JSONDecodeError:
         logger.error("bad wordclock color config at {}! re-send from app...".format(config_file_path))
         set_color(Color.from_rgb((255, 255, 255)), words)
+
+    randomize_colors(words, config_file_path)
 
 
 def save_color_info(config_path, color_array):
