@@ -30,6 +30,7 @@ import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 import de.oerntec.matledcontrol.script_clients.AdministrationFragment;
 import de.oerntec.matledcontrol.script_clients.LogFragment;
 import de.oerntec.matledcontrol.script_clients.ManualScriptLoadFragment;
+import de.oerntec.matledcontrol.script_clients.ScrollingTextFragment;
 import de.oerntec.matledcontrol.script_clients.camera.Camera2BasicFragment;
 import de.oerntec.matledcontrol.script_clients.draw.DrawFragment;
 import de.oerntec.matledcontrol.script_clients.wordclock.WordclockFragment;

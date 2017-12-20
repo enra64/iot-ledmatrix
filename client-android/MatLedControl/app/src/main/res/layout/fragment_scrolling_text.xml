@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="de.oerntec.matledcontrol.ScrollingTextFragment">
+    tools:context="de.oerntec.matledcontrol.script_clients.ScrollingTextFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
