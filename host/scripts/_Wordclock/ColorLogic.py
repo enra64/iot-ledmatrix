@@ -34,7 +34,7 @@ def read_color_config_file(config_file_path, words: List[Word]):
     except FileNotFoundError:
         logger.info("no wordclock color config found at {}. first start?".format(config_file_path))
         set_color(Color.from_rgb((255, 255, 255)), words)
-    except JSONDecodeError as e:
+    except JSONDecodeError:
         logger.error("bad wordclock color config at {}! re-send from app...".format(config_file_path))
         set_color(Color.from_rgb((255, 255, 255)), words)
 
