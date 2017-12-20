@@ -36,7 +36,7 @@ def read_color_config_file(config_file_path, words: List[Word]):
         set_color(Color.from_rgb((255, 255, 255)), words)
     except JSONDecodeError as e:
         logger.error("bad wordclock color config at {}! re-send from app...".format(config_file_path))
-        raise e
+        set_color(Color.from_rgb((255, 255, 255)), words)
 
 
 def save_color_info(config_path, color_array):
