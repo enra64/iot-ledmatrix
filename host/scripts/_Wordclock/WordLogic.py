@@ -86,7 +86,12 @@ class WordLogic:
         return result
 
     def get_current_rectangles(self, now_time: datetime, canvas: Canvas) -> List[Rect]:
-        rounded_minutes = int(5 * round(float(now_time.minute) / 5))
+        # following line reduces the error of the main minute block to at most 2:30 off, but is difficult to combine
+        # with the minute bar
+        # rounded_minutes = int(5 * round(float(now_time.minute) / 5))
+
+        # this line otoh always rounds down, producing a maximum error of 5 minutes
+        rounded_minutes = int(5 * (now_time.minute // 5))
 
         result = [word.rectangle for word in self.__get_applicable_words(rounded_minutes, now_time.hour)]
         result.extend(self.__get_minute_bar_rectangles(canvas, now_time, rounded_minutes))
