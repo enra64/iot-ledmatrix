@@ -52,7 +52,7 @@
     <string name="disable_display_at">Disable display at %d o\'clock</string>
     <string name="enable_display_time_limits">Enable display time limits</string>
     <string name="wordclock_settings">Wordclock settings</string>
-    <string name="randomly_choose_colors">Randomly choose colors</string>
+    <string name="randomly_choose_colors">Random colors</string>
     <string-array name="randomization_intervals">
         <item>Hourly</item>
         <item>Daily</item>

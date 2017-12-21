@@ -55,4 +55,5 @@
         <item>Wöchentlich</item>
         <item>Monatlich</item>
     </string-array>
+    <string name="randomly_choose_colors">Zufällige Farben</string>
 </resources>
