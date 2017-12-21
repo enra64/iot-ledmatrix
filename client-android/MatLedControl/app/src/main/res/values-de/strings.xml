@@ -56,4 +56,6 @@
         <item>Monatlich</item>
     </string-array>
     <string name="randomly_choose_colors">Zufällige Farben</string>
+    <string name="about">Infos</string>
+    <string name="about_text">Entwickelt von enra64 und gSilas auf github.\\n\\nDanke an Pavel Sikun für seine VintageChrome-Library!\\n\\nDanke an Josef Raska für seine Console-library!\\n\\nBeide Bibliotheken wurden unter der Apache v2-Lizenz (verfügbar unter http://www.apache.org/licenses/LICENSE-2.0) veröffentlicht.</string>
 </resources>

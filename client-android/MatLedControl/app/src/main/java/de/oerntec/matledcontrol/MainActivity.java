@@ -1,9 +1,9 @@
 package de.oerntec.matledcontrol;
 
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -17,6 +17,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -266,12 +268,13 @@ public class MainActivity extends AppCompatActivity
 
     /**
      * send the json object as script data to the currently running script.
+     *
      * @param json json data to be wrapped in a script_data message
      */
     @Override
     public void sendScriptData(JSONObject json) {
         // avoid trying to send without a valid connection
-        if(mConnection == null)
+        if (mConnection == null)
             return;
 
         JSONObject wrapper = new JSONObject();
@@ -289,7 +292,7 @@ public class MainActivity extends AppCompatActivity
         try {
             mConnection.sendMessage(new JSONObject("{requested_script: " + scriptName + "}"), "script_load_request");
         } catch (JSONException ignored) {
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
             Toast.makeText(this, getString(R.string.err_could_not_communicate), Toast.LENGTH_SHORT).show();
             Log.i("mainactivity", "could not request script " + scriptName + "because of the following exception", e);
         }
@@ -316,6 +319,29 @@ public class MainActivity extends AppCompatActivity
         mCurrentScriptFragment.onMessage(data);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        new MenuInflater(this).inflate(R.menu.main_actionbar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.show_about_dialog) {
+            AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+            alertDialog.setTitle(R.string.about);
+            alertDialog.setMessage(
+                    getString(R.string.about_text));
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+            alertDialog.show();
+        }
+        return false;
+    }
 
     /**
      * Called when matrix answered the connection request
@@ -335,7 +361,7 @@ public class MainActivity extends AppCompatActivity
                 public void run() {
                     //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
                     getSupportActionBar().setSubtitle("Connected to " + matrix.name);
-                    if(mCurrentScriptFragment instanceof DiscoveryFragment)
+                    if (mCurrentScriptFragment instanceof DiscoveryFragment)
                         ((DiscoveryFragment) mCurrentScriptFragment).refreshMatrices();
                 }
             });
@@ -357,7 +383,7 @@ public class MainActivity extends AppCompatActivity
     public void onMatrixDisconnected(final LedMatrix matrix) {
         mCurrentMatrix = null;
 
-        if(mConnection != null)
+        if (mConnection != null)
             mConnection.close();
         mConnection = null;
 
