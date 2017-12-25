@@ -12,7 +12,7 @@ from Canvas import Canvas
 
 
 class ScriptRunner:
-    def runner(self, canvas: Canvas, draw_cycle_finished_callback, keepalive):
+    def runner(self, canvas: Canvas, draw_cycle_finished_callback):
         self.last_exec = time.time()
         self.has_crashed = False
 
@@ -45,14 +45,19 @@ class ScriptRunner:
                 self.abort.set()
 
             # wait until at least 30ms have been over since last exec OR the abort flag is set
-            self.abort.wait(timeout=utils.clamp(self.frame_period - (time.time() - self.last_exec), 0, self.frame_period))
+            self.abort.wait(
+                timeout=utils.clamp(self.frame_period - (time.time() - self.last_exec), 0, self.frame_period))
 
             # update exec timestamp
             self.last_exec = time.time()
 
-        if self.has_crashed and keepalive:
-            self.script.restart_self()
-
+        if self.has_crashed:
+            if self.script_runner_crashed_callback(self.script_name):
+                self.script.restart_self()
+                self.logger.info("restarting {} after crash".format(self.script_name))
+            else:
+                self.logger.info(
+                    "not restarting {}: max tries reached or keepalive option off".format(self.script_name))
         try:
             if self.ok:
                 self.script.exit()
@@ -121,8 +126,9 @@ class ScriptRunner:
         assert 0 <= frame_rate <= 60, "Frame rate out of bounds."
         self.frame_period = 1 / frame_rate
 
-    def __init__(self, script: str, canvas: Canvas, draw_cycle_finished_callback: Callable, send_object: Callable, send_object_to_all: Callable,
-                 start_script: Callable, get_connected_clients: Callable, keepalive: bool):
+    def __init__(self, script: str, canvas: Canvas, draw_cycle_finished_callback: Callable, send_object: Callable,
+                 send_object_to_all: Callable,
+                 start_script: Callable, get_connected_clients: Callable, script_runner_crashed: Callable[[str], bool]):
         # get me some logger
         self.logger = logging.getLogger("scriptrunner")
 
@@ -142,6 +148,9 @@ class ScriptRunner:
 
         # last exec time init so pycharm doesnt whine
         self.last_exec = 0
+
+        # initialize the dont-crash-too-often logic
+        self.script_runner_crashed_callback = script_runner_crashed
 
         # dynamic import
         try:
@@ -187,8 +196,7 @@ class ScriptRunner:
                     target=self.runner,
                     args=(
                         canvas,
-                        draw_cycle_finished_callback,
-                        keepalive
+                        draw_cycle_finished_callback
                     ),
                     name="CUSTOM SCRIPT RUNNER FOR \"" + script + "\"")
                 self.ok = True

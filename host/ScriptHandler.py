@@ -32,6 +32,7 @@ class ScriptHandler:
         self.get_client_list = get_client_list
         self.keepalive = keepalive
         self.logger = logging.getLogger("scripthandler")
+        self.crash_counter = {}
 
     def start_script(self, script_name: str, source_id):
         """
@@ -52,7 +53,7 @@ class ScriptHandler:
                 self.send_object_to_all,
                 self.start_script,
                 self.get_client_list,
-                self.keepalive)
+                self.script_runner_crashed)
 
         # don't start the new script if CustomAtExit was triggered
         if self.current_script_runner.ok and not CustomAtExit().is_shutdown_initiated():
@@ -60,6 +61,17 @@ class ScriptHandler:
             self.logger.info("START: " + script_name)
             self.current_script_runner.start()
             self.is_script_running = True
+
+    def script_runner_crashed(self, script_name: str) -> bool:
+        if not self.keepalive:
+            return False
+
+        if script_name in self.crash_counter:
+            self.crash_counter[script_name] += 1
+        else:
+            self.crash_counter[script_name] = 1
+
+        return self.crash_counter[script_name] < 10
 
     def script_running(self):
         return self.is_script_running
