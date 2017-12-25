@@ -9,7 +9,7 @@ from datetime import datetime
 class Settings:
     def __init__(self):
         try:
-            with open("wordclockconfig.json", "r") as settings_file:
+            with open("wordclockconfig.json", "r", encoding="utf-8") as settings_file:
                 self.settings = json.load(settings_file)
         except FileNotFoundError:
             self.settings = {

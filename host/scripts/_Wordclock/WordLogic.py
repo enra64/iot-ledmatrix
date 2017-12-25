@@ -41,7 +41,7 @@ class WordLogic:
         self.logger = logging.getLogger("script:wordclock:logic")
 
         try:
-            with open(config_file_path, "r") as config_file:
+            with open(config_file_path, "r", encoding="utf-8") as config_file:
                 self.config = json.load(config_file)
         except JSONDecodeError as e:
             self.logger.error("Wordclock configuration file '{}' contains invalid JSON!".format(config_file_path))

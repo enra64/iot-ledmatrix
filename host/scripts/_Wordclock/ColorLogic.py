@@ -48,7 +48,7 @@ def read_color_config_file(config_file_path, words: List[Word]):
     logger = logging.getLogger("scripts:wordclock:colorlogic")
 
     try:
-        with open(config_file_path, "r") as in_file:
+        with open(config_file_path, "r", encoding="utf-8") as in_file:
             color_config = json.load(in_file)
             update_color_info(color_config, words)
     except FileNotFoundError:

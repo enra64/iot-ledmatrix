@@ -8,7 +8,7 @@ from Canvas import Canvas
 from DiscoveryServer import DiscoveryServer
 from Server import Server
 from helpers.custom_atexit import CustomAtExit
-from matrix_serial import MatrixSerial
+from matrix_serial import MatrixSerial, MatrixReadException
 from ScriptHandler import ScriptHandler
 
 
@@ -29,7 +29,13 @@ class Manager:
 
     def on_draw_cycle_finished(self):
         """update the matrix after every draw cycle"""
-        self.matrix_serial.update(self.canvas.get_buffer_for_arduino())
+        try:
+            self.matrix_serial.update(self.canvas.get_buffer_for_arduino())
+        except MatrixReadException:
+            self.logger.warning("START Restarting connection to arduino...")
+            self.matrix_serial.stop()
+            self.matrix_serial.connect()
+            self.logger.warning("FINISH Restarting connection to arduino...")
 
     def join(self):
         """join all started threads"""

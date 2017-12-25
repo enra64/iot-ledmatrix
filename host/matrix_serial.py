@@ -3,6 +3,11 @@ import serial, time
 import serial.tools.list_ports
 
 
+class MatrixReadException(Exception):
+    """Exception raised when reading from the arduino failed"""
+    pass
+
+
 class MatrixProtocolException(Exception):
     """Exception raised when the arduino did not follow the communication protocol as expected"""
     pass
@@ -32,7 +37,8 @@ def guess_arduino():
 class MatrixSerial:
     """This class handles the communication with the arduino"""
 
-    def __init__(self, interface: str, led_count: int, baud: int = 115200, connect: bool = False, enable_arduino_connection = False):
+    def __init__(self, interface: str, led_count: int, baud: int = 115200, connect: bool = False,
+                 enable_arduino_connection=False):
         """
         Create new MatrixSerial, immediately connecting to the arduino.
 
@@ -59,7 +65,7 @@ class MatrixSerial:
         if connect and enable_arduino_connection:
             self.connect()
 
-    def connect(self, timeout:float = 2):
+    def connect(self, timeout: float = 2):
         """
         connect to the arduino given the current configuration
 
@@ -124,8 +130,10 @@ class MatrixSerial:
         """
         # ensure correct data length
         if len(data) != len(self.buffer):
-            self.logger.error("Bad data length! len(data) should be " + str(len(self.buffer)) + ", is " + str(len(data)))
-            raise MatrixProtocolException("Bad data length! len(data) should be " + str(len(self.buffer)) + ", is " + str(len(data)))
+            self.logger.error(
+                "Bad data length! len(data) should be " + str(len(self.buffer)) + ", is " + str(len(data)))
+            raise MatrixProtocolException(
+                "Bad data length! len(data) should be " + str(len(self.buffer)) + ", is " + str(len(data)))
 
         # copy buffer
         self.buffer[:] = data
@@ -149,10 +157,13 @@ class MatrixSerial:
         self.serial.write(self.buffer)
 
         # read arduino acknowledgement char
-        ack = self.serial.read(1)
-
-        # check acknowledgement char correctness
-        if ack != b'k':
-            self.logger.exception("No acknowledgement received, expected b'k', got " + str(ack))
-            raise MatrixProtocolException("No acknowledgement received, expected b'k', got " + str(ack))
-
+        try:
+            ack = self.serial.read(1)
+        except serial.serialutil.SerialException as e:
+            self.logger.exception("A serial error occurred when trying to read from the matrix!")
+            raise MatrixReadException(str(e))
+        else:
+            # check acknowledgement char correctness
+            if ack != b'k':
+                self.logger.exception("No acknowledgement received, expected b'k', got " + str(ack))
+                raise MatrixProtocolException("No acknowledgement received, expected b'k', got " + str(ack))
