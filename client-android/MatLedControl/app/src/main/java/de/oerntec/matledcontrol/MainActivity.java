@@ -243,13 +243,26 @@ public class MainActivity extends AppCompatActivity
      * @param info      additional information to help identify the problem
      */
     @Override
-    public void onException(Object origin, Exception exception, String info) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.error_occurreden);
-        builder.setMessage(info);
-        builder.setPositiveButton(R.string.ok, null);
-        builder.show();
+    public void onException(Object origin, final Exception exception, final String info) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.error_occurreden);
+                builder.setMessage(info);
+                builder.setNeutralButton(R.string.send_feedback, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        FeedbackSender.sendFeedback(MainActivity.this, exception);
+                    }
+                });
+                builder.setPositiveButton(R.string.ok, null);
+                builder.show();
+            }
+        });
     }
+
+
 
     @Override
     protected void onDestroy() {

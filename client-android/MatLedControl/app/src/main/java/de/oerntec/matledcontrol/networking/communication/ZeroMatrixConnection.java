@@ -28,7 +28,7 @@ public class ZeroMatrixConnection extends Thread {
     private static final int ZMQ_CONTEXT_TERMINATED = 156384765;
 
 
-    public ZeroMatrixConnection(LedMatrix matrix, ScriptFragmentInterface listener, ConnectionListener connectionListener){
+    public ZeroMatrixConnection(LedMatrix matrix, ScriptFragmentInterface listener, ConnectionListener connectionListener) {
         // listeners
         mListener = listener;
         mConnectionListener = connectionListener;
@@ -49,18 +49,28 @@ public class ZeroMatrixConnection extends Thread {
     }
 
     public void sendMessage(JSONObject message, @Nullable String messageType) {
-        if(!message.has("message_type") && messageType == null)
+        if (!message.has("message_type") && messageType == null)
             throw new AssertionError("Messages must have message_type set or a messageType must be given");
 
-        if(messageType != null)
-            try { message.put("message_type", messageType); } catch (JSONException ignored) { }
+        if (messageType != null) {
+            try {
+                message.put("message_type", messageType);
+            } catch (JSONException ignored) {
+                throw new AssertionError("JSONException when adding messagetype");
+            }
+        }
 
-        try { mSocket.send(message.toString()); } catch (ArrayIndexOutOfBoundsException ignored) { }
+        try {
+            mSocket.send(message.toString());
+        } catch (ArrayIndexOutOfBoundsException | ClosedSelectorException ignored) {
+            mConnectionListener.onMatrixDisconnected(mMatrix);
+            close();
+        }
     }
 
     @Override
     public void run() {
-        while(mContinue) {
+        while (mContinue) {
             String recv = "";
             try {
                 recv = mSocket.recvStr();
@@ -93,12 +103,12 @@ public class ZeroMatrixConnection extends Thread {
                 Log.w("zmatrixcomm", "closed selector exception occurred!", e);
             } catch (zmq.ZError.IOException e) {
                 Log.w("zmatrixcomm", "ZError.IOException occurred!", e);
-            }  catch (ArrayIndexOutOfBoundsException e) {
+            } catch (ArrayIndexOutOfBoundsException e) {
                 Log.w("zmatrixcomm", "Array index out of bounds!", e);
-            } catch (ZMQException e){
+            } catch (ZMQException e) {
                 // if the context has been terminated here, a ZMQException about termination is to
                 // be expected, but if it is something else we still want to log it.
-                if(mContinue || e.getErrorCode() != ZMQ_CONTEXT_TERMINATED)
+                if (mContinue || e.getErrorCode() != ZMQ_CONTEXT_TERMINATED)
                     Log.w("zmatrixcomm", "ZMQException occurred!", e);
             }
         }
@@ -120,7 +130,7 @@ public class ZeroMatrixConnection extends Thread {
         mSocket.close();
     }
 
-    public void terminate(){
+    public void terminate() {
         close();
         mContext.term();
     }

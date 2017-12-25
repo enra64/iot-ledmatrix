@@ -128,6 +128,8 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
             mDiscoveryListener = (DiscoveryFragmentInteractionListener) context;
             mExceptionListener = (ExceptionListener) context;
             mMessageListener = (MessageSender) context;
+
+            startDiscovery();
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement DiscoveryFragmentInteractionListener");
@@ -152,20 +154,24 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
     public void startDiscovery() {
         // only start new discovery if not running yet
         if (mDiscovery == null || !mDiscovery.isRunning()) {
-            // create a new discovery thread, if this one already completed
-            if (mDiscovery == null || mDiscovery.hasRun()) {
-                try {
-                    // create discovery client
-                    mDiscovery = new DiscoveryClient(mDeviceName, mServerDiscoveryPort, this, this);
-                    // this is a network problem
-                } catch (IOException | JSONException | NumberFormatException | InvalidParameterException e) {
-                    onException(this, e, "DiscoveryActivity: could not create DiscoveryClient because of: " + e.getClass().toString());
-                }
-            }
+            // avoid starting the discovery before being attached or being created
+            if (mExceptionListener != null && mDiscoveryProgressBar != null){
+                // create a new discovery thread, if this one already completed
+                if (mDiscovery == null || mDiscovery.hasRun()) {
 
-            // start discovery
-            mDiscovery.start();
-            setDiscoveringHintEnabled(true);
+                    try {
+                        // create discovery client
+                        mDiscovery = new DiscoveryClient(mDeviceName, mServerDiscoveryPort, this, this);
+                        // this is a network problem
+                    } catch (IOException | JSONException | NumberFormatException | InvalidParameterException e) {
+                        onException(this, e, "DiscoveryActivity: could not create DiscoveryClient because of: " + e.getClass().toString());
+                    }
+                }
+
+                // start discovery
+                mDiscovery.start();
+                setDiscoveringHintEnabled(true);
+            }
         }
     }
 
