@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone, timedelta
 import logging
 from typing import List
 
@@ -22,7 +22,7 @@ class _Wordclock(CustomScript):
         config_file_path = "assets/susannes_wordclock_config.json"
         self.color_config_path = "wordclock_color_config.json"
         self.logger.info("using {} and {} as config".format(config_file_path, self.color_config_path))
-        self.timezone = datetime.timezone(datetime.timedelta(hours=1))
+        self.timezone = timezone(timedelta(hours=1))
         self.enable = True
 
         try:
@@ -39,7 +39,8 @@ class _Wordclock(CustomScript):
 
     def __get_current_time(self) -> datetime:
         """Helper function for getting the correct time"""
-        return datetime.datetime.now(self.timezone)
+        return datetime.strptime("02:29", '%H:%M')
+        #return datetime.now(self.timezone)
 
     def update(self, canvas):
         time = self.__get_current_time()
