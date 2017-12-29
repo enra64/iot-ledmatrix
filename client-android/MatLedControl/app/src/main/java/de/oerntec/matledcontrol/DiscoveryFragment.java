@@ -211,7 +211,8 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
 
     @Override
     public void onException(Object origin, Exception exception, String info) {
-        mExceptionListener.onException(origin, exception, info);
+        if (mExceptionListener != null)
+            mExceptionListener.onException(origin, exception, info);
     }
 
     @Override

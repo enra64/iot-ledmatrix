@@ -373,7 +373,7 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run() {
                     //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
-                    getSupportActionBar().setSubtitle("Connected to " + matrix.name);
+                    getSupportActionBar().setSubtitle(getString(R.string.connected_to) + matrix.name);
                     if (mCurrentScriptFragment instanceof DiscoveryFragment)
                         ((DiscoveryFragment) mCurrentScriptFragment).refreshMatrices();
                 }
@@ -404,7 +404,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run() {
                 if (matrix != null)
-                    Toast.makeText(MainActivity.this, matrix.name + " lost connection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, matrix.name + getString(R.string.lost_connection), Toast.LENGTH_SHORT).show();
                 //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
                 getSupportActionBar().setSubtitle(null);
                 loadFragment(R.id.device_discovery);

@@ -1,5 +1,6 @@
 package de.oerntec.matledcontrol.networking.communication;
 
+import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -8,6 +9,7 @@ import org.json.JSONObject;
 import org.zeromq.ZMQException;
 
 import java.nio.channels.ClosedSelectorException;
+import java.util.concurrent.ExecutionException;
 
 import de.oerntec.matledcontrol.networking.ConnectionTester;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
@@ -18,12 +20,12 @@ import zmq.ZMQ;
  */
 
 public class ZeroMatrixConnection extends Thread {
-    private final org.zeromq.ZMQ.Context mContext;
-    private final org.zeromq.ZMQ.Socket mSocket;
+    private org.zeromq.ZMQ.Context mContext;
+    private org.zeromq.ZMQ.Socket mSocket;
     private final ScriptFragmentInterface mListener;
     private final ConnectionListener mConnectionListener;
     private final LedMatrix mMatrix;
-    private final ConnectionTester mConnectionTester;
+    private ConnectionTester mConnectionTester;
     private volatile boolean mContinue = true;
     private static final int ZMQ_CONTEXT_TERMINATED = 156384765;
 
@@ -37,15 +39,35 @@ public class ZeroMatrixConnection extends Thread {
         mMatrix = matrix;
 
         // zmq setup
-        mContext = org.zeromq.ZMQ.context(1);
-        mSocket = mContext.socket(ZMQ.ZMQ_DEALER);
-        mSocket.connect("tcp://" + matrix.address + ":" + matrix.dataPort);
+        zmqConnect();
 
         // request connection with matrix
         sendMessage(new JSONObject(), "connection_request");
-        start();
 
-        mConnectionTester = new ConnectionTester(this, 750);
+        // start self-thread
+        start();
+    }
+
+    private void startConnectionHealthTester() {
+        if (mConnectionTester == null)
+            mConnectionTester = new ConnectionTester(this, 750);
+    }
+
+    private void zmqConnect() {
+        mContext = org.zeromq.ZMQ.context(1);
+        mSocket = mContext.socket(ZMQ.ZMQ_DEALER);
+        boolean success;
+        try {
+            success = new ConnectTask(mSocket).execute("tcp://" + mMatrix.address + ":" + mMatrix.dataPort).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            success = false;
+        }
+
+        if(!success) {
+            mConnectionListener.onMatrixDisconnected(mMatrix);
+            close();
+        }
     }
 
     public void sendMessage(JSONObject message, @Nullable String messageType) {
@@ -60,9 +82,15 @@ public class ZeroMatrixConnection extends Thread {
             }
         }
 
+        boolean success;
         try {
-            mSocket.send(message.toString());
-        } catch (ArrayIndexOutOfBoundsException | ClosedSelectorException ignored) {
+            success = new SendMessageTask(mSocket).execute(message).get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            success = false;
+        }
+
+        if (!success) {
             mConnectionListener.onMatrixDisconnected(mMatrix);
             close();
         }
@@ -78,13 +106,15 @@ public class ZeroMatrixConnection extends Thread {
 
                 String messageType = recv_json.getString("message_type");
 
-                mConnectionTester.setAlive();
+                if (mConnectionTester != null)
+                    mConnectionTester.setAlive();
 
                 switch (messageType) {
                     case "connection_request_response":
                         mMatrix.width = recv_json.getInt("matrix_width");
                         mMatrix.height = recv_json.getInt("matrix_height");
                         mConnectionListener.onConnectionRequestResponse(mMatrix, recv_json.getBoolean("granted"));
+                        startConnectionHealthTester();
                         break;
                     case "shutdown_notification":
                         mConnectionListener.onMatrixDisconnected(mMatrix);
@@ -121,17 +151,96 @@ public class ZeroMatrixConnection extends Thread {
 
     public void close() {
         mContinue = false;
-        mConnectionTester.stop();
+        if (mConnectionTester != null)
+            mConnectionTester.stop();
+
         sendMessage(new JSONObject(), "shutdown_notification");
         // drop all messages soon if we cannot send
         mSocket.setLinger(10);
 
         // close down shop
+        try {
+            new CloseTask(mSocket).execute().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
         mSocket.close();
     }
 
     public void terminate() {
         close();
-        mContext.term();
+        if (mContext != null){
+            try {
+                new TerminateTask(mContext).execute().get();
+            } catch (InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static class CloseTask extends AsyncTask<Void, Void, Void> {
+        private final org.zeromq.ZMQ.Socket socket;
+
+        CloseTask(org.zeromq.ZMQ.Socket socket) {
+            this.socket = socket;
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            socket.close();
+            return null;
+        }
+    }
+
+    private static class TerminateTask extends AsyncTask<Void, Void, Void> {
+        private final org.zeromq.ZMQ.Context context;
+
+        TerminateTask(org.zeromq.ZMQ.Context  context) {
+            this.context = context;
+        }
+
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            context.term();
+            return null;
+        }
+    }
+
+    private static class SendMessageTask extends AsyncTask<JSONObject, Void, Boolean> {
+        private final org.zeromq.ZMQ.Socket socket;
+
+        SendMessageTask(org.zeromq.ZMQ.Socket socket) {
+            this.socket = socket;
+        }
+
+        @Override
+        protected Boolean doInBackground(JSONObject... jsonObjects) {
+            try {
+                socket.send(jsonObjects[0].toString());
+                return true;
+            } catch (ArrayIndexOutOfBoundsException | ClosedSelectorException ignored) {
+                return false;
+            }
+        }
+    }
+
+    private static class ConnectTask extends AsyncTask<String, Void, Boolean> {
+        private final org.zeromq.ZMQ.Socket socket;
+
+        ConnectTask(org.zeromq.ZMQ.Socket socket) {
+            this.socket = socket;
+        }
+
+        @Override
+        protected Boolean doInBackground(String... connectionParams) {
+            String connectionString = connectionParams[0];
+            try {
+                socket.connect(connectionString);
+            } catch (Exception e) {
+                return false;
+            }
+            return true;
+        }
     }
 }
