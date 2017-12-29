@@ -127,7 +127,7 @@ class WordLogic:
             result.extend(self.__get_minute(20))
 
         result.extend(self.__get_minute(5))
-        result.extend(self.__get_hour(hours % 12))
+        result.extend(self.__get_hour((hours + 1) % 12))
 
     def __half(self, result, _, hours):
         result.extend(self.__get_minute(30))
