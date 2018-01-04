@@ -35,7 +35,12 @@
     <string name="choose_color">choose color</string>
     <string name="send_text">send text</string>
     <string name="font_size">Font size</string>
-
+    <string-array name="available_wakeup_durations">
+        <item>15min</item>
+        <item>30min</item>
+        <item>45min</item>
+        <item>60min</item>
+    </string-array>
     <string name="searching_for_devices">Searching for Matrices</string>
     <string name="connect_to_device_question">Connect to Matrix?</string>
     <string name="device_denied_connection_request_msg">The Matrix did not accept your connection request</string>
