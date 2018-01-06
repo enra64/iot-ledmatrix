@@ -92,7 +92,8 @@ public class ZeroMatrixConnection extends Thread {
 
         if (!success) {
             mConnectionListener.onMatrixDisconnected(mMatrix);
-            close();
+            if (mContinue)
+                close();
         }
     }
 

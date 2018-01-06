@@ -82,8 +82,10 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
 
             }
         });
+        blendInDurationSpinner.setSelection(1);
 
         wakeTimePicker = (TimePicker) v.findViewById(R.id.wakeup_light_time_picker);
+        wakeTimePicker.setIs24HourView(true);
         wakeTimePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
@@ -115,16 +117,12 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
     }
 
     private void onSendClicked() {
-        Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-        calendar.set(Calendar.MINUTE, currentTimePickerMinute);
-        calendar.set(Calendar.HOUR, currentTimePickerHour);
-
-        Date wakeTime = calendar.getTime();
-
         JSONObject timeSetMessage = new JSONObject();
         try {
             timeSetMessage.put("command", "wakeuplight_set_time");
-            timeSetMessage.put("wake_time", ISO8601DateParser.toString(wakeTime));
+            timeSetMessage.put("wake_hour", currentTimePickerHour);
+            timeSetMessage.put("wake_minute", currentTimePickerMinute);
+            timeSetMessage.put("wake_timezone", TimeZone.getDefault().getID());
             timeSetMessage.put("blend_duration", currentBlendInDuration);
         } catch (JSONException ignored) {
         }

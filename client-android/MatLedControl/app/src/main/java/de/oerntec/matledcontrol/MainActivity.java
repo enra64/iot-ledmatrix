@@ -36,6 +36,7 @@ import de.oerntec.matledcontrol.script_clients.ManualScriptLoadFragment;
 import de.oerntec.matledcontrol.script_clients.ScrollingTextFragment;
 import de.oerntec.matledcontrol.script_clients.camera.Camera2BasicFragment;
 import de.oerntec.matledcontrol.script_clients.draw.DrawFragment;
+import de.oerntec.matledcontrol.script_clients.wakeuplight.WakeupLightSettingsFragment;
 import de.oerntec.matledcontrol.script_clients.wordclock.WordclockFragment;
 import de.oerntec.matledcontrol.script_clients.wordclock_settings.WordclockSettingsFragment;
 
@@ -153,6 +154,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.camera:
                 fragment = Camera2BasicFragment.newInstance();
+                break;
+            case R.id.wakeup_light:
+                fragment = WakeupLightSettingsFragment.newInstance();
                 break;
             case R.id.wordclock_color_selection:
                 fragment = WordclockFragment.newInstance();

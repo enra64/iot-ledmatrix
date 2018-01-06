@@ -17,6 +17,10 @@
         android:icon="@drawable/ic_menu_camera"
         android:title="@string/camera" />
     <item
+        android:id="@+id/wakeup_light"
+        android:icon="@drawable/ic_clock"
+        android:title="@string/wake_up_light" />
+    <item
         android:id="@+id/wordclock_color_selection"
         android:icon="@drawable/ic_palette"
         android:title="@string/wordclock_color_selection" />

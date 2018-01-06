@@ -14,6 +14,12 @@
         android:visible="false"
         android:icon="@drawable/ic_scrolling_text"
         android:title="@string/scrolling_text" />
+
+    <item
+        android:visible="false"
+        android:id="@+id/wakeup_light"
+        android:icon="@drawable/ic_clock"
+        android:title="@string/wake_up_light" />
     <item
         android:id="@+id/camera"
         android:visible="false"
