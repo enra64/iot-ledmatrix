@@ -149,7 +149,7 @@ class WordLogic:
             result.extend(self.__get_minute(20))
 
         result.extend(self.__get_minute(5))
-        result.extend(self.__get_hour(hours % 12))
+        result.extend(self.__get_hour((hours + 1) % 12))
 
     def __before_half(self, result, minutes, hours):
         result.extend(self.__get_minute(minutes))
