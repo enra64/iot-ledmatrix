@@ -52,9 +52,9 @@ class _WakeUpLight(CustomScript):
 
     def on_data(self, json, source_id):
         if "command" in json and json["command"] == "wakeuplight_set_time":
-            #self.wake_time += timedelta(days=1)
-            #self.wake_time.replace(hour=json["wake_hour"], minute=json["wake_minute"])
             self.timezone = pytz.timezone(json["wake_timezone"])
-            self.wake_time = datetime.now(tz=self.timezone).replace(hour=22,minute=40)
+            self.wake_time = datetime.now(tz=self.timezone).replace(hour=json["wake_hour"], minute=json["wake_minute"])
+            self.wake_time += timedelta(days=1)
+            #self.wake_time = datetime.now(tz=self.timezone).replace(hour=22,minute=40)
             self.blend_in_duration = timedelta(minutes=json["blend_duration"])
             self.logger.info("{} with {}min".format(self.wake_time, self.blend_in_duration))
