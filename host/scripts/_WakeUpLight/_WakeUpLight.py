@@ -30,7 +30,7 @@ class _WakeUpLight(CustomScript):
             return
 
         now = datetime.now(tz=self.timezone) + timedelta(minutes=self.delta)
-        self.delta += 1
+        #self.delta += 1
         if self.wake_time - self.blend_in_duration <= now <= self.wake_time + self.blend_in_duration:
             # blend-in phase
             if now < self.wake_time:

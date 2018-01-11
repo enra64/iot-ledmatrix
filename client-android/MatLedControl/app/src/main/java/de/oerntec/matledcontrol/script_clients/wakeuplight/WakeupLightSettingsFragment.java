@@ -1,6 +1,7 @@
 package de.oerntec.matledcontrol.script_clients.wakeuplight;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -93,6 +94,14 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
                 currentTimePickerMinute = minute;
             }
         });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            currentTimePickerHour = wakeTimePicker.getHour();
+            currentTimePickerMinute = wakeTimePicker.getMinute();
+        } else {
+            currentTimePickerHour = wakeTimePicker.getCurrentHour();
+            currentTimePickerMinute = wakeTimePicker.getCurrentMinute();
+        }
 
         sendButton = (Button) v.findViewById(R.id.wakeup_light_send_button);
         sendButton.setOnClickListener(new View.OnClickListener() {
