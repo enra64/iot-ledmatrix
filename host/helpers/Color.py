@@ -419,4 +419,4 @@ class Color():
         return self.__r > 1 - epsilon and self.__g > 1 - epsilon and self.__b > 1 - epsilon
 
     def __str__(self):
-        return "(R{} G{} B{})".format(self.__r, self.__g, self.__b)
+        return "Color(R{} G{} B{})".format(int(self.__r * 255), int(self.__g * 255), int(self.__b * 255))

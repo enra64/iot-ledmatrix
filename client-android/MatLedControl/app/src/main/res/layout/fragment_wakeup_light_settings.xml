@@ -37,41 +37,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.edmodo.rangebar.RangeBar xmlns:custom="http://schemas.android.com/apk/res-auto"
+    <com.appyvet.materialrangebar.RangeBar
         android:id="@+id/wakeup_light_color_temperature_seekbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintEnd_toStartOf="@+id/wakeup_light_color_temperature_upper_text_view"
-        app:layout_constraintStart_toEndOf="@id/wakeup_light_color_temperature_lower_text_view"
-        app:layout_constraintTop_toBottomOf="@+id/wakeup_light_blendin_duration_spinner"
-        custom:barColor="@color/colorAccent"
-        custom:barWeight="0dp"
-        custom:connectingLineColor="@android:color/secondary_text_light_nodisable"
-        custom:connectingLineWeight="0.5dp"
-        custom:thumbColorNormal="@color/colorAccent"
-        custom:thumbColorPressed="@color/colorAccent"
-        custom:thumbRadius="3dp" />
-
-    <TextView
-        android:id="@+id/wakeup_light_color_temperature_upper_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="8dp"
-        android:text="1800K"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/wakeup_light_blendin_duration_spinner" />
-
-    <TextView
-        android:id="@+id/wakeup_light_color_temperature_lower_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="27dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="2800K"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/wakeup_light_blendin_duration_spinner" />
+        app:layout_constraintTop_toBottomOf="@+id/wakeup_light_blendin_duration_spinner"
+        app:mrb_temporaryPins="false"
+        app:mrb_tickEnd="5510"
+        app:mrb_tickInterval="1"
+        app:mrb_tickStart="0" />
 </android.support.constraint.ConstraintLayout>

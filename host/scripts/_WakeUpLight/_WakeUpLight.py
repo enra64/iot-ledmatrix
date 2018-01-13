@@ -20,9 +20,9 @@ class _WakeUpLight(CustomScript):
 
         # initialize required class variables
         self.current_color = Color(0, 0, 0)  # type: Color
-        self.wake_time = None  # type: datetime
-        self.blend_in_duration = None  # type: timedelta
-        self.timezone = None
+        self.timezone = pytz.timezone("Europe/Berlin")
+        self.wake_time = datetime.now(tz=self.timezone).replace(hour=19, minute=10)  # type: datetime
+        self.blend_in_duration = timedelta(minutes=30)  # type: timedelta
         self.time_delta = 0  # type: int
         self.lower_color_temperature = 1800  # type: int
         self.upper_color_temperature = 2800  # type: int
@@ -41,20 +41,18 @@ class _WakeUpLight(CustomScript):
         self.time_delta += 1
         if self.wake_time - self.blend_in_duration <= now <= self.wake_time + self.blend_in_duration:
             # blend-in phase
+            light_percentage = 1
             if now < self.wake_time:
-                # get percentage of activation
                 light_percentage = 1 - ((self.wake_time - now).total_seconds() / self.blend_in_duration.total_seconds())
-                # convert to uint8
-                color_temp = self.lower_color_temperature + (self.upper_color_temperature - self.lower_color_temperature) * light_percentage
-                color_value = Color.from_temperature(color_temp, light_percentage)
-                color_value.set_value(light_percentage)
 
-                self.logger.info("{} at {}".format(color_value, now))
-                # apply
-                self.current_color = color_value
-            # full-light phase
-            else:
-                self.current_color = Color(255, 255, 255)
+            # convert to uint8
+            color_temp = self.lower_color_temperature + (self.upper_color_temperature - self.lower_color_temperature) * light_percentage
+            color_value = Color.from_temperature(color_temp, light_percentage)
+            color_value.set_value(light_percentage)
+
+            self.logger.info("{} at {}".format(color_value, now))
+            # apply
+            self.current_color = color_value
         else:
             self.current_color = Color(0, 0, 0)
 

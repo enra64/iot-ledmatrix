@@ -1,5 +1,6 @@
 package de.oerntec.matledcontrol.script_clients.wakeuplight;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,7 +14,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-import com.edmodo.rangebar.RangeBar;
+
+import com.appyvet.materialrangebar.IRangeBarFormatter;
+import com.appyvet.materialrangebar.RangeBar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +29,7 @@ import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
 import de.oerntec.matledcontrol.script_clients.draw.GridDrawingView;
-
+@SuppressLint("DefaultLocale")
 public class WakeupLightSettingsFragment extends Fragment implements ScriptFragmentInterface {
     private MessageSender mMessageSender;
 
@@ -44,10 +47,8 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
     private Button sendButton;
     private int currentTimePickerHour, currentTimePickerMinute, currentBlendInDuration;
     private RangeBar colorTempSeeker;
-    private TextView upperColorTempLabel;
 
     private int lowerColorTemperatureLimit, upperColorTemperatureLimit;
-    private TextView lowerColorTempLabel;
 
     public WakeupLightSettingsFragment() {
         // Required empty public constructor
@@ -101,17 +102,24 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
             }
         });
 
-        upperColorTempLabel = (TextView) v.findViewById(R.id.wakeup_light_color_temperature_upper_text_view);
-        lowerColorTempLabel = (TextView) v.findViewById(R.id.wakeup_light_color_temperature_lower_text_view);
-
         colorTempSeeker = (RangeBar) v.findViewById(R.id.wakeup_light_color_temperature_seekbar);
-        colorTempSeeker.setThumbIndices(800, 1800);
-        colorTempSeeker.setTickCount(5);
+        colorTempSeeker.setDrawTicks(false);
+        colorTempSeeker.setRangePinsByIndices(800, 1800);
+        colorTempSeeker.setFormatter(new IRangeBarFormatter() {
+
+            @Override
+            public String format(String value) {
+                return String.format("%dK", Integer.valueOf(value) + 1090);
+            }
+        });
         colorTempSeeker.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
-            public void onIndexChangeListener(RangeBar rangeBar, int lowerLimit, int upperLimit) {
-                lowerLimit += 1000;
-                upperLimit += 1000;
+            public void onRangeChangeListener(RangeBar rangeBar, int leftPinIndex, int rightPinIndex, String leftPinValue, String rightPinValue) {
+                int lowerLimit = leftPinIndex < rightPinIndex ? leftPinIndex : rightPinIndex;
+                int upperLimit = leftPinIndex >= rightPinIndex ? leftPinIndex : rightPinIndex;
+
+                lowerLimit += 1090;
+                upperLimit += 1090;
 
                 if (lowerLimit != lowerColorTemperatureLimit)
                     onColorTemperatureChanged(lowerLimit);
@@ -170,9 +178,6 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
     }
 
     private void onColorTemperatureChanged(int colorTemp) {
-        upperColorTempLabel.setText(String.format("%dK", upperColorTemperatureLimit));
-        lowerColorTempLabel.setText(String.format("%dK", lowerColorTemperatureLimit));
-
         JSONObject timeSetMessage = new JSONObject();
         try {
             timeSetMessage.put("command", "test_color_temperature");
