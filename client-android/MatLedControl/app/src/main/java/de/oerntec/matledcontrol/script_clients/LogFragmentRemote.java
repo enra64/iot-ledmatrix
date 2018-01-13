@@ -22,18 +22,18 @@ import org.json.JSONObject;
 
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
-import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
+import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 
-public class LogFragment extends Fragment implements ScriptFragmentInterface {
+public class LogFragmentRemote extends Fragment implements MatrixListener {
     private MessageSender mMessageSender;
     private TextView mConsole;
 
-    public LogFragment() {
+    public LogFragmentRemote() {
         // Required empty public constructor
     }
 
-    public static LogFragment newInstance() {
-        return new LogFragment();
+    public static LogFragmentRemote newInstance() {
+        return new LogFragmentRemote();
     }
 
     @Override

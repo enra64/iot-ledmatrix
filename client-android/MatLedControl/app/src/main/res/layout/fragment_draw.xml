@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="de.oerntec.matledcontrol.script_clients.draw.DrawFragment">
+    tools:context="de.oerntec.matledcontrol.script_clients.draw.DrawFragmentRemote">
 
     <Button
         android:id="@+id/fragment_draw_choose_color_button"

@@ -23,12 +23,12 @@ import org.json.JSONObject;
 
 import de.oerntec.matledcontrol.ExceptionListener;
 import de.oerntec.matledcontrol.R;
+import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
-import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
 
 import static com.pavelsikun.vintagechroma.colormode.ColorMode.RGB;
 
-public class ScrollingTextFragment extends Fragment implements ScriptFragmentInterface, View.OnClickListener {
+public class ScrollingTextFragmentRemote extends Fragment implements MatrixListener, View.OnClickListener {
     private MessageSender mMessageSender;
     private ExceptionListener mExceptionListener;
     private Button mSendTextButton;
@@ -37,7 +37,7 @@ public class ScrollingTextFragment extends Fragment implements ScriptFragmentInt
     private EditText mTextEdit;
     private SeekBar mSizeSeekbar;
 
-    public ScrollingTextFragment() {
+    public ScrollingTextFragmentRemote() {
         // Required empty public constructor
     }
 
@@ -45,10 +45,10 @@ public class ScrollingTextFragment extends Fragment implements ScriptFragmentInt
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment ScrollingTextFragment.
+     * @return A new instance of fragment ScrollingTextFragmentRemote.
      */
-    public static ScrollingTextFragment newInstance() {
-        return new ScrollingTextFragment();
+    public static ScrollingTextFragmentRemote newInstance() {
+        return new ScrollingTextFragmentRemote();
     }
 
     @Override
@@ -100,7 +100,7 @@ public class ScrollingTextFragment extends Fragment implements ScriptFragmentInt
         mSpeedSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                ScrollingTextFragment.this.onSpeedChanged(progress);
+                ScrollingTextFragmentRemote.this.onSpeedChanged(progress);
             }
 
             @Override
@@ -115,7 +115,7 @@ public class ScrollingTextFragment extends Fragment implements ScriptFragmentInt
         mSizeSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                ScrollingTextFragment.this.onSizeChanged(progress);
+                ScrollingTextFragmentRemote.this.onSizeChanged(progress);
             }
 
             @Override

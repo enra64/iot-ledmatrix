@@ -74,9 +74,9 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import de.oerntec.matledcontrol.R;
-import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
+import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 
-public class Camera2BasicFragment extends Fragment implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback, ScriptFragmentInterface {
+public class Camera2BasicFragmentRemote extends Fragment implements View.OnClickListener, FragmentCompat.OnRequestPermissionsResultCallback, MatrixListener {
 
     /**
      * Conversion from screen rotation to JPEG orientation.
@@ -409,13 +409,13 @@ public class Camera2BasicFragment extends Fragment implements View.OnClickListen
         } else if (notBigEnough.size() > 0) {
             return Collections.max(notBigEnough, new CompareSizesByArea());
         } else {
-            Log.e(TAG, "Couldn't find any suitable preview size");
+            Log.e(TAG, "Couldn't find suitable preview size");
             return choices[0];
         }
     }
 
-    public static Camera2BasicFragment newInstance() {
-        return new Camera2BasicFragment();
+    public static Camera2BasicFragmentRemote newInstance() {
+        return new Camera2BasicFragmentRemote();
     }
 
     @Override
@@ -528,7 +528,7 @@ public class Camera2BasicFragment extends Fragment implements View.OnClickListen
                         }
                         break;
                     default:
-                        Log.e(TAG, "Display rotation is invalid: " + displayRotation);
+                        Log.e(TAG, "Display rotation invalid: " + displayRotation);
                 }
 
                 Point displaySize = new Point();
@@ -583,7 +583,7 @@ public class Camera2BasicFragment extends Fragment implements View.OnClickListen
     }
 
     /**
-     * Opens the camera specified by {@link Camera2BasicFragment#mCameraId}.
+     * Opens the camera specified by {@link Camera2BasicFragmentRemote#mCameraId}.
      */
     private void openCamera(int width, int height) {
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.CAMERA)

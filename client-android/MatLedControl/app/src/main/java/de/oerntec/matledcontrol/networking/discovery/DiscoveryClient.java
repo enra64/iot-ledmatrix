@@ -121,7 +121,7 @@ public class DiscoveryClient extends Thread {
                 }
             }
 
-            // close the socket after use
+            // endConnection the socket after use
             socket.close();
         } catch (IOException ex) {
             mExceptionListener.onException(this, ex, "IOException occurred while broadcasting for matrices.");

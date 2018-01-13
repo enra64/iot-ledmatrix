@@ -1,39 +1,37 @@
 package de.oerntec.matledcontrol.networking;
 
-import org.json.JSONObject;
-
-import de.oerntec.matledcontrol.networking.communication.ZeroMatrixConnection;
+import de.oerntec.matledcontrol.networking.communication.ConstantConnectionModule;
 
 public class ConnectionTester {
 
-    private final ZeroMatrixConnection connection;
+    private final ConstantConnectionModule connection;
     private final int interval;
-    private boolean alive, killFlag;
+    private boolean alive, killFlag, requirePing;
 
-    public ConnectionTester(ZeroMatrixConnection connection, int interval) {
+    public ConnectionTester(ConstantConnectionModule connection, int interval) {
         this.connection = connection;
         this.interval = interval;
         alive = true;
         killFlag = false;
-        sendKeepAliveMessage();
-        startChecker();
+        requirePing = true;
+
     }
 
-    private void startChecker() {
+    public void start() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 while (!killFlag) {
-                    if(alive) {
+                    if (alive) {
                         alive = false;
-                        sendKeepAliveMessage();
+                        requirePing = true;
                         try {
                             Thread.sleep(interval);
                         } catch (InterruptedException ignored) {
                         }
                     } else {
-                        if(!killFlag)
-                            connection.timedOut();
+                        if (!killFlag)
+                            connection.onTimeout();
                         break;
                     }
                 }
@@ -41,8 +39,12 @@ public class ConnectionTester {
         }).start();
     }
 
-    private void sendKeepAliveMessage() {
-        connection.sendMessage(new JSONObject(), "connection_test");
+    public boolean requirePing() {
+        if (requirePing) {
+            requirePing = false;
+            return true;
+        }
+        return false;
     }
 
     public void setAlive() {

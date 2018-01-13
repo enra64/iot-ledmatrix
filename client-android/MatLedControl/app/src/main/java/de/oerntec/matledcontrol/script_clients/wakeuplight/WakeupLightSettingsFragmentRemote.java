@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.TimePicker;
 
 
@@ -27,10 +26,10 @@ import java.util.TimeZone;
 
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
-import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
+import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 import de.oerntec.matledcontrol.script_clients.draw.GridDrawingView;
 @SuppressLint("DefaultLocale")
-public class WakeupLightSettingsFragment extends Fragment implements ScriptFragmentInterface {
+public class WakeupLightSettingsFragmentRemote extends Fragment implements MatrixListener {
     private MessageSender mMessageSender;
 
     /**
@@ -50,12 +49,12 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
 
     private int lowerColorTemperatureLimit, upperColorTemperatureLimit;
 
-    public WakeupLightSettingsFragment() {
+    public WakeupLightSettingsFragmentRemote() {
         // Required empty public constructor
     }
 
-    public static WakeupLightSettingsFragment newInstance() {
-        return new WakeupLightSettingsFragment();
+    public static WakeupLightSettingsFragmentRemote newInstance() {
+        return new WakeupLightSettingsFragmentRemote();
     }
 
     @Override

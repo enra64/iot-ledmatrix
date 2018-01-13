@@ -19,20 +19,17 @@ import com.pavelsikun.vintagechroma.ChromaDialog;
 import com.pavelsikun.vintagechroma.IndicatorMode;
 import com.pavelsikun.vintagechroma.OnColorSelectedListener;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
-import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
+import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 
 import static android.view.View.GONE;
 import static com.pavelsikun.vintagechroma.colormode.ColorMode.RGB;
 
-public class WordclockFragment extends Fragment implements ScriptFragmentInterface, View.OnClickListener, DrawingView.UpdateRequiredListener {
+public class WordclockFragmentRemote extends Fragment implements MatrixListener, View.OnClickListener, DrawingView.UpdateRequiredListener {
     private MessageSender mMessageSender;
 
     /**
@@ -53,12 +50,12 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
     private int mCurrentChosenColor = Color.WHITE;
 
 
-    public WordclockFragment() {
+    public WordclockFragmentRemote() {
         // Required empty public constructor
     }
 
-    public static WordclockFragment newInstance() {
-        return new WordclockFragment();
+    public static WordclockFragmentRemote newInstance() {
+        return new WordclockFragmentRemote();
     }
 
     @Override
@@ -158,7 +155,7 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
                         e.printStackTrace();
                         Log.w("wc view parser", "bad json");
                         Toast.makeText(
-                                WordclockFragment.this.getContext(),
+                                WordclockFragmentRemote.this.getContext(),
                                 R.string.device_communication_error,
                                 Toast.LENGTH_LONG).show();
                     }
@@ -180,7 +177,7 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
                         e.printStackTrace();
                         Log.w("wc view parser", "bad json");
                         Toast.makeText(
-                                WordclockFragment.this.getContext(),
+                                WordclockFragmentRemote.this.getContext(),
                                 R.string.device_communication_error,
                                 Toast.LENGTH_LONG).show();
                     }
@@ -216,7 +213,7 @@ public class WordclockFragment extends Fragment implements ScriptFragmentInterfa
         mColorView.setBackgroundColor(color);
         mDrawingView.setColor(color);
         mCurrentChosenColor = color;
-        Toast.makeText(WordclockFragment.this.getContext(), R.string.color_copied, Toast.LENGTH_SHORT).show();
+        Toast.makeText(WordclockFragmentRemote.this.getContext(), R.string.color_copied, Toast.LENGTH_SHORT).show();
     }
 
 

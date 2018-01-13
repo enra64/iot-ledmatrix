@@ -16,13 +16,13 @@ import com.pavelsikun.vintagechroma.OnColorSelectedListener;
 import org.json.JSONObject;
 
 import de.oerntec.matledcontrol.R;
-import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
+import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 
 import static com.pavelsikun.vintagechroma.colormode.ColorMode.RGB;
 
-public class DrawFragment extends Fragment implements ScriptFragmentInterface, View.OnClickListener, GridDrawingView.GridChangeListener {
+public class DrawFragmentRemote extends Fragment implements MatrixListener, View.OnClickListener, GridDrawingView.GridChangeListener {
     private MessageSender mMessageSender;
 
     /**
@@ -35,12 +35,12 @@ public class DrawFragment extends Fragment implements ScriptFragmentInterface, V
      */
     private GridDrawingView mDrawingView;
 
-    public DrawFragment() {
+    public DrawFragmentRemote() {
         // Required empty public constructor
     }
 
-    public static DrawFragment newInstance() {
-        return new DrawFragment();
+    public static DrawFragmentRemote newInstance() {
+        return new DrawFragmentRemote();
     }
 
     @Override

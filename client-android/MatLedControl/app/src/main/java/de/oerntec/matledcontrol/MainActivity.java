@@ -7,16 +7,16 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AlertDialog;
-import android.util.Log;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,23 +25,25 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
-import de.oerntec.matledcontrol.networking.communication.ConnectionListener;
+import de.oerntec.matledcontrol.networking.communication.Connection;
+import de.oerntec.matledcontrol.networking.communication.ConnectionStatusListener;
+import de.oerntec.matledcontrol.networking.communication.ConstantConnection;
+import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.ZeroMatrixConnection;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
-import de.oerntec.matledcontrol.script_clients.AdministrationFragment;
-import de.oerntec.matledcontrol.script_clients.LogFragment;
-import de.oerntec.matledcontrol.script_clients.ManualScriptLoadFragment;
-import de.oerntec.matledcontrol.script_clients.ScrollingTextFragment;
-import de.oerntec.matledcontrol.script_clients.camera.Camera2BasicFragment;
-import de.oerntec.matledcontrol.script_clients.draw.DrawFragment;
-import de.oerntec.matledcontrol.script_clients.wakeuplight.WakeupLightSettingsFragment;
-import de.oerntec.matledcontrol.script_clients.wordclock.WordclockFragment;
-import de.oerntec.matledcontrol.script_clients.wordclock_settings.WordclockSettingsFragment;
+import de.oerntec.matledcontrol.script_clients.AdministrationFragmentRemote;
+import de.oerntec.matledcontrol.script_clients.LogFragmentRemote;
+import de.oerntec.matledcontrol.script_clients.ManualRemoteScriptLoadFragment;
+import de.oerntec.matledcontrol.script_clients.ScrollingTextFragmentRemote;
+import de.oerntec.matledcontrol.script_clients.camera.Camera2BasicFragmentRemote;
+import de.oerntec.matledcontrol.script_clients.draw.DrawFragmentRemote;
+import de.oerntec.matledcontrol.script_clients.wakeuplight.WakeupLightSettingsFragmentRemote;
+import de.oerntec.matledcontrol.script_clients.wordclock.WordclockFragmentRemote;
+import de.oerntec.matledcontrol.script_clients.wordclock_settings.WordclockSettingsFragmentRemote;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, DiscoveryFragment.DiscoveryFragmentInteractionListener, ExceptionListener, ScriptFragmentInterface, ConnectionListener, MessageSender {
+        implements NavigationView.OnNavigationItemSelectedListener, DiscoveryFragmentRemote.DiscoveryFragmentInteractionListener, ExceptionListener, MatrixListener, ConnectionStatusListener, MessageSender {
 
     /**
      * The port set for discovery
@@ -51,12 +53,12 @@ public class MainActivity extends AppCompatActivity
     /**
      * The connection instance we use for communicating with the matrix
      */
-    private ZeroMatrixConnection mConnection;
+    private Connection mConnection;
 
     /**
-     * The currently active fragment, if it implements the ScriptFragmentInterface interface, or null.
+     * The currently active fragment, if it implements the MatrixListener interface, or null.
      */
-    private ScriptFragmentInterface mCurrentScriptFragment;
+    private MatrixListener mCurrentScriptFragment;
 
     /**
      * The matrix we currently are connected to, or null.
@@ -147,55 +149,55 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment;
         switch (id) {
             case R.id.drawing:
-                fragment = DrawFragment.newInstance();
+                fragment = DrawFragmentRemote.newInstance();
                 break;
             case R.id.device_discovery:
-                fragment = DiscoveryFragment.newInstance(Build.MODEL, DISCOVERY_PORT);
+                fragment = DiscoveryFragmentRemote.newInstance(Build.MODEL, DISCOVERY_PORT);
                 break;
             case R.id.camera:
-                fragment = Camera2BasicFragment.newInstance();
+                fragment = Camera2BasicFragmentRemote.newInstance();
                 break;
             case R.id.wakeup_light:
-                fragment = WakeupLightSettingsFragment.newInstance();
+                fragment = WakeupLightSettingsFragmentRemote.newInstance();
                 break;
             case R.id.wordclock_color_selection:
-                fragment = WordclockFragment.newInstance();
+                fragment = WordclockFragmentRemote.newInstance();
                 break;
             case R.id.administration:
-                fragment = AdministrationFragment.newInstance();
+                fragment = AdministrationFragmentRemote.newInstance();
                 break;
             case R.id.manual_script_load:
-                fragment = ManualScriptLoadFragment.newInstance();
+                fragment = ManualRemoteScriptLoadFragment.newInstance();
                 break;
             case R.id.log_viewer:
-                fragment = LogFragment.newInstance();
+                fragment = LogFragmentRemote.newInstance();
                 break;
             case R.id.scrolling_text:
-                fragment = ScrollingTextFragment.newInstance();
+                fragment = ScrollingTextFragmentRemote.newInstance();
                 break;
             case R.id.wordclock_settings:
-                fragment = WordclockSettingsFragment.newInstance();
+                fragment = WordclockSettingsFragmentRemote.newInstance();
                 break;
             default:
                 throw new AssertionError("Unknown menu item clicked");
         }
 
-        //noinspection ConstantConditions // according to AS, fragment is always null or always instanceof ScriptFragmentInterface, both of which seems unlikely
-        if (!(fragment instanceof ScriptFragmentInterface))
-            throw new AssertionError("All main fragments must implement ScriptFragmentInterface!");
+        //noinspection ConstantConditions // according to AS, fragment is always null or always instanceof MatrixListener, both of which seems unlikely
+        if (!(fragment instanceof MatrixListener))
+            throw new AssertionError("All main fragments must implement MatrixListener!");
 
         // enable later callbacks
-        mCurrentScriptFragment = (ScriptFragmentInterface) fragment;
+        mCurrentScriptFragment = (MatrixListener) fragment;
 
         // actually load the fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.main_fragment_container, fragment).commit();
 
         // every fragment but the discovery fragment must request a script from the server
-        if (!(fragment instanceof DiscoveryFragment))
+        if (!(fragment instanceof DiscoveryFragmentRemote))
             requestScript(mCurrentScriptFragment.requestScript());
 
-        // finally, close the drawer
+        // finally, endConnection the drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
     }
@@ -213,8 +215,9 @@ public class MainActivity extends AppCompatActivity
      */
     private void connectToMatrix(LedMatrix matrix) {
         if (mConnection != null)
-            mConnection.close();
-        mConnection = new ZeroMatrixConnection(matrix, this, this);
+            mConnection.closeConnection();
+        mConnection = new ConstantConnection();
+        mConnection.initialize(matrix, this, this);
     }
 
     /**
@@ -271,7 +274,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mConnection.terminate();
+        mConnection.destroy();
     }
 
     /**
@@ -378,8 +381,8 @@ public class MainActivity extends AppCompatActivity
                 public void run() {
                     //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
                     getSupportActionBar().setSubtitle(getString(R.string.connected_to) + matrix.name);
-                    if (mCurrentScriptFragment instanceof DiscoveryFragment)
-                        ((DiscoveryFragment) mCurrentScriptFragment).refreshMatrices();
+                    if (mCurrentScriptFragment instanceof DiscoveryFragmentRemote)
+                        ((DiscoveryFragmentRemote) mCurrentScriptFragment).refreshMatrices();
                 }
             });
         } else {
@@ -401,7 +404,7 @@ public class MainActivity extends AppCompatActivity
         mCurrentMatrix = null;
 
         if (mConnection != null)
-            mConnection.close();
+            mConnection.closeConnection();
         mConnection = null;
 
         runOnUiThread(new Runnable() {

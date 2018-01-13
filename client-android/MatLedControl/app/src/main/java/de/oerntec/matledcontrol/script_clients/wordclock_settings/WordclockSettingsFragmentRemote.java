@@ -19,10 +19,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import de.oerntec.matledcontrol.R;
+import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
-import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
 
-public class WordclockSettingsFragment extends Fragment implements ScriptFragmentInterface, CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener, AdapterView.OnItemSelectedListener {
+public class WordclockSettingsFragmentRemote extends Fragment implements MatrixListener, CompoundButton.OnCheckedChangeListener, SeekBar.OnSeekBarChangeListener, AdapterView.OnItemSelectedListener {
     private MessageSender mMessageSender;
 
     private ConstraintLayout timeSettingsLayout;
@@ -34,12 +34,12 @@ public class WordclockSettingsFragment extends Fragment implements ScriptFragmen
     private Spinner randomizationSpinner;
     private CheckBox randomizationEnabled;
 
-    public WordclockSettingsFragment() {
+    public WordclockSettingsFragmentRemote() {
         // Required empty public constructor
     }
 
-    public static WordclockSettingsFragment newInstance() {
-        return new WordclockSettingsFragment();
+    public static WordclockSettingsFragmentRemote newInstance() {
+        return new WordclockSettingsFragmentRemote();
     }
 
     @Override
@@ -145,12 +145,12 @@ public class WordclockSettingsFragment extends Fragment implements ScriptFragmen
                         boolean enableRandomization = settings.getBoolean("randomization_enabled");
                         int randomizationInterval = settings.getInt("randomization_interval");
 
-                        WordclockSettingsFragment.this.timeLimitsEnabled.setChecked(timeLimitsEnabled);
+                        WordclockSettingsFragmentRemote.this.timeLimitsEnabled.setChecked(timeLimitsEnabled);
                         setViewAndChildrenEnabled(timeSettingsLayout, timeLimitsEnabled);
-                        WordclockSettingsFragment.this.timeSettingsEnableAt.setProgress(enableAt);
-                        WordclockSettingsFragment.this.timeSettingsDisableAt.setProgress(disableAt);
-                        WordclockSettingsFragment.this.randomizationEnabled.setChecked(enableRandomization);
-                        WordclockSettingsFragment.this.randomizationSpinner.setSelection(randomizationInterval);
+                        WordclockSettingsFragmentRemote.this.timeSettingsEnableAt.setProgress(enableAt);
+                        WordclockSettingsFragmentRemote.this.timeSettingsDisableAt.setProgress(disableAt);
+                        WordclockSettingsFragmentRemote.this.randomizationEnabled.setChecked(enableRandomization);
+                        WordclockSettingsFragmentRemote.this.randomizationSpinner.setSelection(randomizationInterval);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

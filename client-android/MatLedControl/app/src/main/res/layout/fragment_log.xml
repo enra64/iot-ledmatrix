@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#212121"
-    tools:context="de.oerntec.matledcontrol.script_clients.LogFragment">
+    tools:context="de.oerntec.matledcontrol.script_clients.LogFragmentRemote">
 
     <TextView
         android:id="@+id/fragment_log_console"

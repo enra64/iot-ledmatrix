@@ -19,21 +19,21 @@ import zmq.ZMQ;
  * Created by arne on 16.03.17.
  */
 
-public class ZeroMatrixConnection extends Thread {
+public class ZeroMatrixConnection extends Thread{
     private org.zeromq.ZMQ.Context mContext;
     private org.zeromq.ZMQ.Socket mSocket;
-    private final ScriptFragmentInterface mListener;
-    private final ConnectionListener mConnectionListener;
+    private final MatrixListener mListener;
+    private final ConnectionStatusListener mConnectionStatusListener;
     private final LedMatrix mMatrix;
     private ConnectionTester mConnectionTester;
     private volatile boolean mContinue = true;
     private static final int ZMQ_CONTEXT_TERMINATED = 156384765;
 
 
-    public ZeroMatrixConnection(LedMatrix matrix, ScriptFragmentInterface listener, ConnectionListener connectionListener) {
+    public ZeroMatrixConnection(LedMatrix matrix, MatrixListener listener, ConnectionStatusListener connectionStatusListener) {
         // listeners
         mListener = listener;
-        mConnectionListener = connectionListener;
+        mConnectionStatusListener = connectionStatusListener;
 
         // store connected networkdevice
         mMatrix = matrix;
@@ -49,8 +49,8 @@ public class ZeroMatrixConnection extends Thread {
     }
 
     private void startConnectionHealthTester() {
-        if (mConnectionTester == null)
-            mConnectionTester = new ConnectionTester(this, 750);
+        //if (mConnectionTester == null)
+        //    mConnectionTester = new ConnectionTester(this, 750);
     }
 
     private void zmqConnect() {
@@ -64,8 +64,8 @@ public class ZeroMatrixConnection extends Thread {
             success = false;
         }
 
-        if(!success) {
-            mConnectionListener.onMatrixDisconnected(mMatrix);
+        if (!success) {
+            mConnectionStatusListener.onMatrixDisconnected(mMatrix);
             if (mContinue)
                 close();
         }
@@ -92,7 +92,7 @@ public class ZeroMatrixConnection extends Thread {
         }
 
         if (!success) {
-            mConnectionListener.onMatrixDisconnected(mMatrix);
+            mConnectionStatusListener.onMatrixDisconnected(mMatrix);
             if (mContinue)
                 close();
         }
@@ -115,11 +115,11 @@ public class ZeroMatrixConnection extends Thread {
                     case "connection_request_response":
                         mMatrix.width = recv_json.getInt("matrix_width");
                         mMatrix.height = recv_json.getInt("matrix_height");
-                        mConnectionListener.onConnectionRequestResponse(mMatrix, recv_json.getBoolean("granted"));
+                        mConnectionStatusListener.onConnectionRequestResponse(mMatrix, recv_json.getBoolean("granted"));
                         startConnectionHealthTester();
                         break;
                     case "shutdown_notification":
-                        mConnectionListener.onMatrixDisconnected(mMatrix);
+                        mConnectionStatusListener.onMatrixDisconnected(mMatrix);
                         break;
                     case "connection_test_response":
                         // handled already
@@ -132,7 +132,7 @@ public class ZeroMatrixConnection extends Thread {
             } catch (JSONException e) {
                 Log.w("zmatrixcomm", "undecipherable JSON received: " + recv, e);
             } catch (ClosedSelectorException e) {
-                mConnectionListener.onMatrixDisconnected(mMatrix);
+                mConnectionStatusListener.onMatrixDisconnected(mMatrix);
                 if (mContinue)
                     close();
             } catch (zmq.ZError.IOException e) {
@@ -149,10 +149,13 @@ public class ZeroMatrixConnection extends Thread {
     }
 
     public void timedOut() {
-        mConnectionListener.onMatrixDisconnected(mMatrix);
+        mConnectionStatusListener.onMatrixDisconnected(mMatrix);
         close();
     }
 
+    /**
+     * Stop the receive thread and the connection tester, notify the remote endpoint, endConnection the socket
+     */
     public void close() {
         mContinue = false;
         if (mConnectionTester != null)
@@ -162,7 +165,7 @@ public class ZeroMatrixConnection extends Thread {
         // drop all messages soon if we cannot send
         mSocket.setLinger(10);
 
-        // close down shop
+        // endConnection down shop
         try {
             new CloseTask(mSocket).execute().get();
         } catch (InterruptedException | ExecutionException e) {
@@ -171,9 +174,12 @@ public class ZeroMatrixConnection extends Thread {
         mSocket.close();
     }
 
+    /**
+     * Close this instance and then terminate our ZMQ context
+     */
     public void terminate() {
         close();
-        if (mContext != null){
+        if (mContext != null) {
             try {
                 new TerminateTask(mContext).execute().get();
             } catch (InterruptedException | ExecutionException e) {
@@ -199,7 +205,7 @@ public class ZeroMatrixConnection extends Thread {
     private static class TerminateTask extends AsyncTask<Void, Void, Void> {
         private final org.zeromq.ZMQ.Context context;
 
-        TerminateTask(org.zeromq.ZMQ.Context  context) {
+        TerminateTask(org.zeromq.ZMQ.Context context) {
             this.context = context;
         }
 

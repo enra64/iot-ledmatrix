@@ -1,17 +1,12 @@
 package de.oerntec.matledcontrol.script_clients;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jraska.console.Console;
 
@@ -20,15 +15,15 @@ import org.json.JSONObject;
 
 import de.oerntec.matledcontrol.ExceptionListener;
 import de.oerntec.matledcontrol.R;
+import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
-import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
 
-public class AdministrationFragment extends Fragment implements ScriptFragmentInterface, View.OnClickListener {
+public class AdministrationFragmentRemote extends Fragment implements MatrixListener, View.OnClickListener {
     private MessageSender mMessageSender;
     private ExceptionListener mExceptionListener;
     private Button mRebootButton, mEchoButton, mRestartScriptButton;
 
-    public AdministrationFragment() {
+    public AdministrationFragmentRemote() {
         // Required empty public constructor
     }
 
@@ -36,10 +31,10 @@ public class AdministrationFragment extends Fragment implements ScriptFragmentIn
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment AdministrationFragment.
+     * @return A new instance of fragment AdministrationFragmentRemote.
      */
-    public static AdministrationFragment newInstance() {
-        AdministrationFragment fragment = new AdministrationFragment();
+    public static AdministrationFragmentRemote newInstance() {
+        AdministrationFragmentRemote fragment = new AdministrationFragmentRemote();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;

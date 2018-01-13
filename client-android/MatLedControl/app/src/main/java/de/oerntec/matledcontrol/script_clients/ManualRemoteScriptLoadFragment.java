@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.oerntec.matledcontrol.R;
+import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
-import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
 
-public class ManualScriptLoadFragment extends Fragment implements ScriptFragmentInterface {
+public class ManualRemoteScriptLoadFragment extends Fragment implements MatrixListener {
     /**
      * The MessageSender responsible for getting our messages out
      */
@@ -36,7 +36,7 @@ public class ManualScriptLoadFragment extends Fragment implements ScriptFragment
     private TextView mRefreshingText;
     private ProgressBar mRefreshingSpinner;
 
-    public ManualScriptLoadFragment() {
+    public ManualRemoteScriptLoadFragment() {
         // Required empty public constructor
     }
 
@@ -44,10 +44,10 @@ public class ManualScriptLoadFragment extends Fragment implements ScriptFragment
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment ManualScriptLoadFragment.
+     * @return A new instance of fragment ManualRemoteScriptLoadFragment.
      */
-    public static ManualScriptLoadFragment newInstance() {
-        ManualScriptLoadFragment fragment = new ManualScriptLoadFragment();
+    public static ManualRemoteScriptLoadFragment newInstance() {
+        ManualRemoteScriptLoadFragment fragment = new ManualRemoteScriptLoadFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -157,7 +157,7 @@ public class ManualScriptLoadFragment extends Fragment implements ScriptFragment
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        ManualScriptLoadFragment.this.mMessageSender.requestScript(scriptName);
+                        ManualRemoteScriptLoadFragment.this.mMessageSender.requestScript(scriptName);
                     }
                 });
             }

@@ -5,7 +5,7 @@ import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 /**
  * An interface abstracting necessary callbacks informing the users of matrix connection state changes
  */
-public interface ConnectionListener {
+public interface ConnectionStatusListener {
     /**
      * Called when matrix answered the connection request
      * @param matrix the matrix we wanted to connect to

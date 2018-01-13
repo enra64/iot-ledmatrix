@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -25,7 +24,7 @@ import java.security.InvalidParameterException;
 import java.util.List;
 
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
-import de.oerntec.matledcontrol.networking.communication.ScriptFragmentInterface;
+import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 import de.oerntec.matledcontrol.networking.discovery.DiscoveryClient;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 import de.oerntec.matledcontrol.networking.discovery.OnDiscoveryListener;
@@ -36,10 +35,10 @@ import de.oerntec.matledcontrol.networking.discovery.OnDiscoveryListener;
  * Activities that contain this fragment must implement the
  * {@link DiscoveryFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link DiscoveryFragment#newInstance} factory method to
+ * Use the {@link DiscoveryFragmentRemote#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, ExceptionListener, ScriptFragmentInterface {
+public class DiscoveryFragmentRemote extends Fragment implements OnDiscoveryListener, ExceptionListener, MatrixListener {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_DEVICE_NAME = "param1";
     private static final String ARG_SERVER_DISCOVERY_PORT = "param2";
@@ -82,18 +81,18 @@ public class DiscoveryFragment extends Fragment implements OnDiscoveryListener, 
     /**
      * Required empty public constructor
      */
-    public DiscoveryFragment() {
+    public DiscoveryFragmentRemote() {
     }
 
     /**
-     * Use this factory to create a new {@link DiscoveryFragment}.
+     * Use this factory to create a new {@link DiscoveryFragmentRemote}.
      * @param deviceName name of this device
      * @param discoveryPort the discovery dataPort the server is listening on
-     * @return new instance of {@link DiscoveryFragment}
+     * @return new instance of {@link DiscoveryFragmentRemote}
      */
     @SuppressWarnings("unused")
-    public static DiscoveryFragment newInstance(String deviceName, int discoveryPort) {
-        DiscoveryFragment fragment = new DiscoveryFragment();
+    public static DiscoveryFragmentRemote newInstance(String deviceName, int discoveryPort) {
+        DiscoveryFragmentRemote fragment = new DiscoveryFragmentRemote();
         Bundle args = new Bundle();
         args.putString(ARG_DEVICE_NAME, deviceName);
         args.putInt(ARG_SERVER_DISCOVERY_PORT, discoveryPort);

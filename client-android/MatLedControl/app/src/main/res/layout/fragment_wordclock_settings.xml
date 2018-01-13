@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="de.oerntec.matledcontrol.script_clients.wordclock.WordclockFragment">
+    tools:context="de.oerntec.matledcontrol.script_clients.wordclock.WordclockFragmentRemote">
 
 
     <CheckBox

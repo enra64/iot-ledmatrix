@@ -5,7 +5,7 @@ import org.json.JSONObject;
 /**
  * This listener interface must be implemented to be notified of data sent by the matrix
  */
-public interface ScriptFragmentInterface {
+public interface MatrixListener {
     /**
      * The script the fragment wants the server to load.
      * @return the name of the script minus ".py" as well as the name of the contained class. "null" is reserved.
