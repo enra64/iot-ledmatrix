@@ -9,10 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+
+import com.edmodo.rangebar.RangeBar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,8 +43,11 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
     private TimePicker wakeTimePicker;
     private Button sendButton;
     private int currentTimePickerHour, currentTimePickerMinute, currentBlendInDuration;
-    private SeekBar colorTempSeeker;
-    private TextView colorTempTextView;
+    private RangeBar colorTempSeeker;
+    private TextView upperColorTempLabel;
+
+    private int lowerColorTemperatureLimit, upperColorTemperatureLimit;
+    private TextView lowerColorTempLabel;
 
     public WakeupLightSettingsFragment() {
         // Required empty public constructor
@@ -97,23 +101,25 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
             }
         });
 
-        colorTempTextView = (TextView) v.findViewById(R.id.wakeup_light_color_temperature_text_view);
+        upperColorTempLabel = (TextView) v.findViewById(R.id.wakeup_light_color_temperature_upper_text_view);
+        lowerColorTempLabel = (TextView) v.findViewById(R.id.wakeup_light_color_temperature_lower_text_view);
 
-        colorTempSeeker = (SeekBar) v.findViewById(R.id.wakeup_light_color_temperature_seekbar);
-        colorTempSeeker.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        colorTempSeeker = (RangeBar) v.findViewById(R.id.wakeup_light_color_temperature_seekbar);
+        colorTempSeeker.setThumbIndices(800, 1800);
+        colorTempSeeker.setTickCount(5);
+        colorTempSeeker.setOnRangeBarChangeListener(new RangeBar.OnRangeBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                onColorTemperatureChanged(progress + 1000);
-            }
+            public void onIndexChangeListener(RangeBar rangeBar, int lowerLimit, int upperLimit) {
+                lowerLimit += 1000;
+                upperLimit += 1000;
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
+                if (lowerLimit != lowerColorTemperatureLimit)
+                    onColorTemperatureChanged(lowerLimit);
+                else
+                    onColorTemperatureChanged(upperLimit);
 
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
+                lowerColorTemperatureLimit = lowerLimit;
+                upperColorTemperatureLimit = upperLimit;
             }
         });
 
@@ -155,7 +161,8 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
             timeSetMessage.put("wake_minute", currentTimePickerMinute);
             timeSetMessage.put("wake_timezone", TimeZone.getDefault().getID());
             timeSetMessage.put("blend_duration", currentBlendInDuration);
-            timeSetMessage.put("color_temperature", colorTempSeeker.getProgress() + 1000);
+            timeSetMessage.put("lower_color_temperature", lowerColorTemperatureLimit);
+            timeSetMessage.put("upper_color_temperature", upperColorTemperatureLimit);
         } catch (JSONException ignored) {
         }
 
@@ -163,7 +170,8 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
     }
 
     private void onColorTemperatureChanged(int colorTemp) {
-        colorTempTextView.setText(String.format("%sK", colorTemp));
+        upperColorTempLabel.setText(String.format("%dK", upperColorTemperatureLimit));
+        lowerColorTempLabel.setText(String.format("%dK", lowerColorTemperatureLimit));
 
         JSONObject timeSetMessage = new JSONObject();
         try {

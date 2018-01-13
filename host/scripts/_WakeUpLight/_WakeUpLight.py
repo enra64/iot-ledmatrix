@@ -23,31 +23,35 @@ class _WakeUpLight(CustomScript):
         self.wake_time = None  # type: datetime
         self.blend_in_duration = None  # type: timedelta
         self.timezone = None
-        self.delta = 0
-        self.color_temperature = 6600
-        self.enable_color_temp_test = False
+        self.time_delta = 0  # type: int
+        self.lower_color_temperature = 1800  # type: int
+        self.upper_color_temperature = 2800  # type: int
+        self.test_color_temperature = None  # type: int
+        self.enable_color_temp_test = False  # type: bool
 
     def update(self, canvas):
         if self.enable_color_temp_test:
-            self.current_color = Color.from_temperature(self.color_temperature, 1)
+            self.current_color = Color.from_temperature(self.test_color_temperature, 1)
             return
 
         if self.wake_time is None or self.blend_in_duration is None:
             return
 
-        now = datetime.now(tz=self.timezone) + timedelta(minutes=self.delta)
-        # self.delta += 1
+        now = datetime.now(tz=self.timezone) + timedelta(minutes=self.time_delta)
+        self.time_delta += 1
         if self.wake_time - self.blend_in_duration <= now <= self.wake_time + self.blend_in_duration:
             # blend-in phase
             if now < self.wake_time:
                 # get percentage of activation
-                wake_percentage = (self.wake_time - now).total_seconds() / self.blend_in_duration.total_seconds()
+                light_percentage = 1 - ((self.wake_time - now).total_seconds() / self.blend_in_duration.total_seconds())
                 # convert to uint8
-                color_value = Color.from_temperature(self.color_temperature, 1 - wake_percentage)
+                color_temp = self.lower_color_temperature + (self.upper_color_temperature - self.lower_color_temperature) * light_percentage
+                color_value = Color.from_temperature(color_temp, light_percentage)
+                color_value.set_value(light_percentage)
 
                 self.logger.info("{} at {}".format(color_value, now))
                 # apply
-                self.current_color = Color.from_temperature(self.color_temperature, 1 - wake_percentage)
+                self.current_color = color_value
             # full-light phase
             else:
                 self.current_color = Color(255, 255, 255)
@@ -64,12 +68,13 @@ class _WakeUpLight(CustomScript):
             self.wake_time += timedelta(days=1)
             # self.wake_time = datetime.now(tz=self.timezone).replace(hour=22,minute=40)
             self.blend_in_duration = timedelta(minutes=json["blend_duration"])
-            self.color_temperature = json["color_temperature"]
+            self.lower_color_temperature = json["lower_color_temperature"]
+            self.upper_color_temperature = json["upper_color_temperature"]
             if self.enable_color_temp_test:
                 self.set_frame_rate(1)
                 self.enable_color_temp_test = False
             self.logger.info("{} with {}min".format(self.wake_time, self.blend_in_duration))
         elif "command" in json and json["command"] == "test_color_temperature":
-            self.color_temperature = json["color_temperature"]
+            self.test_color_temperature = json["color_temperature"]
             self.enable_color_temp_test = True
             self.set_frame_rate(30)
