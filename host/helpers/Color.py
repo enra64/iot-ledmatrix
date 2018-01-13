@@ -3,6 +3,8 @@ from typing import Tuple, Callable
 
 import random
 
+import math
+
 from helpers import utils
 
 
@@ -113,6 +115,52 @@ class Color():
         clr = Color()
         clr.__set_rgb_no_normalization(colorsys.hls_to_rgb(hue, luminance, saturation))
         return clr
+
+    @classmethod
+    def from_temperature(cls, temperature: float, brightness: float):
+        """
+        Create a new color from temperature and brightness
+        :param temperature: temperature, given in kelvin from 1000 to 40,000
+        :param brightness: brightness of the leds, from 0 to 1
+        :return: configured color instance
+        """
+        temperature = (math.log(temperature) - 8, 79) / 1.8
+
+        def polynome(highest_param, second_param, third_param, lowest_param) -> float:
+            return \
+                highest_param * math.pow(temperature, 3) + \
+                second_param * math.pow(temperature, 2) + \
+                third_param * math.pow(temperature, 2) + \
+                lowest_param * math.pow(temperature, 2)
+
+        def red():
+            if temperature >= -1.0:
+                if temperature <= 0.0:
+                    return 255
+                if temperature <= 1.0:
+                    return 255 * polynome(-0.99, 2.34, -1.99, 0.97)
+            return 0
+
+        def green():
+            if temperature >= -1.0:
+                if temperature <= 0.0:
+                    return 255 * polynome(-0.402, -0.211, 1.09, 0.958)
+                if temperature <= 1.0:
+                    return 255 * polynome(-0.542, 1.37, 1.28, 0.941)
+            return 0
+
+        def blue():
+            if temperature >= -1.0:
+                if temperature <= -0.7:
+                    return 0
+                if temperature <= 0.0:
+                    return 255 * polynome(0.0117, 2.05, 2.85, 1)
+                if temperature <= 1.0:
+                    return 255
+            return 0
+
+        return Color(red(), green(), blue())
+
 
     @classmethod
     def random_color(cls):
@@ -345,6 +393,7 @@ class Color():
         """
         hls = colorsys.rgb_to_hls(self.__r, self.__g, self.__b)
         self.__set_rgb_no_normalization(colorsys.hls_to_rgb(hls[0], hls[1], change_function(hls[2])))
+
     # noinspection PyChainedComparisons
 
     def is_black(self, epsilon: float = 1e-09):
@@ -354,6 +403,7 @@ class Color():
         :return: True if black.
         """
         return self.__r < epsilon and self.__g < epsilon and self.__b < epsilon
+
     # noinspection PyChainedComparisons
 
     def is_white(self, epsilon: float = 1e-09):
