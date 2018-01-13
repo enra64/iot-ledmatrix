@@ -16,7 +16,7 @@ class _WakeUpLight(CustomScript):
                          set_frame_rate, get_connected_clients)
         # setup
         self.logger = logging.getLogger("script:wakeuplight")
-        self.set_frame_rate(15)
+        self.set_frame_rate(5)
 
         # initialize required class variables
         self.current_color = Color(0, 0, 0)  # type: Color
