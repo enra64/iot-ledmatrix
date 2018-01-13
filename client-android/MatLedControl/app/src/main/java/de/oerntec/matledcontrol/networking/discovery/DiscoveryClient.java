@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -78,9 +79,9 @@ public class DiscoveryClient extends Thread {
      * have to know its command- and data dataPort yet, because we can instantiate those when acutally
      * connecting to the ports supplied in the discovery response sent by the sever.
      *
-     * @param listener   this listener will be notified of changes in the list of known servers
+     * @param listener            this listener will be notified of changes in the list of known servers
      * @param remoteDiscoveryPort the discoveryPort the discovery server listens on
-     * @param selfName   the name this device should announce itself as
+     * @param selfName            the name this device should announce itself as
      */
     public DiscoveryClient(String selfName, int remoteDiscoveryPort, OnDiscoveryListener listener, ExceptionListener exceptionListener) throws IOException, JSONException {
         // name thread
@@ -112,8 +113,12 @@ public class DiscoveryClient extends Thread {
             while (isRunning()) {
                 try {
                     listen(socket);
-                // ignore timeoutexceptions, they are necessary to be able to check isRunning
-                } catch (SocketTimeoutException ignored) {}
+                    // ignore timeoutexceptions, they are necessary to be able to check isRunning
+                } catch (SocketTimeoutException ignored) {
+                } catch (SocketException e) {
+                    socket = new DatagramSocket();
+                    mBroadcaster.setSocket(socket);
+                }
             }
 
             // close the socket after use
@@ -136,7 +141,7 @@ public class DiscoveryClient extends Thread {
      */
     @Override
     public synchronized void start() {
-        if(mHasRun)
+        if (mHasRun)
             throw new AssertionError("You are trying to restart a thread. That is not legal. Create a new instance instead.");
         mHasRun = true;
         mIsRunning = true;
@@ -160,6 +165,7 @@ public class DiscoveryClient extends Thread {
     /**
      * Check whether this threads {@link #start()} has already been called. If it returns true,
      * start() must not be called on this instance, since threads cannot be restarted.
+     *
      * @return true if this thread has already been started
      */
     public boolean hasRun() {

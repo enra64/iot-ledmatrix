@@ -9,7 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 
 import org.json.JSONException;
@@ -17,9 +19,7 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
-import java.util.logging.Logger;
 
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
@@ -42,6 +42,8 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
     private TimePicker wakeTimePicker;
     private Button sendButton;
     private int currentTimePickerHour, currentTimePickerMinute, currentBlendInDuration;
+    private SeekBar colorTempSeeker;
+    private TextView colorTempTextView;
 
     public WakeupLightSettingsFragment() {
         // Required empty public constructor
@@ -95,6 +97,26 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
             }
         });
 
+        colorTempTextView = (TextView) v.findViewById(R.id.wakeup_light_color_temperature_text_view);
+
+        colorTempSeeker = (SeekBar) v.findViewById(R.id.wakeup_light_color_temperature_seekbar);
+        colorTempSeeker.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                onColorTemperatureChanged(progress + 1000);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             currentTimePickerHour = wakeTimePicker.getHour();
             currentTimePickerMinute = wakeTimePicker.getMinute();
@@ -133,6 +155,20 @@ public class WakeupLightSettingsFragment extends Fragment implements ScriptFragm
             timeSetMessage.put("wake_minute", currentTimePickerMinute);
             timeSetMessage.put("wake_timezone", TimeZone.getDefault().getID());
             timeSetMessage.put("blend_duration", currentBlendInDuration);
+            timeSetMessage.put("color_temperature", colorTempSeeker.getProgress() + 1000);
+        } catch (JSONException ignored) {
+        }
+
+        mMessageSender.sendScriptData(timeSetMessage);
+    }
+
+    private void onColorTemperatureChanged(int colorTemp) {
+        colorTempTextView.setText(String.format("%sK", colorTemp));
+
+        JSONObject timeSetMessage = new JSONObject();
+        try {
+            timeSetMessage.put("command", "test_color_temperature");
+            timeSetMessage.put("color_temperature", colorTemp);
         } catch (JSONException ignored) {
         }
 

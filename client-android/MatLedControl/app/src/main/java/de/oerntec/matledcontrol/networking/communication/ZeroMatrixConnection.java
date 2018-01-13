@@ -66,7 +66,8 @@ public class ZeroMatrixConnection extends Thread {
 
         if(!success) {
             mConnectionListener.onMatrixDisconnected(mMatrix);
-            close();
+            if (mContinue)
+                close();
         }
     }
 
@@ -131,7 +132,9 @@ public class ZeroMatrixConnection extends Thread {
             } catch (JSONException e) {
                 Log.w("zmatrixcomm", "undecipherable JSON received: " + recv, e);
             } catch (ClosedSelectorException e) {
-                Log.w("zmatrixcomm", "closed selector exception occurred!", e);
+                mConnectionListener.onMatrixDisconnected(mMatrix);
+                if (mContinue)
+                    close();
             } catch (zmq.ZError.IOException e) {
                 Log.w("zmatrixcomm", "ZError.IOException occurred!", e);
             } catch (ArrayIndexOutOfBoundsException e) {

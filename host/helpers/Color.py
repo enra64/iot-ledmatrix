@@ -124,14 +124,14 @@ class Color():
         :param brightness: brightness of the leds, from 0 to 1
         :return: configured color instance
         """
-        temperature = (math.log(temperature) - 8, 79) / 1.8
+        temperature = (math.log(temperature) - 8.79) / 1.8
 
         def polynome(highest_param, second_param, third_param, lowest_param) -> float:
             return \
                 highest_param * math.pow(temperature, 3) + \
                 second_param * math.pow(temperature, 2) + \
-                third_param * math.pow(temperature, 2) + \
-                lowest_param * math.pow(temperature, 2)
+                third_param * temperature + \
+                lowest_param
 
         def red():
             if temperature >= -1.0:
@@ -146,7 +146,7 @@ class Color():
                 if temperature <= 0.0:
                     return 255 * polynome(-0.402, -0.211, 1.09, 0.958)
                 if temperature <= 1.0:
-                    return 255 * polynome(-0.542, 1.37, 1.28, 0.941)
+                    return 255 * polynome(-0.542, 1.37, -1.28, 0.941)
             return 0
 
         def blue():
@@ -159,7 +159,11 @@ class Color():
                     return 255
             return 0
 
-        return Color(red(), green(), blue())
+        red = red() * brightness
+        green = green() * brightness
+        blue = blue() * brightness
+
+        return Color(int(red), int(green), int(blue))
 
 
     @classmethod
@@ -413,3 +417,6 @@ class Color():
         :return: True if white.
         """
         return self.__r > 1 - epsilon and self.__g > 1 - epsilon and self.__b > 1 - epsilon
+
+    def __str__(self):
+        return "(R{} G{} B{})".format(self.__r, self.__g, self.__b)
