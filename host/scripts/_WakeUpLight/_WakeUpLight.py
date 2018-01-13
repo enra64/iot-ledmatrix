@@ -16,13 +16,13 @@ class _WakeUpLight(CustomScript):
                          set_frame_rate, get_connected_clients)
         # setup
         self.logger = logging.getLogger("script:wakeuplight")
-        self.set_frame_rate(5)
+        self.set_frame_rate(.1)
 
         # initialize required class variables
         self.current_color = Color(0, 0, 0)  # type: Color
-        self.timezone = pytz.timezone("Europe/Berlin")
-        self.wake_time = datetime.now(tz=self.timezone).replace(hour=20, minute=10)  # type: datetime
-        self.blend_in_duration = timedelta(minutes=30)  # type: timedelta
+        self.timezone = None  # pytz.timezone("Europe/Berlin")
+        self.wake_time = None  # datetime.now(tz=self.timezone).replace(hour=20, minute=10)  # type: datetime
+        self.blend_in_duration = None  # timedelta(minutes=30)  # type: timedelta
         self.time_delta = 0  # type: int
         self.lower_color_temperature = 1800  # type: int
         self.upper_color_temperature = 2800  # type: int
@@ -38,7 +38,7 @@ class _WakeUpLight(CustomScript):
             return
 
         now = datetime.now(tz=self.timezone) + timedelta(minutes=self.time_delta)
-        self.time_delta += 1
+        #self.time_delta += 1
         if self.wake_time - self.blend_in_duration <= now <= self.wake_time + self.blend_in_duration:
             # blend-in phase
             light_percentage = 1
