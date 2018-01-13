@@ -39,8 +39,8 @@ class _Wordclock(CustomScript):
 
     def __get_current_time(self) -> datetime:
         """Helper function for getting the correct time"""
-        return datetime.strptime("11:30", '%H:%M')
-        #return datetime.now(self.timezone)
+        #return datetime.strptime("11:30", '%H:%M')
+        return datetime.now(self.timezone)
 
     def update(self, canvas):
         time = self.__get_current_time()
