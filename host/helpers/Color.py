@@ -165,7 +165,6 @@ class Color():
 
         return Color(int(red), int(green), int(blue))
 
-
     @classmethod
     def random_color(cls):
         """
@@ -199,6 +198,9 @@ class Color():
         """
         return Color(all_component_value, all_component_value, all_component_value)
 
+    def get_hex_string(self) -> str:
+        return "#{:02X}{:02X}{:02X}".format(*self.get_rgb())
+
     def get_aarrggbb_int(self) -> int:
         """
         Return this color as AARRGGBB, where AA is always 255 (fully opaque).
@@ -211,6 +213,7 @@ class Color():
     def get_rgb(self):
         """
         Get an rgb tuple describing this color
+
         :return: 0-255 value, (r,g,b) tuple
         """
         # fuck rounding, humans cant see shit anyways, and this function gets called _really_ often

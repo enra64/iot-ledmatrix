@@ -1,10 +1,11 @@
 import logging
 import threading
+from tkinter import Tk
+from tkinter import Canvas as TkCanvas
 
 from helpers.Color import Color
 
 import Canvas
-from helpers.graphics import *
 
 
 class MatrixGraphicalDisplay:
@@ -25,10 +26,13 @@ class MatrixGraphicalDisplay:
         # create new window
         self.width = matrix_width * 20
         self.height = matrix_height * 20
-        self.win = GraphWin("Matrix test window", width=self.width, height=self.height, autoflush=False)
+        self.tk_root = Tk()
+        self.tk_root.geometry("{}x{}".format(self.width, self.height))
+        self.tk_root.title = "Matrix test window"
+        #self.tk_root.mainloop()
 
-        # translate coordinate system to matrix dimensions
-        self.win.setCoords(0, matrix_height, matrix_width, 0)
+        self.tk_canvas = TkCanvas(self.tk_root)
+        self.tk_canvas.pack()
 
         # store matrix dimensions
         self.matrix_width = matrix_width
@@ -42,9 +46,8 @@ class MatrixGraphicalDisplay:
         self.__destroy_flag = threading.Event()
 
     @staticmethod
-    def __convert_color(color: Color):
-        rgb_255 = [int(round(i * 255)) for i in color.get_rgb()]
-        return color_rgb(*rgb_255)
+    def __convert_color(color: Color) -> str:
+        return color.get_hex_string()
 
     def destroy(self):
         """
@@ -55,6 +58,11 @@ class MatrixGraphicalDisplay:
         # set the abort flag
         self.__destroy_flag.set()
 
+    def __create_rectangle(self, canvas_x: int, canvas_y: int, color: Color):
+        tk_x = canvas_x * 20
+        tk_y = canvas_y * 20
+        self.tk_canvas.create_rectangle(tk_x, tk_y, tk_x + 20, tk_y + 20, fill=color.get_hex_string())
+
     def update_with_canvas(self, canvas: Canvas) -> bool:
         """
         Update the window display. Call from main thread only.
@@ -63,19 +71,14 @@ class MatrixGraphicalDisplay:
         :return: False if the canvas has been destroyed
         """
         if self.__destroy_flag.is_set():
-            self.win.destroy()
+            self.tk_root.destroy()
             return False
 
         for x in range(self.matrix_width):
             for y in range(self.matrix_height):
-                led_rect = Rectangle(Point(x, y), Point(x + 1, y + 1))
-                color_tuple = canvas.get_color(x, y).get_rgb()
-                led_rect.setFill(color_rgb(*color_tuple))
-                if not self.win.isClosed():
-                    led_rect.draw(self.win)
+                self.__create_rectangle(x, y, canvas.get_color(x, y))
 
-        if not self.win.isClosed():
-            self.win.update()
+        self.tk_root.update()
 
         return True
 
@@ -84,4 +87,4 @@ class MatrixGraphicalDisplay:
         Get pressed key. Can be used to block until user input
         :return: key as gotten from graphics.py
         """
-        return self.win.getKey()
+        return self.tk_canvas.getKey()
