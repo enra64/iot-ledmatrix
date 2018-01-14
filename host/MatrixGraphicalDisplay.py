@@ -22,7 +22,6 @@ class MatrixGraphicalDisplay:
             self.logger = logging.getLogger("MatrixGraphicalDisplay")
             self.logger.error("the matrix gui cannot display rotation. you do not want to try this.")
 
-
         # create new window
         self.width = matrix_width * 20
         self.height = matrix_height * 20
@@ -86,17 +85,10 @@ class MatrixGraphicalDisplay:
                 color = "#{:02X}{:02X}{:02X}".format(*canvas.get_color_rgb(x, y))
                 old_rectangle_color = self.rectangles[x][y][1]
 
-                if  old_rectangle_color != color:
+                if old_rectangle_color != color:
                     self.tk_canvas.itemconfigure(self.rectangles[x][y][0], fill=color)
                     self.rectangles[x][y][1] = color
 
         self.tk_root.update()
 
         return True
-
-    def get_key(self):
-        """
-        Get pressed key. Can be used to block until user input
-        :return: key as gotten from graphics.py
-        """
-        return self.tk_canvas.getKey()

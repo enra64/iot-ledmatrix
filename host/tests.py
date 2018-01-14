@@ -163,7 +163,7 @@ def test_gui_canvas_display_by_line():
             c.draw_pixel(c.width - 1 - i, i - (c.width - c.height), blue)
             gui.update_with_canvas(c)
 
-        gui.get_key()
+        time.sleep(.4)
 
     except ImportError:
         print("could not import tkinter, probably")
