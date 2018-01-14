@@ -25,6 +25,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import de.oerntec.matledcontrol.networking.Installation;
 import de.oerntec.matledcontrol.networking.communication.Connection;
 import de.oerntec.matledcontrol.networking.communication.ConnectionStatusListener;
 import de.oerntec.matledcontrol.networking.communication.ConstantConnection;
@@ -217,7 +218,7 @@ public class MainActivity extends AppCompatActivity
         if (mConnection != null)
             mConnection.closeConnection();
         mConnection = new ConstantConnection();
-        mConnection.initialize(matrix, this, this);
+        mConnection.initialize(matrix, this, this, Installation.id(this));
     }
 
     /**

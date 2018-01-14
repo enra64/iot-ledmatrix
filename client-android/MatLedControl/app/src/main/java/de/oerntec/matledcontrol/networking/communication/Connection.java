@@ -1,5 +1,6 @@
 package de.oerntec.matledcontrol.networking.communication;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import org.json.JSONObject;
@@ -11,7 +12,7 @@ import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
  */
 
 public interface Connection {
-    void initialize(LedMatrix matrix, MatrixListener listener, ConnectionStatusListener connectionStatusListener);
+    void initialize(LedMatrix matrix, MatrixListener listener, ConnectionStatusListener connectionStatusListener, @NonNull String installationId);
 
     void sendMessage(JSONObject message, @Nullable String messageType);
 
