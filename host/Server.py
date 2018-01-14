@@ -8,6 +8,7 @@ class Server:
     """
     The Server class handles all client communication after discovery has been completed.
     """
+
     def __init__(
             self,
             script_load_request_handler,
@@ -35,7 +36,7 @@ class Server:
         self.abort = threading.Event()
 
         # storage of approved clients
-        self.approved_clients = []
+        self.approved_clients = {}
 
         # zmq socket creation
         context = zmq.Context.instance()
@@ -69,9 +70,9 @@ class Server:
         script_data = data['script_data']
         self.script_data_handler(script_data, source_id)
 
-    def __send_json_str(self, object_as_json_str, target_id):
+    def __send_json_str(self, object_as_json_str, target_installation_id):
         """this function is the only one that should actually use the socket to send anything."""
-        self.socket.send_multipart([target_id, object_as_json_str.encode("utf-8")])
+        self.socket.send_multipart([self.approved_clients[target_installation_id], object_as_json_str.encode("utf-8")])
 
     def get_client_list(self):
         """
@@ -79,7 +80,7 @@ class Server:
         
         :return: list of client ids. see pyzmq documentation. 
         """
-        return self.approved_clients
+        return self.approved_clients.keys()
 
     def send_object(self, obj, target_id):
         """
@@ -100,19 +101,19 @@ class Server:
         :param obj: the object to be sent
         :return: nothing
         """
-        for client_id in self.approved_clients:
-            self.send_object(obj, client_id)
+        for installation_id in self.approved_clients.keys():
+            self.send_object(obj, installation_id)
 
-    def handle_connection_test(self, data, source_host):
+    def handle_connection_test(self, data, installation_id):
         """
         Handles a connection test simply by replying with an appropriate message type
         
         :param data: not used
-        :param source_host: the client that requested the connection check
+        :param installation_id: the client that requested the connection check
         :return: nothing
         """
         answer = {'message_type': 'connection_test_response'}
-        self.send_object(answer, source_host)
+        self.send_object(answer, installation_id)
 
     def set_connection_request_handler(self, handler):
         """
@@ -124,7 +125,7 @@ class Server:
         """
         self.connection_request_handler = handler
 
-    def handle_connection_request(self, data, source_id):
+    def handle_connection_request(self, data, source_id, installation_id):
         """
         Handles connection requests by either accepting all requests, or asking the custom connection
         request handler that was set.
@@ -137,23 +138,23 @@ class Server:
 
         if self.connection_request_handler is None or self.connection_request_handler(data):
             # any accepted client has its target tuple stored
-            self.approved_clients.append(source_id)
+            self.approved_clients[installation_id] = source_id
             response_object = {
                 'message_type': 'connection_request_response',
                 'granted': True,
                 'matrix_width': self.matrix_width,
                 'matrix_height': self.matrix_height}
-            self.send_object(response_object, source_id)
-            self.on_client_connected(source_id)
-            self.logger.info(str(source_id) + " has connected")
+            self.send_object(response_object, installation_id)
+            self.on_client_connected(installation_id)
+            self.logger.info(str(installation_id) + " has connected")
         else:
-            self.send_object({'message_type': 'connection_request_response', 'granted': False}, source_id)
+            self.send_object({'message_type': 'connection_request_response', 'granted': False}, installation_id)
 
-    def on_client_shutdown(self, data, client_id):
+    def on_client_shutdown(self, data, installation_id):
         """Called when a client disconnects"""
-        self.approved_clients.remove(client_id)
-        self.on_client_disconnected(client_id)
-        self.logger.debug(str(client_id) + " has disconnected")
+        del self.approved_clients[installation_id]
+        self.on_client_disconnected(installation_id)
+        self.logger.debug(str(installation_id) + " has disconnected")
 
     def __wait(self):
         """Wait continuously for discovery requests"""
@@ -165,19 +166,20 @@ class Server:
 
             msg_decoded_json = json.loads(message.decode())
             message_type = msg_decoded_json['message_type']
+            installation_id = msg_decoded_json['id']
 
             # special handling for connection requests, because those are accepted by non-approved clients
             if message_type == "connection_request":
-                self.handle_connection_request(msg_decoded_json, client_id)
+                self.handle_connection_request(msg_decoded_json, client_id, installation_id)
             # messages by approved clients will be handled now
-            elif client_id in self.approved_clients:
+            elif installation_id in self.approved_clients:
                 {
                     'connection_request': self.handle_connection_request,
                     'script_load_request': self.handle_script_load_request,
                     'script_data': self.handle_script_data,
                     'connection_test': self.handle_connection_test,
                     'shutdown_notification': self.on_client_shutdown
-                }.get(message_type)(msg_decoded_json, client_id)
+                }.get(message_type)(msg_decoded_json, installation_id)
 
     def start(self):
         """Start listening for messages"""

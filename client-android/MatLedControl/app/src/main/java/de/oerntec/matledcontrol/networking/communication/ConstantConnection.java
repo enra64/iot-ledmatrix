@@ -1,7 +1,9 @@
 package de.oerntec.matledcontrol.networking.communication;
 
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -10,11 +12,8 @@ import org.zeromq.ZMQ;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import de.oerntec.matledcontrol.BuildConfig;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
-
-/**
- * Created by arne on 13.01.18.
- */
 
 public class ConstantConnection implements Connection, ConstantConnectionModuleListener {
     private LedMatrix matrix;
@@ -24,16 +23,20 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
     private Queue<JSONObject> outBox;
     private ZMQ.Context zmqContext;
     private String connectionString;
+    private String installationId;
 
     @Override
-    public void initialize(LedMatrix matrix, MatrixListener listener, ConnectionStatusListener connectionStatusListener) {
+    public void initialize(LedMatrix matrix, MatrixListener listener, ConnectionStatusListener connectionStatusListener, @NonNull String installationId) {
         this.matrix = matrix;
         this.matrixListener = listener;
+        this.installationId = installationId;
         this.connectionStatusListener = connectionStatusListener;
         outBox = new ArrayBlockingQueue<>(200);
         zmqContext = org.zeromq.ZMQ.context(1);
         connectionString = "tcp://" + matrix.address + ":" + matrix.dataPort;
         cycleModule();
+
+        sendMessage(new JSONObject(), "connection_request");
     }
 
     @Override
@@ -48,6 +51,13 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
             }
         }
 
+        try {
+            message.put("id", installationId);
+        } catch (JSONException e) {
+            if (BuildConfig.DEBUG)
+                Log.w("ConstantConnection", e);
+        }
+
         outBox.add(message);
     }
 
@@ -56,7 +66,8 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
      */
     @Override
     public void closeConnection() {
-        module.endConnection();
+        if (module != null)
+            module.endConnection();
         module = null;
     }
 
@@ -75,7 +86,7 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
     }
 
     @Override
-    public void moduleFailed() {
+    public void moduleStopped() {
         cycleModule();
     }
 
@@ -83,7 +94,7 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
         if (module != null)
             module.endConnection();
         module = new ConstantConnectionModule();
-        module.start(connectionString, zmqContext, this);
+        module.start(connectionString, zmqContext, this, installationId);
     }
 
     @Override

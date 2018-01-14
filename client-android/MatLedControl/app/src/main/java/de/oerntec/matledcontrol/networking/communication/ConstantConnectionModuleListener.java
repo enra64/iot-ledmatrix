@@ -7,7 +7,10 @@ import org.json.JSONObject;
  */
 
 public interface ConstantConnectionModuleListener {
-    void moduleFailed();
+    /**
+     * Called if the run thread has exited
+     */
+    void moduleStopped();
     void matrixShutDown();
     JSONObject getNextOutMessage();
     void onMatrixAcceptedConnection(int width, int height);
