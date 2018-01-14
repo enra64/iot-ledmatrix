@@ -1,4 +1,5 @@
 import logging
+from typing import Tuple
 
 from helpers.Color import Color
 
@@ -182,6 +183,18 @@ class Canvas:
         elif largest_color_index == 1:
             return 'g'
         return 'b'
+
+    def get_color_rgb(self, x, y) -> Tuple[int, int, int]:
+        """
+        Return an rgb tuple describing the color of the led at x, y. You should not normally use this method, as it
+        only shaves off the overhead of creating the color object
+
+        :param x: x position of pixel; counted from zero beginning on the left, must be smaller than the canvas width
+        :param y: y position of pixel; y is zero for the top row of pixels, must be smaller than the canvas height
+        :return: rgb integer tuple for the color (e.g. 0-255)
+        """
+        red_index = self.get_red_index(x, y)
+        return self.data_buffer[red_index], self.data_buffer[red_index + 1], self.data_buffer[red_index + 2]
 
     def get_color(self, x, y) -> Color:
         """

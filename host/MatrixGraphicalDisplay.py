@@ -29,8 +29,6 @@ class MatrixGraphicalDisplay:
         self.tk_root = Tk()
         self.tk_root.geometry("{}x{}".format(self.width, self.height))
         self.tk_root.title = "Matrix test window"
-        #self.tk_root.mainloop()
-
         self.tk_canvas = TkCanvas(self.tk_root)
         self.tk_canvas.pack()
 
@@ -41,6 +39,15 @@ class MatrixGraphicalDisplay:
         # led display width
         self.led_width = self.width / self.matrix_width
         self.led_height = self.height / self.matrix_height
+
+        # pre-create the rectangles to be drawn
+        self.rectangles = {}
+        for x in range(self.matrix_width):
+            if x not in self.rectangles:
+                self.rectangles[x] = {}
+
+            for y in range(self.matrix_height):
+                self.rectangles[x][y] = [self.__create_rectangle(x, y), ""]
 
         # abort flag
         self.__destroy_flag = threading.Event()
@@ -58,10 +65,10 @@ class MatrixGraphicalDisplay:
         # set the abort flag
         self.__destroy_flag.set()
 
-    def __create_rectangle(self, canvas_x: int, canvas_y: int, color: Color):
+    def __create_rectangle(self, canvas_x: int, canvas_y: int) -> int:
         tk_x = canvas_x * 20
         tk_y = canvas_y * 20
-        self.tk_canvas.create_rectangle(tk_x, tk_y, tk_x + 20, tk_y + 20, fill=color.get_hex_string())
+        return self.tk_canvas.create_rectangle(tk_x, tk_y, tk_x + 20, tk_y + 20)
 
     def update_with_canvas(self, canvas: Canvas) -> bool:
         """
@@ -76,7 +83,12 @@ class MatrixGraphicalDisplay:
 
         for x in range(self.matrix_width):
             for y in range(self.matrix_height):
-                self.__create_rectangle(x, y, canvas.get_color(x, y))
+                color = "#{:02X}{:02X}{:02X}".format(*canvas.get_color_rgb(x, y))
+                old_rectangle_color = self.rectangles[x][y][1]
+
+                if  old_rectangle_color != color:
+                    self.tk_canvas.itemconfigure(self.rectangles[x][y][0], fill=color)
+                    self.rectangles[x][y][1] = color
 
         self.tk_root.update()
 

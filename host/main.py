@@ -193,7 +193,7 @@ if __name__ == "__main__":
             # enable gui
             if enable_graphical_display:
                 while manager.update_gui():
-                    sleep(0.03)
+                    sleep(1 / 24)
             # wait for exit to be able to catch exceptions
             manager.join()
 
