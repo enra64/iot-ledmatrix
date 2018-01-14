@@ -47,7 +47,7 @@ public class WakeupLightSettingsFragmentRemote extends Fragment implements Matri
     private int currentTimePickerHour, currentTimePickerMinute, currentBlendInDuration;
     private RangeBar colorTempSeeker;
 
-    private int lowerColorTemperatureLimit, upperColorTemperatureLimit;
+    private int lowerColorTemperatureLimit = 1890, upperColorTemperatureLimit = 2800;
 
     public WakeupLightSettingsFragmentRemote() {
         // Required empty public constructor
@@ -103,7 +103,7 @@ public class WakeupLightSettingsFragmentRemote extends Fragment implements Matri
 
         colorTempSeeker = (RangeBar) v.findViewById(R.id.wakeup_light_color_temperature_seekbar);
         colorTempSeeker.setDrawTicks(false);
-        colorTempSeeker.setRangePinsByIndices(800, 1800);
+        colorTempSeeker.setRangePinsByIndices(lowerColorTemperatureLimit - 1000, upperColorTemperatureLimit - 100);
         colorTempSeeker.setFormatter(new IRangeBarFormatter() {
 
             @Override
