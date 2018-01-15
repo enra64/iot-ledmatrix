@@ -1,6 +1,6 @@
 package de.oerntec.matledcontrol.networking.communication;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 /**
  * This listener interface must be implemented to be notified of data sent by the matrix
@@ -15,5 +15,5 @@ public interface MatrixListener {
     /**
      * Called whenever this script receives data from the matrix
      */
-    void onMessage(JSONObject data);
+    void onMessage(JsonObject data);
 }

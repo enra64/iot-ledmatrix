@@ -16,15 +16,16 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.gson.JsonObject;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.List;
 
-import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.MatrixListener;
+import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.discovery.DiscoveryClient;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 import de.oerntec.matledcontrol.networking.discovery.OnDiscoveryListener;
@@ -227,7 +228,7 @@ public class DiscoveryFragmentRemote extends Fragment implements OnDiscoveryList
     }
 
     @Override
-    public void onMessage(JSONObject data) {
+    public void onMessage(JsonObject data) {
         Log.w("discoveryfragment", "received unexpected message: " + data.toString());
     }
 

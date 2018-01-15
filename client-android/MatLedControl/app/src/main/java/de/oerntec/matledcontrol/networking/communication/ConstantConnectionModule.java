@@ -2,8 +2,10 @@ package de.oerntec.matledcontrol.networking.communication;
 
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
+
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
 
@@ -22,6 +24,7 @@ public class ConstantConnectionModule extends Thread implements ConstantConnecti
     private ConstantConnectionModuleListener constantConnectionModuleListener;
     private static final int ZMQ_CONTEXT_TERMINATED = 156384765;
     private String pingMessage;
+    private JsonParser jsonParser = new JsonParser();
 
     @Override
     public void run() {
@@ -41,7 +44,7 @@ public class ConstantConnectionModule extends Thread implements ConstantConnecti
     }
 
     private void listenToApp() {
-        JSONObject nextOutMessage = constantConnectionModuleListener.getNextOutMessage();
+        JsonObject nextOutMessage = constantConnectionModuleListener.getNextOutMessage();
         try {
             if (nextOutMessage != null)
                 zmqSocket.send(nextOutMessage.toString());
@@ -68,15 +71,17 @@ public class ConstantConnectionModule extends Thread implements ConstantConnecti
             if (received == null)
                 return;
 
-            JSONObject receivedJson = new JSONObject(received);
+            JsonObject receivedJson = jsonParser.parse(received).getAsJsonObject();
 
-            String messageType = receivedJson.getString("message_type");
+            String messageType = receivedJson.get("message_type").getAsString();
 
             mConnectionTester.setAlive();
 
             switch (messageType) {
                 case "connection_request_response":
-                    constantConnectionModuleListener.onMatrixAcceptedConnection(receivedJson.getInt("matrix_width"), receivedJson.getInt("matrix_height"));
+                    int matrixWidth = receivedJson.get("matrix_width").getAsInt();
+                    int matrixHeight = receivedJson.get("matrix_height").getAsInt();
+                    constantConnectionModuleListener.onMatrixAcceptedConnection(matrixWidth, matrixHeight);
                     mConnectionTester.start();
                     break;
                 case "shutdown_notification":
@@ -89,11 +94,9 @@ public class ConstantConnectionModule extends Thread implements ConstantConnecti
                 default:
                     constantConnectionModuleListener.onReceive(receivedJson);
             }
-
-
-        } catch (JSONException e) {
+        } catch (JsonParseException e) {
             if (BuildConfig.DEBUG)
-                Log.w("zmatrixcomm", "undecipherable JSON received: " + received, e);
+                Log.e("ccm", "JsonParseException for " + received, e);
         } catch (ClosedSelectorException e) {
             continueRunning = false;
         } catch (zmq.ZError.IOException e) {

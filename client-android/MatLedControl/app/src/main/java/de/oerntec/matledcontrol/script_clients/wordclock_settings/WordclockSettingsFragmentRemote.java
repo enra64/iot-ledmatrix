@@ -15,8 +15,9 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.google.gson.JsonObject;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MatrixListener;
@@ -74,14 +75,9 @@ public class WordclockSettingsFragmentRemote extends Fragment implements MatrixL
         if (context instanceof MessageSender) {
             mMessageSender = (MessageSender) context;
 
-            try {
-                JSONObject com = new JSONObject();
-                com.put("command", "retry sending wordclock config");
-                mMessageSender.sendScriptData(com);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.wtf("wordclockfragment", "ffs putting a string in a json object just crashed");
-            }
+            JsonObject com = new JsonObject();
+            com.addProperty("command", "retry sending wordclock config");
+            mMessageSender.sendScriptData(com);
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -111,7 +107,7 @@ public class WordclockSettingsFragmentRemote extends Fragment implements MatrixL
     }
 
     @Override
-    public void onMessage(JSONObject data) {
+    public void onMessage(JsonObject data) {
         try {
             fromJson(data);
         } catch (JSONException e) {
@@ -120,40 +116,36 @@ public class WordclockSettingsFragmentRemote extends Fragment implements MatrixL
         }
     }
 
-    private JSONObject toJson() throws JSONException {
-        JSONObject result = new JSONObject();
-        result.put("limit_display_time", timeLimitsEnabled.isChecked());
-        result.put("display_time_start_h", timeSettingsEnableAt.getProgress());
-        result.put("display_time_stop_h", timeSettingsDisableAt.getProgress());
-        result.put("randomization_enabled", randomizationEnabled.isChecked());
-        result.put("randomization_interval", randomizationSpinner.getSelectedItemPosition());
+    private JsonObject toJson() throws JSONException {
+        JsonObject result = new JsonObject();
+        result.addProperty("limit_display_time", timeLimitsEnabled.isChecked());
+        result.addProperty("display_time_start_h", timeSettingsEnableAt.getProgress());
+        result.addProperty("display_time_stop_h", timeSettingsDisableAt.getProgress());
+        result.addProperty("randomization_enabled", randomizationEnabled.isChecked());
+        result.addProperty("randomization_interval", randomizationSpinner.getSelectedItemPosition());
         return result;
     }
 
-    private void fromJson(final JSONObject data) throws JSONException {
-        String messageType = data.getString("message_type");
+    private void fromJson(final JsonObject data) throws JSONException {
+        String messageType = data.get("message_type").getAsString();
 
         if (getActivity() != null && "wordclock_settings".equals(messageType))
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        JSONObject settings = data.getJSONObject("settings");
-                        boolean timeLimitsEnabled = settings.getBoolean("limit_display_time");
-                        int enableAt = settings.getInt("display_time_start_h");
-                        int disableAt = settings.getInt("display_time_stop_h");
-                        boolean enableRandomization = settings.getBoolean("randomization_enabled");
-                        int randomizationInterval = settings.getInt("randomization_interval");
+                    JsonObject settings = data.get("settings").getAsJsonObject();
+                    boolean timeLimitsEnabled = settings.get("limit_display_time").getAsBoolean();
+                    int enableAt = settings.get("display_time_start_h").getAsInt();
+                    int disableAt = settings.get("display_time_stop_h").getAsInt();
+                    boolean enableRandomization = settings.get("randomization_enabled").getAsBoolean();
+                    int randomizationInterval = settings.get("randomization_interval").getAsInt();
 
-                        WordclockSettingsFragmentRemote.this.timeLimitsEnabled.setChecked(timeLimitsEnabled);
-                        setViewAndChildrenEnabled(timeSettingsLayout, timeLimitsEnabled);
-                        WordclockSettingsFragmentRemote.this.timeSettingsEnableAt.setProgress(enableAt);
-                        WordclockSettingsFragmentRemote.this.timeSettingsDisableAt.setProgress(disableAt);
-                        WordclockSettingsFragmentRemote.this.randomizationEnabled.setChecked(enableRandomization);
-                        WordclockSettingsFragmentRemote.this.randomizationSpinner.setSelection(randomizationInterval);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
+                    WordclockSettingsFragmentRemote.this.timeLimitsEnabled.setChecked(timeLimitsEnabled);
+                    setViewAndChildrenEnabled(timeSettingsLayout, timeLimitsEnabled);
+                    WordclockSettingsFragmentRemote.this.timeSettingsEnableAt.setProgress(enableAt);
+                    WordclockSettingsFragmentRemote.this.timeSettingsDisableAt.setProgress(disableAt);
+                    WordclockSettingsFragmentRemote.this.randomizationEnabled.setChecked(enableRandomization);
+                    WordclockSettingsFragmentRemote.this.randomizationSpinner.setSelection(randomizationInterval);
                 }
             });
     }
@@ -168,9 +160,9 @@ public class WordclockSettingsFragmentRemote extends Fragment implements MatrixL
 
     private void updateRemote() {
         try {
-            JSONObject update = new JSONObject();
-            update.put("command", "update_settings");
-            update.put("settings", toJson());
+            JsonObject update = new JsonObject();
+            update.addProperty("command", "update_settings");
+            update.add("settings", toJson());
             mMessageSender.sendScriptData(update);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -185,7 +177,7 @@ public class WordclockSettingsFragmentRemote extends Fragment implements MatrixL
      */
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if(buttonView.getId() == R.id.settings_enable_display_time_limits)
+        if (buttonView.getId() == R.id.settings_enable_display_time_limits)
             setViewAndChildrenEnabled(timeSettingsLayout, isChecked);
         else if (buttonView.getId() == R.id.wordclock_settings_randomization_enabled)
             setViewAndChildrenEnabled(randomizationSpinner, isChecked);

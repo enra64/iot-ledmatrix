@@ -1,11 +1,11 @@
 package de.oerntec.matledcontrol.networking.discovery;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
  * This object is used to identify psychic network devices
@@ -26,6 +26,8 @@ public class LedMatrix implements Serializable {
      * dataPort the device is listening on for discovery packets
      */
     public int discoveryPort;
+
+    private static JsonParser jsonParser = new JsonParser();
 
     /**
      * ip address
@@ -118,9 +120,9 @@ public class LedMatrix implements Serializable {
      * @return LedMatrix equal to the json representation
      * @throws JSONException if "name" or "dataPort" is missing in the json object
      */
-    public static LedMatrix fromJson(JSONObject json) throws JSONException {
-        String name = json.getString("name");
-        int port = json.getInt("data_port");
+    public static LedMatrix fromJson(JsonObject json) throws JSONException {
+        String name = json.get("name").getAsString();
+        int port = json.get("data_port").getAsInt();
 
         // default parameter values
         String address = "invalid";
@@ -128,10 +130,10 @@ public class LedMatrix implements Serializable {
         int width = -1;
         int height = -1;
 
-        if (json.has("address")) address = json.getString("address");
-        if (json.has("discovery_port")) discoveryPort = json.getInt("discovery_port");
-        if (json.has("matrix_width")) width = json.getInt("matrix_width");
-        if (json.has("matrix_height")) height = json.getInt("matrix_height");
+        if (json.has("address")) address = json.get("address").getAsString();
+        if (json.has("discovery_port")) discoveryPort = json.get("discovery_port").getAsInt();
+        if (json.has("matrix_width")) width = json.get("matrix_width").getAsInt();
+        if (json.has("matrix_height")) height = json.get("matrix_height").getAsInt();
 
         return new LedMatrix(name, discoveryPort, port, address, width, height);
     }
@@ -144,20 +146,20 @@ public class LedMatrix implements Serializable {
      * @throws JSONException if "name" or "dataPort" is missing in the json object
      */
     public static LedMatrix fromJsonString(String json) throws JSONException {
-        return fromJson(new JSONObject(json));
+        return fromJson(jsonParser.parse(json).getAsJsonObject());
     }
 
 
-    public JSONObject toJson() throws JSONException {
-        JSONObject thisDevice = new JSONObject();
-        thisDevice.put("name", name);
-        thisDevice.put("data_port", dataPort);
-        thisDevice.put("discovery_port", discoveryPort);
-        thisDevice.put("matrix_width", width);
-        thisDevice.put("matrix_height", height);
+    public JsonObject toJson() throws JSONException {
+        JsonObject thisDevice = new JsonObject();
+        thisDevice.addProperty("name", name);
+        thisDevice.addProperty("data_port", dataPort);
+        thisDevice.addProperty("discovery_port", discoveryPort);
+        thisDevice.addProperty("matrix_width", width);
+        thisDevice.addProperty("matrix_height", height);
 
         if (address != null)
-            thisDevice.put("address", address);
+            thisDevice.addProperty("address", address);
 
         return thisDevice;
     }

@@ -59,7 +59,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -887,7 +887,7 @@ public class Camera2BasicFragmentRemote extends Fragment implements View.OnClick
     }
 
     @Override
-    public void onMessage(JSONObject data) {
+    public void onMessage(JsonObject data) {
         // ignore
     }
 

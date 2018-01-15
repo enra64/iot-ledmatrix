@@ -3,7 +3,7 @@ package de.oerntec.matledcontrol.networking.communication;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 
@@ -14,7 +14,7 @@ import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 public interface Connection {
     void initialize(LedMatrix matrix, MatrixListener listener, ConnectionStatusListener connectionStatusListener, @NonNull String installationId);
 
-    void sendMessage(JSONObject message, @Nullable String messageType);
+    void sendMessage(JsonObject message, @Nullable String messageType);
 
     /**
      * Close the current connection

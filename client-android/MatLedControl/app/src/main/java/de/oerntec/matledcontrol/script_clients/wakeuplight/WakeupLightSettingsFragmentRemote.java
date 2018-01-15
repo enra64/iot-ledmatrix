@@ -13,20 +13,17 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
-
 import com.appyvet.materialrangebar.IRangeBarFormatter;
 import com.appyvet.materialrangebar.RangeBar;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.TimeZone;
 
 import de.oerntec.matledcontrol.R;
-import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.MatrixListener;
+import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.script_clients.draw.GridDrawingView;
 @SuppressLint("DefaultLocale")
 public class WakeupLightSettingsFragmentRemote extends Fragment implements MatrixListener {
@@ -161,28 +158,22 @@ public class WakeupLightSettingsFragmentRemote extends Fragment implements Matri
     }
 
     private void onSendClicked() {
-        JSONObject timeSetMessage = new JSONObject();
-        try {
-            timeSetMessage.put("command", "wakeuplight_set_time");
-            timeSetMessage.put("wake_hour", currentTimePickerHour);
-            timeSetMessage.put("wake_minute", currentTimePickerMinute);
-            timeSetMessage.put("wake_timezone", TimeZone.getDefault().getID());
-            timeSetMessage.put("blend_duration", currentBlendInDuration);
-            timeSetMessage.put("lower_color_temperature", lowerColorTemperatureLimit);
-            timeSetMessage.put("upper_color_temperature", upperColorTemperatureLimit);
-        } catch (JSONException ignored) {
-        }
+        JsonObject timeSetMessage = new JsonObject();
+        timeSetMessage.addProperty("command", "wakeuplight_set_time");
+        timeSetMessage.addProperty("wake_hour", currentTimePickerHour);
+        timeSetMessage.addProperty("wake_minute", currentTimePickerMinute);
+        timeSetMessage.addProperty("wake_timezone", TimeZone.getDefault().getID());
+        timeSetMessage.addProperty("blend_duration", currentBlendInDuration);
+        timeSetMessage.addProperty("lower_color_temperature", lowerColorTemperatureLimit);
+        timeSetMessage.addProperty("upper_color_temperature", upperColorTemperatureLimit);
 
         mMessageSender.sendScriptData(timeSetMessage);
     }
 
     private void onColorTemperatureChanged(int colorTemp) {
-        JSONObject timeSetMessage = new JSONObject();
-        try {
-            timeSetMessage.put("command", "test_color_temperature");
-            timeSetMessage.put("color_temperature", colorTemp);
-        } catch (JSONException ignored) {
-        }
+        JsonObject timeSetMessage = new JsonObject();
+        timeSetMessage.addProperty("command", "test_color_temperature");
+        timeSetMessage.addProperty("color_temperature", colorTemp);
 
         mMessageSender.sendScriptData(timeSetMessage);
     }
@@ -199,14 +190,14 @@ public class WakeupLightSettingsFragmentRemote extends Fragment implements Matri
     }
 
     @Override
-    public void onMessage(JSONObject data) {
+    public void onMessage(JsonObject data) {
         try {
             Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
-            calendar.setTime(ISO8601DateParser.parse(data.getString("wakeTime")));
+            calendar.setTime(ISO8601DateParser.parse(data.get("wakeTime").getAsString()));
             wakeTimePicker.setCurrentHour(calendar.get(Calendar.HOUR));
             wakeTimePicker.setCurrentMinute(calendar.get(Calendar.MINUTE));
 
-            switch (data.getInt("blend_duration")) {
+            switch (data.get("blend_duration").getAsInt()) {
                 case 15:
                     blendInDurationSpinner.setSelection(0);
                     break;
@@ -221,7 +212,7 @@ public class WakeupLightSettingsFragmentRemote extends Fragment implements Matri
                     break;
             }
 
-        } catch (ParseException | JSONException ignored) {
+        } catch (ParseException ignored) {
         }
     }
 }

@@ -22,8 +22,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.gson.JsonObject;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import de.oerntec.matledcontrol.networking.Installation;
 import de.oerntec.matledcontrol.networking.communication.Connection;
@@ -31,7 +32,6 @@ import de.oerntec.matledcontrol.networking.communication.ConnectionStatusListene
 import de.oerntec.matledcontrol.networking.communication.ConstantConnection;
 import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
-import de.oerntec.matledcontrol.networking.communication.ZeroMatrixConnection;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 import de.oerntec.matledcontrol.script_clients.AdministrationFragmentRemote;
 import de.oerntec.matledcontrol.script_clients.LogFragmentRemote;
@@ -293,17 +293,13 @@ public class MainActivity extends AppCompatActivity
      * @param json json data to be wrapped in a script_data message
      */
     @Override
-    public void sendScriptData(JSONObject json) {
+    public void sendScriptData(JsonObject json) {
         // avoid trying to send without a valid connection
         if (mConnection == null)
             return;
 
-        JSONObject wrapper = new JSONObject();
-        try {
-            wrapper.put("script_data", json);
-        } catch (JSONException e) {
-            Log.w("mainactivity", "could not send message for script");
-        }
+        JsonObject wrapper = new JsonObject();
+        wrapper.add("script_data", json);
 
         mConnection.sendMessage(wrapper, "script_data");
     }
@@ -311,8 +307,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void requestScript(String scriptName) {
         try {
-            mConnection.sendMessage(new JSONObject("{requested_script: " + scriptName + "}"), "script_load_request");
-        } catch (JSONException ignored) {
+            JsonObject json = new JsonObject();
+            json.addProperty("requested_script", scriptName);
+            mConnection.sendMessage(json, "script_load_request");
         } catch (NullPointerException e) {
             Toast.makeText(this, getString(R.string.err_could_not_communicate), Toast.LENGTH_SHORT).show();
             Log.i("mainactivity", "could not request script " + scriptName + "because of the following exception", e);
@@ -330,13 +327,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Called when the {@link ZeroMatrixConnection} receives a message that it cannot handle
+     * Called when a message is received that could not be handled in the connection code.
      * (like for example a matrix disconnect). In an ideal world, all such messages are script data.
      *
      * @param data message content
      */
     @Override
-    public void onMessage(JSONObject data) {
+    public void onMessage(JsonObject data) {
         mCurrentScriptFragment.onMessage(data);
     }
 

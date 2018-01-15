@@ -8,10 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.google.gson.JsonObject;
 import com.jraska.console.Console;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import de.oerntec.matledcontrol.ExceptionListener;
 import de.oerntec.matledcontrol.R;
@@ -82,34 +82,30 @@ public class AdministrationFragmentRemote extends Fragment implements MatrixList
     }
 
     @Override
-    public void onMessage(final JSONObject data) {
+    public void onMessage(final JsonObject data) {
         Console.writeLine(data.toString());
     }
 
     @Override
     public void onClick(View view) {
-        JSONObject response = new JSONObject();
-        try {
-            switch (view.getId()){
-                case R.id.admin_echo_test_button:
-                    response.put("command", "echo_test");
-                    break;
-                case R.id.admin_reboot_rpi_button:
-                    Console.writeLine("Sending reboot command");
-                    response.put("command", "reboot_rpi");
-                    break;
-                case R.id.admin_shutdown_rpi_button:
-                    Console.writeLine("Sending reboot command");
-                    response.put("command", "shutdown_rpi");
-                    break;
-                case R.id.admin_restart_matrix_control:
-                    Console.writeLine("Sending restart command. Please re-connect manually.");
-                    response.put("command", "restart_matrix_server");
-                    break;
-            }
-            mMessageSender.sendScriptData(response);
-        } catch (JSONException e) {
-            mExceptionListener.onException(this, e, "Error while creating message for server");
+        JsonObject response = new JsonObject();
+        switch (view.getId()){
+            case R.id.admin_echo_test_button:
+                response.addProperty("command", "echo_test");
+                break;
+            case R.id.admin_reboot_rpi_button:
+                Console.writeLine("Sending reboot command");
+                response.addProperty("command", "reboot_rpi");
+                break;
+            case R.id.admin_shutdown_rpi_button:
+                Console.writeLine("Sending reboot command");
+                response.addProperty("command", "shutdown_rpi");
+                break;
+            case R.id.admin_restart_matrix_control:
+                Console.writeLine("Sending restart command. Please re-connect manually.");
+                response.addProperty("command", "restart_matrix_server");
+                break;
         }
+        mMessageSender.sendScriptData(response);
     }
 }

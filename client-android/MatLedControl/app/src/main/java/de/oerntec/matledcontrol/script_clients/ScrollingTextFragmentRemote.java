@@ -12,14 +12,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SeekBar;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.jraska.console.Console;
 import com.pavelsikun.vintagechroma.ChromaDialog;
 import com.pavelsikun.vintagechroma.IndicatorMode;
 import com.pavelsikun.vintagechroma.OnColorSelectedListener;
 
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import de.oerntec.matledcontrol.ExceptionListener;
 import de.oerntec.matledcontrol.R;
@@ -78,18 +78,14 @@ public class ScrollingTextFragmentRemote extends Fragment implements MatrixListe
                         .onColorSelected(new OnColorSelectedListener() {
                             @Override
                             public void onColorSelected(@ColorInt int color) {
-                                JSONArray colorArray = new JSONArray();
-                                colorArray.put(Color.red(color));
-                                colorArray.put(Color.green(color));
-                                colorArray.put(Color.blue(color));
-                                try {
-                                    JSONObject response = new JSONObject();
-                                    response.put("command", "change_color");
-                                    response.put("color", colorArray);
-                                    mMessageSender.sendScriptData(response);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
+                                JsonArray colorArray = new JsonArray();
+                                colorArray.add(Color.red(color));
+                                colorArray.add(Color.green(color));
+                                colorArray.add(Color.blue(color));
+                                JsonObject response = new JsonObject();
+                                response.addProperty("command", "change_color");
+                                response.add("color", colorArray);
+                                mMessageSender.sendScriptData(response);
                             }
                         })
                         .create()
@@ -133,25 +129,17 @@ public class ScrollingTextFragmentRemote extends Fragment implements MatrixListe
     }
 
     private void onSizeChanged(int size) {
-        try {
-            JSONObject response = new JSONObject();
-            response.put("command", "set_font_size");
-            response.put("size", size);
-            mMessageSender.sendScriptData(response);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        JsonObject response = new JsonObject();
+        response.addProperty("command", "set_font_size");
+        response.addProperty("size", size);
+        mMessageSender.sendScriptData(response);
     }
 
     private void onSpeedChanged(int speed) {
-        try {
-            JSONObject response = new JSONObject();
-            response.put("command", "change_speed");
-            response.put("speed", speed);
-            mMessageSender.sendScriptData(response);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        JsonObject response = new JsonObject();
+        response.addProperty("command", "change_speed");
+        response.addProperty("speed", speed);
+        mMessageSender.sendScriptData(response);
     }
 
     @Override
@@ -181,21 +169,17 @@ public class ScrollingTextFragmentRemote extends Fragment implements MatrixListe
     }
 
     @Override
-    public void onMessage(JSONObject data) {
+    public void onMessage(JsonObject data) {
 
     }
 
     @Override
     public void onClick(View v) {
         if(v.getId() == R.id.fragment_scrolling_text_send_text_button){
-            try {
-                JSONObject response = new JSONObject();
-                response.put("command", "change_text");
-                response.put("text", mTextEdit.getText().toString());
-                mMessageSender.sendScriptData(response);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            JsonObject response = new JsonObject();
+            response.addProperty("command", "change_text");
+            response.addProperty("text", mTextEdit.getText().toString());
+            mMessageSender.sendScriptData(response);
         }
     }
 }

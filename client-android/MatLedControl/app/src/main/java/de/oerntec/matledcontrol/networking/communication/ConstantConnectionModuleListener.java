@@ -1,6 +1,6 @@
 package de.oerntec.matledcontrol.networking.communication;
 
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 /**
  * Created by arne on 13.01.18.
@@ -12,8 +12,8 @@ public interface ConstantConnectionModuleListener {
      */
     void moduleStopped();
     void matrixShutDown();
-    JSONObject getNextOutMessage();
+    JsonObject getNextOutMessage();
     void onMatrixAcceptedConnection(int width, int height);
 
-    void onReceive(JSONObject receivedJson);
+    void onReceive(JsonObject receivedJson);
 }

@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,13 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import de.oerntec.matledcontrol.R;
-import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.MatrixListener;
+import de.oerntec.matledcontrol.networking.communication.MessageSender;
 
 public class LogFragmentRemote extends Fragment implements MatrixListener {
     private MessageSender mMessageSender;
@@ -87,12 +85,9 @@ public class LogFragmentRemote extends Fragment implements MatrixListener {
     }
 
     private void requestLog() {
-        try {
-            JSONObject com = new JSONObject();
-            com.put("command", "give_me_log_pls");
-            mMessageSender.sendScriptData(com);
-        } catch (JSONException ignored) {
-        }
+        JsonObject com = new JsonObject();
+        com.addProperty("command", "give_me_log_pls");
+        mMessageSender.sendScriptData(com);
     }
 
     @Override
@@ -109,63 +104,49 @@ public class LogFragmentRemote extends Fragment implements MatrixListener {
         spannableText.setSpan(new ForegroundColorSpan(color), start, end, 0);
     }
 
-    private void displayLogArray(final JSONArray log) {
+    private void displayLogArray(final JsonArray log) {
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 Context context = getContext();
-                for (int i = 0; i < log.length(); i++) {
-                    try {
-                        String line = log.getString(i);
-                        int color = ContextCompat.getColor(context, R.color.log_info);
+                for (int i = 0; i < log.size(); i++) {
+                    String line = log.get(i).getAsString();
+                    int color = ContextCompat.getColor(context, R.color.log_info);
 
-                        // choose a color appropriate for the log
-                        if (line.contains("INFO"))
-                            color = ContextCompat.getColor(context, R.color.log_info);
-                        else if (line.contains("WARNING"))
-                            color = ContextCompat.getColor(context, R.color.log_warning);
-                        else if (line.contains("ERROR") || line.contains("Exception") || line.contains("Error"))
-                            color = ContextCompat.getColor(context, R.color.log_error);
-                        else if (line.contains("CRITICAL"))
-                            color = ContextCompat.getColor(context, R.color.log_criticial);
-                        else if (line.contains("DEBUG"))
-                            color = ContextCompat.getColor(context, R.color.log_debug);
-                        else if (line.contains("NOTSET"))
-                            color = ContextCompat.getColor(context, R.color.log_notset);
+                    // choose a color appropriate for the log
+                    if (line.contains("INFO"))
+                        color = ContextCompat.getColor(context, R.color.log_info);
+                    else if (line.contains("WARNING"))
+                        color = ContextCompat.getColor(context, R.color.log_warning);
+                    else if (line.contains("ERROR") || line.contains("Exception") || line.contains("Error"))
+                        color = ContextCompat.getColor(context, R.color.log_error);
+                    else if (line.contains("CRITICAL"))
+                        color = ContextCompat.getColor(context, R.color.log_criticial);
+                    else if (line.contains("DEBUG"))
+                        color = ContextCompat.getColor(context, R.color.log_debug);
+                    else if (line.contains("NOTSET"))
+                        color = ContextCompat.getColor(context, R.color.log_notset);
 
-                        appendLineToConsole(line, color);
-                    } catch (JSONException e) {
-                        Log.i("logfragment", "bad json");
-                    }
+                    appendLineToConsole(line, color);
                 }
             }
         });
     }
 
     @Override
-    public void onMessage(final JSONObject data) {
-        try {
-            boolean isArray = data.optJSONArray("log") != null;
+    public void onMessage(final JsonObject data) {
+        boolean isArray = data.get("log").isJsonArray();
 
-            if (isArray) {
-                displayLogArray(data.getJSONArray("log"));
-            } else {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Context context = getContext();
-                        try {
-                            appendLineToConsole(data.getString("log"), ContextCompat.getColor(context, R.color.log_info));
-                        } catch (JSONException e) {
-                            Log.i("logfragment", "bad json");
-                        }
-                    }
-                });
-            }
-
-
-        } catch (JSONException ignored) {
-            Log.w("logfragment", "bad json");
+        if (isArray) {
+            displayLogArray(data.get("log").getAsJsonArray());
+        } else {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Context context = getContext();
+                    appendLineToConsole(data.get("log").getAsString(), ContextCompat.getColor(context, R.color.log_info));
+                }
+            });
         }
     }
 }

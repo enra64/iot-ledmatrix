@@ -15,16 +15,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.gson.JsonObject;
 import com.pavelsikun.vintagechroma.ChromaDialog;
 import com.pavelsikun.vintagechroma.IndicatorMode;
 import com.pavelsikun.vintagechroma.OnColorSelectedListener;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import de.oerntec.matledcontrol.R;
-import de.oerntec.matledcontrol.networking.communication.MessageSender;
 import de.oerntec.matledcontrol.networking.communication.MatrixListener;
+import de.oerntec.matledcontrol.networking.communication.MessageSender;
 
 import static android.view.View.GONE;
 import static com.pavelsikun.vintagechroma.colormode.ColorMode.RGB;
@@ -106,14 +106,9 @@ public class WordclockFragmentRemote extends Fragment implements MatrixListener,
         if (context instanceof MessageSender) {
             mMessageSender = (MessageSender) context;
 
-            try {
-                JSONObject com = new JSONObject();
-                com.put("command", "retry sending wordclock config");
-                mMessageSender.sendScriptData(com);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.wtf("wordclockfragment", "ffs putting a string in a json object just crashed");
-            }
+            JsonObject com = new JsonObject();
+            com.addProperty("command", "retry sending wordclock config");
+            mMessageSender.sendScriptData(com);
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -132,7 +127,7 @@ public class WordclockFragmentRemote extends Fragment implements MatrixListener,
     }
 
     @Override
-    public void onMessage(JSONObject data) {
+    public void onMessage(JsonObject data) {
         try {
             loadWordsIntoDrawingView(data);
             loadWordColors(data);
@@ -142,8 +137,8 @@ public class WordclockFragmentRemote extends Fragment implements MatrixListener,
         }
     }
 
-    private void loadWordColors(final JSONObject data) throws JSONException {
-        String messageType = data.getString("message_type");
+    private void loadWordColors(final JsonObject data) throws JSONException {
+        String messageType = data.get("message_type").getAsString();
 
         if (getActivity() != null && "wordclock_color_configuration".equals(messageType))
             getActivity().runOnUiThread(new Runnable() {
@@ -164,8 +159,8 @@ public class WordclockFragmentRemote extends Fragment implements MatrixListener,
             });
     }
 
-    private void loadWordsIntoDrawingView(final JSONObject lines) throws JSONException {
-        String messageType = lines.getString("message_type");
+    private void loadWordsIntoDrawingView(final JsonObject lines) throws JSONException {
+        String messageType = lines.get("message_type").getAsString();
 
         if (getActivity() != null && "wordclock_configuration".equals(messageType))
             getActivity().runOnUiThread(new Runnable() {

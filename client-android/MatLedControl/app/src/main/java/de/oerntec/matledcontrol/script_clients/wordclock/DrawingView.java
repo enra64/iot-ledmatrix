@@ -14,9 +14,10 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-import org.json.JSONArray;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -117,14 +118,14 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         return result;
     }
 
-    void setLines(JSONObject lines) throws JSONException {
-        mLineCount = lines.getInt("lines");
+    void setLines(JsonObject lines) throws JSONException {
+        mLineCount = lines.get("lines").getAsInt();
 
-        JSONArray config = lines.getJSONArray("config");
-        mWords = new HashMap<>(config.length());
+        JsonArray config = lines.get("config").getAsJsonArray();
+        mWords = new HashMap<>(config.size());
 
-        for (int i = 0; i < config.length(); i++) {
-            Word newWord = new Word(i, config.getJSONObject(i));
+        for (int i = 0; i < config.size(); i++) {
+            Word newWord = new Word(i, config.get(i).getAsJsonObject());
             mWords.put(newWord.getCoordinates(), newWord);
         }
 
@@ -178,13 +179,13 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         redraw();
     }
 
-    void setColors(JSONObject data) throws JSONException {
-        JSONArray colorConfig = data.getJSONArray("color_config");
+    void setColors(JsonObject data) throws JSONException {
+        JsonArray colorConfig = data.get("color_config").getAsJsonArray();
 
-        for (int i = 0; i < colorConfig.length(); i++) {
-            JSONObject colorInfo = colorConfig.getJSONObject(i);
-            int wordId = colorInfo.getInt("id");
-            int wordColor = colorInfo.getInt("clr");
+        for (int i = 0; i < colorConfig.size(); i++) {
+            JsonObject colorInfo = colorConfig.get(i).getAsJsonObject();
+            int wordId = colorInfo.get("id").getAsInt();
+            int wordColor = colorInfo.get("clr").getAsInt();
             for (Word word : mWords.values())
                 if (word.id == wordId)
                     word.color = wordColor;
@@ -225,14 +226,14 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         canvas.drawBitmap(canvasBitmap, 0, 0, canvasPaint);
     }
 
-    JSONObject getAsJsonObject() {
-        JSONArray colorArray = new JSONArray();
-        JSONObject responseWrapper = new JSONObject();
+    JsonObject getAsJsonObject() {
+        JsonArray colorArray = new JsonArray();
+        JsonObject responseWrapper = new JsonObject();
 
         try {
             for (Word word : mWords.values())
-                colorArray.put(word.withColorAsJson());
-            responseWrapper.put("word_color_config", colorArray);
+                colorArray.add(word.withColorAsJson());
+            responseWrapper.add("word_color_config", colorArray);
         } catch (JSONException e) {
             Log.e("wordcdrw", "how the fuck can you get an exception while parsing the wordclock colors to JSON");
         }
@@ -280,14 +281,14 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         private int color = Color.BLACK;
         private Rect boundingRectangle = new Rect();
 
-        Word(int id, JSONObject data) throws JSONException {
+        Word(int id, JsonObject data) throws JSONException {
             this.id = id;
-            displayString = data.getString("word");
-            ledRectangle = getRectFromJsonArray(data.getJSONObject("rect"));
+            displayString = data.get("word").getAsString();
+            ledRectangle = getRectFromJsonArray(data.get("rect").getAsJsonObject());
 
             if (data.has("pos")) {
-                xPos = data.getJSONArray("pos").getInt(0);
-                lineIndex = data.getJSONArray("pos").getInt(1);
+                xPos = data.get("pos").getAsJsonArray().get(0).getAsInt();
+                lineIndex = data.get("pos").getAsJsonArray().get(1).getAsInt();
             } else {
                 xPos = ledRectangle.left;
                 lineIndex = ledRectangle.top;
@@ -295,7 +296,7 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
 
 
 
-            category = WordCategory.valueOf(data.getString("category"));
+            category = WordCategory.valueOf(data.get("category").getAsString());
             Object info = data.get("info");
             if (info instanceof String) this.info = (String) info;
             else this.info = Integer.toString((Integer) info);
@@ -305,28 +306,28 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
             return new Point(xPos, lineIndex);
         }
 
-        private Rect getRectFromJsonArray(JSONObject rectData) throws JSONException {
+        private Rect getRectFromJsonArray(JsonObject rectData) throws JSONException {
             // default value 0 for x
             int x = 0;
             if (rectData.has("x"))
-                x = rectData.getInt("x");
+                x = rectData.get("x").getAsInt();
 
             // default value 1 for height
             int height = 0;
             if (rectData.has("height"))
-                height = rectData.getInt("height");
+                height = rectData.get("height").getAsInt();
 
             return new Rect(
-                    x, rectData.getInt("y"),
-                    x + rectData.getInt("width"),
-                    rectData.getInt("y") + height
+                    x, rectData.get("y").getAsInt(),
+                    x + rectData.get("width").getAsInt(),
+                    rectData.get("y").getAsInt() + height
             );
         }
 
-        private JSONObject withColorAsJson() throws JSONException {
-            JSONObject representation = new JSONObject();
-            representation.put("id", id);
-            representation.put("clr", color);
+        private JsonObject withColorAsJson() throws JSONException {
+            JsonObject representation = new JsonObject();
+            representation.addProperty("id", id);
+            representation.addProperty("clr", color);
             return representation;
         }
     }

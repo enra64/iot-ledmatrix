@@ -3,10 +3,9 @@ package de.oerntec.matledcontrol.networking.communication;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
+
 import org.zeromq.ZMQ;
 
 import java.util.Queue;
@@ -20,7 +19,7 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
     private MatrixListener matrixListener;
     private ConnectionStatusListener connectionStatusListener;
     private ConstantConnectionModuleInterface module;
-    private Queue<JSONObject> outBox;
+    private Queue<JsonObject> outBox;
     private ZMQ.Context zmqContext;
     private String connectionString;
     private String installationId;
@@ -36,27 +35,19 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
         connectionString = "tcp://" + matrix.address + ":" + matrix.dataPort;
         cycleModule();
 
-        sendMessage(new JSONObject(), "connection_request");
+        sendMessage(new JsonObject(), "connection_request");
     }
 
     @Override
-    public void sendMessage(JSONObject message, @Nullable String messageType) {
+    public void sendMessage(JsonObject message, @Nullable String messageType) {
         if (!message.has("message_type") && messageType == null)
             throw new AssertionError("Messages must have message_type set or a messageType must be given");
 
         if (messageType != null) {
-            try {
-                message.put("message_type", messageType);
-            } catch (JSONException ignored) {
-            }
+                message.addProperty("message_type", messageType);
         }
 
-        try {
-            message.put("id", installationId);
-        } catch (JSONException e) {
-            if (BuildConfig.DEBUG)
-                Log.w("ConstantConnection", e);
-        }
+        message.addProperty("id", installationId);
 
         outBox.add(message);
     }
@@ -104,7 +95,7 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
 
     @Override
     @Nullable
-    public JSONObject getNextOutMessage() {
+    public JsonObject getNextOutMessage() {
         return outBox.poll();
     }
 
@@ -116,7 +107,7 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
     }
 
     @Override
-    public void onReceive(JSONObject receivedJson) {
+    public void onReceive(JsonObject receivedJson) {
         matrixListener.onMessage(receivedJson);
     }
 }

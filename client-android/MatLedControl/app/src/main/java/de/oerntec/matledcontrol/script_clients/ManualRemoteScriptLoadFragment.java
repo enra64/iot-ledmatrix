@@ -6,7 +6,6 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +15,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -80,12 +78,9 @@ public class ManualRemoteScriptLoadFragment extends Fragment implements MatrixLi
      * Request a list of available scripts from the script
      */
     private void requestScriptList() {
-        try {
-            JSONObject msg = new JSONObject();
-            msg.put("command", "request_script_list");
-            mMessageSender.sendScriptData(msg);
-        } catch (JSONException ignored) {
-        }
+        JsonObject msg = new JsonObject();
+        msg.addProperty("command", "request_script_list");
+        mMessageSender.sendScriptData(msg);
     }
 
     @Override
@@ -100,36 +95,29 @@ public class ManualRemoteScriptLoadFragment extends Fragment implements MatrixLi
     }
 
     @Override
-    public void onMessage(JSONObject data) {
-        try {
-            // convert script list to java list
-            final JSONArray scriptList = data.getJSONArray("script_list");
-            final List<String> scripts = new ArrayList<>(scriptList.length());
-            for(int i = 0; i < scriptList.length(); i++)
-                scripts.add(scriptList.getString(i));
+    public void onMessage(JsonObject data) {
+        // convert script list to java list
+        final JsonArray scriptList = data.get("script_list").getAsJsonArray();
+        final List<String> scripts = new ArrayList<>(scriptList.size());
+        for(int i = 0; i < scriptList.size(); i++)
+            scripts.add(scriptList.get(i).getAsString());
 
-            // display scripts, hide "querying..."
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mList.setAdapter(new ScriptAdapter(getContext(), R.layout.script_list_item, scripts));
-                    mRefreshingSpinner.setVisibility(View.GONE);
-                    mRefreshingText.setVisibility(View.GONE);
-                }
-            });
-        } catch (JSONException ignored) {
-            Log.i("manscriptload", "bad json");
-        }
+        // display scripts, hide "querying..."
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mList.setAdapter(new ScriptAdapter(getContext(), R.layout.script_list_item, scripts));
+                mRefreshingSpinner.setVisibility(View.GONE);
+                mRefreshingText.setVisibility(View.GONE);
+            }
+        });
     }
 
     private void requestScript(String script) {
-        JSONObject msg = new JSONObject();
-        try {
-            msg.put("command", "script_load_request");
-            msg.put("requested_script", script);
-            mMessageSender.sendScriptData(msg);
-        } catch (JSONException ignored) {
-        }
+        JsonObject msg = new JsonObject();
+        msg.addProperty("command", "script_load_request");
+        msg.addProperty("requested_script", script);
+        mMessageSender.sendScriptData(msg);
     }
 
     private class ScriptAdapter extends ArrayAdapter<String> {

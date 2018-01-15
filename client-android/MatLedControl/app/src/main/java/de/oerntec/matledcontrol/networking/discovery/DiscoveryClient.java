@@ -1,8 +1,10 @@
 package de.oerntec.matledcontrol.networking.discovery;
 
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -73,6 +75,11 @@ public class DiscoveryClient extends Thread {
      * True if the thread was started once
      */
     private boolean mHasRun = false;
+
+    /**
+     * Json parser for parsing json
+     */
+    JsonParser jsonParser = new JsonParser();
 
     /**
      * Create a new DiscoveryClient. In contrast to the DiscoveryServer, the DiscoveryClient does not
@@ -187,7 +194,7 @@ public class DiscoveryClient extends Thread {
 
         LedMatrix identification;
         try {
-            JSONObject received_object = new JSONObject(new String(receivePacket.getData()));
+            JsonObject received_object = jsonParser.parse(new String(receivePacket.getData())).getAsJsonObject();
             // create the LedMatrix describing our remote partner
             identification = LedMatrix.fromJson(received_object);
             identification.address = receivePacket.getAddress().getHostAddress();

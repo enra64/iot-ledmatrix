@@ -2,8 +2,9 @@ package de.oerntec.matledcontrol.networking.discovery;
 
 import android.util.Log;
 
+import com.google.gson.JsonObject;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -44,7 +45,7 @@ class Broadcaster extends TimerTask {
     /**
      * description of this device as a json string in utf-8 byte form
      */
-    private final JSONObject mThisDevice;
+    private final JsonObject mThisDevice;
 
     /**
      * The socket that should be used for broadcasting information. Not owned by this class.
@@ -63,17 +64,17 @@ class Broadcaster extends TimerTask {
         mExceptionListener = exceptionListener;
         mBroadcastAddresses = getBroadcastAddresses();
 
-        JSONObject deviceJson = new LedMatrix(deviceName).toJson();
-        deviceJson.put("message_type", "discovery");
+        JsonObject deviceJson = new LedMatrix(deviceName).toJson();
+        deviceJson.addProperty("message_type", "discovery");
         mThisDevice = deviceJson;
     }
 
     void setSocket(DatagramSocket socket) {
         try {
             mSocket = socket;
-            mThisDevice.put("discovery_port", mSocket.getLocalPort());
+            mThisDevice.addProperty("discovery_port", mSocket.getLocalPort());
             socket.setBroadcast(true);
-        } catch (JSONException | SocketException e) {
+        } catch (SocketException e) {
             Log.w("broadcaster", "could not setBroadcast(true)");
             mExceptionListener.onException(this, e, "could not setSocket()");
         }

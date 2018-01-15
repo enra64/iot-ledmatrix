@@ -1,18 +1,20 @@
 package de.oerntec.matledcontrol.script_clients.draw;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.support.annotation.ColorInt;
-import android.util.AttributeSet;
-import android.view.View;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.support.annotation.ColorInt;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
+import android.view.View;
 
-import org.json.JSONArray;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import org.json.JSONException;
-import org.json.JSONObject;
+
 
 /**
  * see https://code.tutsplus.com/tutorials/android-sdk-create-a-drawing-app-touch-interaction--mobile-19202 for more information
@@ -119,7 +121,7 @@ public class GridDrawingView extends View {
         return true;
     }
 
-    public JSONObject getGridAsJsonObject() {
+    public JsonObject getGridAsJsonObject() {
         try {
             return mGrid.toJsonObject();
         } catch (JSONException e) {
@@ -190,21 +192,21 @@ public class GridDrawingView extends View {
             return hasChanged;
         }
 
-        JSONObject toJsonObject() throws JSONException {
-            JSONArray array = new JSONArray();
+        JsonObject toJsonObject() throws JSONException {
+            JsonArray array = new JsonArray();
             for (int x = 0; x < mGrid.length; x++) {
-                JSONArray columnArray = new JSONArray();
+                JsonArray columnArray = new JsonArray();
                 for (int y = 0; y < mGrid[0].length; y++) {
-                    JSONArray colorArray = new JSONArray();
-                    colorArray.put(Color.red(mGrid[x][y].color));
-                    colorArray.put(Color.green(mGrid[x][y].color));
-                    colorArray.put(Color.blue(mGrid[x][y].color));
-                    columnArray.put(colorArray);
+                    JsonArray colorArray = new JsonArray();
+                    colorArray.add(Color.red(mGrid[x][y].color));
+                    colorArray.add(Color.green(mGrid[x][y].color));
+                    colorArray.add(Color.blue(mGrid[x][y].color));
+                    columnArray.add(colorArray);
                 }
-                array.put(columnArray);
+                array.add(columnArray);
             }
-            JSONObject wrapper = new JSONObject();
-            wrapper.put("color_array", array);
+            JsonObject wrapper = new JsonObject();
+            wrapper.add("color_array", array);
             return wrapper;
         }
 
