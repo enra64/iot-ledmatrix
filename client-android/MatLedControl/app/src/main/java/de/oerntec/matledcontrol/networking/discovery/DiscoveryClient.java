@@ -3,8 +3,7 @@ package de.oerntec.matledcontrol.networking.discovery;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-
-import org.json.JSONException;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -90,7 +89,7 @@ public class DiscoveryClient extends Thread {
      * @param remoteDiscoveryPort the discoveryPort the discovery server listens on
      * @param selfName            the name this device should announce itself as
      */
-    public DiscoveryClient(String selfName, int remoteDiscoveryPort, OnDiscoveryListener listener, ExceptionListener exceptionListener) throws IOException, JSONException {
+    public DiscoveryClient(String selfName, int remoteDiscoveryPort, OnDiscoveryListener listener, ExceptionListener exceptionListener) throws IOException {
         // name thread
         setName("DiscoveryClient");
 
@@ -194,16 +193,19 @@ public class DiscoveryClient extends Thread {
 
         LedMatrix identification;
         try {
-            JsonObject received_object = jsonParser.parse(new String(receivePacket.getData())).getAsJsonObject();
-            // create the LedMatrix describing our remote partner
-            identification = LedMatrix.fromJson(received_object);
-            identification.address = receivePacket.getAddress().getHostAddress();
+            String receivedData = new String(receivePacket.getData());
 
-            // notify sub-class
-            mCurrentMatrixList.addMatrix(identification);
+            if (!"".equals(receivedData)) {
+                JsonObject received_object = jsonParser.parse(receivedData).getAsJsonObject();
 
-            // if the cast to LedMatrix fails, this message was not sent by the discovery system, and may be ignored
-        } catch (JSONException e) {
+                // create the LedMatrix describing our remote partner
+                identification = LedMatrix.fromJson(received_object);
+                identification.address = receivePacket.getAddress().getHostAddress();
+
+                // notify sub-class
+                mCurrentMatrixList.addMatrix(identification);
+            }
+        } catch (JsonSyntaxException e) {
             mExceptionListener.onException(this, e, "Error when parsing discovery response from matrix");
         }
     }

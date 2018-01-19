@@ -24,8 +24,6 @@ import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 
-import org.json.JSONException;
-
 import de.oerntec.matledcontrol.networking.Installation;
 import de.oerntec.matledcontrol.networking.communication.Connection;
 import de.oerntec.matledcontrol.networking.communication.ConnectionStatusListener;
@@ -119,13 +117,9 @@ public class MainActivity extends AppCompatActivity
         String lastMatrix = prefs.getString(getString(R.string.sp_last_connected_device), null);
 
         if (lastMatrix != null) {
-            try {
-                // try to reconnect to the given matrix
-                LedMatrix lastDevice = LedMatrix.fromJsonString(lastMatrix);
-                connectToMatrix(lastDevice);
-            } catch (JSONException e) {
-                Log.w("main", "could not parse stored last matrix!");
-            }
+            // try to reconnect to the given matrix
+            LedMatrix lastDevice = LedMatrix.fromJsonString(lastMatrix);
+            connectToMatrix(lastDevice);
         }
 
 
@@ -225,12 +219,8 @@ public class MainActivity extends AppCompatActivity
      * Call this to save a matrix as the one that was last connected to
      */
     private void saveMatrix(LedMatrix matrix) {
-        try {
-            SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(this).edit();
-            prefs.putString(getString(R.string.sp_last_connected_device), matrix.toJsonString()).apply();
-        } catch (JSONException e) {
-            onException(this, e, "Could not serialize matrix for storage");
-        }
+        SharedPreferences.Editor prefs = PreferenceManager.getDefaultSharedPreferences(this).edit();
+        prefs.putString(getString(R.string.sp_last_connected_device), matrix.toJsonString()).apply();
     }
 
     /**

@@ -3,8 +3,6 @@ package de.oerntec.matledcontrol.networking.discovery;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import org.json.JSONException;
-
 import java.io.Serializable;
 
 /**
@@ -118,9 +116,8 @@ public class LedMatrix implements Serializable {
      *
      * @param json the information source
      * @return LedMatrix equal to the json representation
-     * @throws JSONException if "name" or "dataPort" is missing in the json object
      */
-    public static LedMatrix fromJson(JsonObject json) throws JSONException {
+    public static LedMatrix fromJson(JsonObject json) {
         String name = json.get("name").getAsString();
         int port = json.get("data_port").getAsInt();
 
@@ -143,14 +140,13 @@ public class LedMatrix implements Serializable {
      *
      * @param json the information source
      * @return LedMatrix equal to the json representation
-     * @throws JSONException if "name" or "dataPort" is missing in the json object
      */
-    public static LedMatrix fromJsonString(String json) throws JSONException {
+    public static LedMatrix fromJsonString(String json) {
         return fromJson(jsonParser.parse(json).getAsJsonObject());
     }
 
 
-    public JsonObject toJson() throws JSONException {
+    public JsonObject toJson() {
         JsonObject thisDevice = new JsonObject();
         thisDevice.addProperty("name", name);
         thisDevice.addProperty("data_port", dataPort);
@@ -164,7 +160,7 @@ public class LedMatrix implements Serializable {
         return thisDevice;
     }
 
-    public String toJsonString() throws JSONException {
+    public String toJsonString() {
         return this.toJson().toString();
     }
 }

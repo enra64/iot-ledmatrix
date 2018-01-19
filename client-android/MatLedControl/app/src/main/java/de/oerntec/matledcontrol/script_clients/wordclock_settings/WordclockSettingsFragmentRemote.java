@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,8 +15,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.gson.JsonObject;
-
-import org.json.JSONException;
 
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MatrixListener;
@@ -108,15 +105,10 @@ public class WordclockSettingsFragmentRemote extends Fragment implements MatrixL
 
     @Override
     public void onMessage(JsonObject data) {
-        try {
-            fromJson(data);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.w("wordclockfragment", "indecipherable json data");
-        }
+        fromJson(data);
     }
 
-    private JsonObject toJson() throws JSONException {
+    private JsonObject toJson() {
         JsonObject result = new JsonObject();
         result.addProperty("limit_display_time", timeLimitsEnabled.isChecked());
         result.addProperty("display_time_start_h", timeSettingsEnableAt.getProgress());
@@ -126,7 +118,7 @@ public class WordclockSettingsFragmentRemote extends Fragment implements MatrixL
         return result;
     }
 
-    private void fromJson(final JsonObject data) throws JSONException {
+    private void fromJson(final JsonObject data) {
         String messageType = data.get("message_type").getAsString();
 
         if (getActivity() != null && "wordclock_settings".equals(messageType))
@@ -159,14 +151,10 @@ public class WordclockSettingsFragmentRemote extends Fragment implements MatrixL
     }
 
     private void updateRemote() {
-        try {
-            JsonObject update = new JsonObject();
-            update.addProperty("command", "update_settings");
-            update.add("settings", toJson());
-            mMessageSender.sendScriptData(update);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        JsonObject update = new JsonObject();
+        update.addProperty("command", "update_settings");
+        update.add("settings", toJson());
+        mMessageSender.sendScriptData(update);
     }
 
     /**

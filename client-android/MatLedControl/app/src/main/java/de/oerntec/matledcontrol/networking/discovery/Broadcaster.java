@@ -4,8 +4,6 @@ import android.util.Log;
 
 import com.google.gson.JsonObject;
 
-import org.json.JSONException;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -59,7 +57,7 @@ class Broadcaster extends TimerTask {
      * @param remoteDiscoveryPort required for sending broadcasts
      * @throws IOException when we cannot detect the correct broadcast address
      */
-    Broadcaster(String deviceName, ExceptionListener exceptionListener, int remoteDiscoveryPort) throws IOException, JSONException {
+    Broadcaster(String deviceName, ExceptionListener exceptionListener, int remoteDiscoveryPort) throws IOException {
         mRemoteDiscoveryPort = remoteDiscoveryPort;
         mExceptionListener = exceptionListener;
         mBroadcastAddresses = getBroadcastAddresses();

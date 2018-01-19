@@ -11,8 +11,6 @@ import android.widget.Button;
 import com.google.gson.JsonObject;
 import com.jraska.console.Console;
 
-import org.json.JSONException;
-
 import de.oerntec.matledcontrol.ExceptionListener;
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MatrixListener;

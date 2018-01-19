@@ -19,8 +19,6 @@ import com.pavelsikun.vintagechroma.ChromaDialog;
 import com.pavelsikun.vintagechroma.IndicatorMode;
 import com.pavelsikun.vintagechroma.OnColorSelectedListener;
 
-import org.json.JSONException;
-
 import de.oerntec.matledcontrol.ExceptionListener;
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MatrixListener;

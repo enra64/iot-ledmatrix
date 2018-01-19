@@ -20,8 +20,6 @@ import com.pavelsikun.vintagechroma.ChromaDialog;
 import com.pavelsikun.vintagechroma.IndicatorMode;
 import com.pavelsikun.vintagechroma.OnColorSelectedListener;
 
-import org.json.JSONException;
-
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
@@ -128,54 +126,31 @@ public class WordclockFragmentRemote extends Fragment implements MatrixListener,
 
     @Override
     public void onMessage(JsonObject data) {
-        try {
-            loadWordsIntoDrawingView(data);
-            loadWordColors(data);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Log.w("wordclockfragment", "indecipherable json data");
-        }
+        loadWordsIntoDrawingView(data);
+        loadWordColors(data);
     }
 
-    private void loadWordColors(final JsonObject data) throws JSONException {
+    private void loadWordColors(final JsonObject data) {
         String messageType = data.get("message_type").getAsString();
 
         if (getActivity() != null && "wordclock_color_configuration".equals(messageType))
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        mDrawingView.setColors(data);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.w("wc view parser", "bad json");
-                        Toast.makeText(
-                                WordclockFragmentRemote.this.getContext(),
-                                R.string.device_communication_error,
-                                Toast.LENGTH_LONG).show();
-                    }
+                    mDrawingView.setColors(data);
                     mLoadingScreen.setVisibility(GONE);
                 }
             });
     }
 
-    private void loadWordsIntoDrawingView(final JsonObject lines) throws JSONException {
+    private void loadWordsIntoDrawingView(final JsonObject lines) {
         String messageType = lines.get("message_type").getAsString();
 
         if (getActivity() != null && "wordclock_configuration".equals(messageType))
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        mDrawingView.setLines(lines);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.w("wc view parser", "bad json");
-                        Toast.makeText(
-                                WordclockFragmentRemote.this.getContext(),
-                                R.string.device_communication_error,
-                                Toast.LENGTH_LONG).show();
-                    }
+                    mDrawingView.setLines(lines);
                     mLoadingScreen.setVisibility(GONE);
                 }
             });

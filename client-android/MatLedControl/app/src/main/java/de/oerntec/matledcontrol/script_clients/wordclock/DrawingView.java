@@ -10,14 +10,11 @@ import android.graphics.Rect;
 import android.support.annotation.ColorInt;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-
-import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,7 +115,7 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         return result;
     }
 
-    void setLines(JsonObject lines) throws JSONException {
+    void setLines(JsonObject lines) {
         mLineCount = lines.get("lines").getAsInt();
 
         JsonArray config = lines.get("config").getAsJsonArray();
@@ -179,7 +176,7 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         redraw();
     }
 
-    void setColors(JsonObject data) throws JSONException {
+    void setColors(JsonObject data) {
         JsonArray colorConfig = data.get("color_config").getAsJsonArray();
 
         for (int i = 0; i < colorConfig.size(); i++) {
@@ -230,13 +227,9 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         JsonArray colorArray = new JsonArray();
         JsonObject responseWrapper = new JsonObject();
 
-        try {
-            for (Word word : mWords.values())
-                colorArray.add(word.withColorAsJson());
-            responseWrapper.add("word_color_config", colorArray);
-        } catch (JSONException e) {
-            Log.e("wordcdrw", "how the fuck can you get an exception while parsing the wordclock colors to JSON");
-        }
+        for (Word word : mWords.values())
+            colorArray.add(word.withColorAsJson());
+        responseWrapper.add("word_color_config", colorArray);
         return responseWrapper;
     }
 
@@ -281,7 +274,7 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
         private int color = Color.BLACK;
         private Rect boundingRectangle = new Rect();
 
-        Word(int id, JsonObject data) throws JSONException {
+        Word(int id, JsonObject data) {
             this.id = id;
             displayString = data.get("word").getAsString();
             ledRectangle = getRectFromJsonArray(data.get("rect").getAsJsonObject());
@@ -298,15 +291,14 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
 
             category = WordCategory.valueOf(data.get("category").getAsString());
             Object info = data.get("info");
-            if (info instanceof String) this.info = (String) info;
-            else this.info = Integer.toString((Integer) info);
+            this.info = String.valueOf(info);
         }
 
         Point getCoordinates() {
             return new Point(xPos, lineIndex);
         }
 
-        private Rect getRectFromJsonArray(JsonObject rectData) throws JSONException {
+        private Rect getRectFromJsonArray(JsonObject rectData) {
             // default value 0 for x
             int x = 0;
             if (rectData.has("x"))
@@ -324,7 +316,7 @@ public class DrawingView extends View implements LocationClickHandler.CombinedOn
             );
         }
 
-        private JsonObject withColorAsJson() throws JSONException {
+        private JsonObject withColorAsJson() {
             JsonObject representation = new JsonObject();
             representation.addProperty("id", id);
             representation.addProperty("clr", color);

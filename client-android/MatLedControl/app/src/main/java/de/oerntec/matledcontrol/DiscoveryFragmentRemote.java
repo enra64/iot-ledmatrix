@@ -18,11 +18,10 @@ import android.widget.TextView;
 
 import com.google.gson.JsonObject;
 
-import org.json.JSONException;
-
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.List;
+import java.util.Locale;
 
 import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 import de.oerntec.matledcontrol.networking.communication.MessageSender;
@@ -163,7 +162,7 @@ public class DiscoveryFragmentRemote extends Fragment implements OnDiscoveryList
                         // create discovery client
                         mDiscovery = new DiscoveryClient(mDeviceName, mServerDiscoveryPort, this, this);
                         // this is a network problem
-                    } catch (IOException | JSONException | NumberFormatException | InvalidParameterException e) {
+                    } catch (IOException | NumberFormatException | InvalidParameterException e) {
                         onException(this, e, "DiscoveryActivity: could not create DiscoveryClient because of: " + e.getClass().toString());
                     }
                 }
@@ -274,7 +273,7 @@ public class DiscoveryFragmentRemote extends Fragment implements OnDiscoveryList
 
             if(matrix != null){
                 ((TextView) hmm.findViewById(R.id.large_text)).setText(matrix.name);
-                ((TextView) hmm.findViewById(R.id.small_text)).setText(matrix.width + "x" + matrix.height);
+                ((TextView) hmm.findViewById(R.id.small_text)).setText(String.format(Locale.getDefault(),"%dx%d", matrix.width, matrix.height));
 
                 Button button = (Button) hmm.findViewById(R.id.button);
 

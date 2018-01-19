@@ -13,8 +13,6 @@ import android.view.View;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import org.json.JSONException;
-
 
 /**
  * see https://code.tutsplus.com/tutorials/android-sdk-create-a-drawing-app-touch-interaction--mobile-19202 for more information
@@ -122,12 +120,7 @@ public class GridDrawingView extends View {
     }
 
     public JsonObject getGridAsJsonObject() {
-        try {
-            return mGrid.toJsonObject();
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
+        return mGrid.toJsonObject();
     }
 
     /**
@@ -165,6 +158,7 @@ public class GridDrawingView extends View {
         void draw(Canvas canvas) {
             Paint.Style oldStyle = mPaint.getStyle();
             mPaint.setStyle(Paint.Style.FILL);
+            //noinspection ForLoopReplaceableByForEach
             for (int x = 0; x < mGrid.length; x++) {
                 for (int y = 0; y < mGrid[0].length; y++) {
                     mGrid[x][y].draw(canvas, mPaint);
@@ -179,6 +173,7 @@ public class GridDrawingView extends View {
          */
         boolean onTouch(int touch_x, int touch_y, @ColorInt int color) {
             boolean hasChanged = false;
+            //noinspection ForLoopReplaceableByForEach
             for (int x = 0; x < mGrid.length; x++) {
                 for (int y = 0; y < mGrid[0].length; y++) {
                     if (mGrid[x][y].contains(touch_x, touch_y)){
@@ -192,7 +187,7 @@ public class GridDrawingView extends View {
             return hasChanged;
         }
 
-        JsonObject toJsonObject() throws JSONException {
+        JsonObject toJsonObject() {
             JsonArray array = new JsonArray();
             for (int x = 0; x < mGrid.length; x++) {
                 JsonArray columnArray = new JsonArray();
