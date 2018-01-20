@@ -126,9 +126,18 @@ class ScriptRunner:
         assert 0 <= frame_rate <= 60, "Frame rate out of bounds."
         self.frame_period = 1 / frame_rate
 
-    def __init__(self, script: str, canvas: Canvas, draw_cycle_finished_callback: Callable, send_object: Callable,
+    def restart_script(self):
+        pass
+
+    def __init__(self,
+                 script: str,
+                 canvas: Canvas,
+                 draw_cycle_finished_callback: Callable,
+                 send_object: Callable,
                  send_object_to_all: Callable,
-                 start_script: Callable, get_connected_clients: Callable, script_runner_crashed: Callable[[str], bool]):
+                 start_script: Callable,
+                 get_connected_clients: Callable,
+                 script_runner_crashed: Callable[[str], bool]):
         # get me some logger
         self.logger = logging.getLogger("scriptrunner")
 
@@ -170,6 +179,7 @@ class ScriptRunner:
             self.logger.warning("parsing " + script + " produced a SyntaxError\n" + traceback.format_exc())
         else:  # if import produced no syntax error
             try:
+                self.restart_script = partial(start_script, script_name=script, source_id="scriptrunner restart")
                 # call custom script constructor
                 self.script = getattr(script_module, script)(
                     canvas,

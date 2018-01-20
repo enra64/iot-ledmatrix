@@ -11,7 +11,6 @@ import org.zeromq.ZMQ;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import de.oerntec.matledcontrol.BuildConfig;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 
 public class ConstantConnection implements Connection, ConstantConnectionModuleListener {
@@ -77,7 +76,7 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
     }
 
     @Override
-    public void moduleStopped() {
+    public void moduleStopped(boolean hadTimeout) {
         cycleModule();
     }
 

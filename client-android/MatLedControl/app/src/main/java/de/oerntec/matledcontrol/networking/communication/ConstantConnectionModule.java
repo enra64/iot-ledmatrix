@@ -25,6 +25,7 @@ public class ConstantConnectionModule extends Thread implements ConstantConnecti
     private static final int ZMQ_CONTEXT_TERMINATED = 156384765;
     private String pingMessage;
     private JsonParser jsonParser = new JsonParser();
+    private boolean hadTimeout = false;
 
     @Override
     public void run() {
@@ -40,7 +41,7 @@ public class ConstantConnectionModule extends Thread implements ConstantConnecti
         }
 
         zmqSocket.close();
-        constantConnectionModuleListener.moduleStopped();
+        constantConnectionModuleListener.moduleStopped(hadTimeout);
     }
 
     private void listenToApp() {
@@ -118,6 +119,7 @@ public class ConstantConnectionModule extends Thread implements ConstantConnecti
 
     public void onTimeout() {
         continueRunning = false;
+        hadTimeout = true;
     }
 
     @Override

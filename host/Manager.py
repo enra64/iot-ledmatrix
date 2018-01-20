@@ -158,7 +158,7 @@ class Manager:
         if self.enable_graphical_display:
             try:
                 from MatrixGraphicalDisplay import MatrixGraphicalDisplay
-                self.gui = MatrixGraphicalDisplay(matrix_width, matrix_height, matrix_rotation)
+                self.gui = MatrixGraphicalDisplay(matrix_width, matrix_height, matrix_rotation, self.script_handler.restart_current_script)
             except ImportError:
                 self.logger.warning("failing to import GUI, disabling it")
                 self.enable_graphical_display = False
@@ -169,6 +169,9 @@ class Manager:
 
         # log that the manager survived init
         self.logger.info("survived initialization")
+
+    def get_gui_requested_fps(self):
+        return self.gui.get_requested_fps()
 
     def update_gui(self) -> bool:
         """

@@ -185,15 +185,15 @@ public class DiscoveryClient extends Thread {
      */
     protected void listen(DatagramSocket socket) throws IOException {
         // wait for a message on our socket
-        byte[] recvBuf = new byte[4096];
-        DatagramPacket receivePacket = new DatagramPacket(recvBuf, recvBuf.length);
+        byte[] receiveBuffer = new byte[4096];
+        DatagramPacket receivePacket = new DatagramPacket(receiveBuffer, receiveBuffer.length);
         socket.receive(receivePacket);
 
         // initialise an ObjectInputStream
 
         LedMatrix identification;
         try {
-            String receivedData = new String(receivePacket.getData());
+            String receivedData = new String(receiveBuffer, 0, receivePacket.getLength());
 
             if (!"".equals(receivedData)) {
                 JsonObject received_object = jsonParser.parse(receivedData).getAsJsonObject();

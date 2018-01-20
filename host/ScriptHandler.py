@@ -34,6 +34,9 @@ class ScriptHandler:
         self.logger = logging.getLogger("scripthandler")
         self.crash_counter = {}
 
+    def restart_current_script(self):
+        self.current_script_runner.restart_script()
+
     def start_script(self, script_name: str, source_id):
         """
         Will load the class in the scripts/ folder that has the given name in the file with the same name.

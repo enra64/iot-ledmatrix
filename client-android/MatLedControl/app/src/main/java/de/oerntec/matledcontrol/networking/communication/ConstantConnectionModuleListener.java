@@ -10,7 +10,7 @@ public interface ConstantConnectionModuleListener {
     /**
      * Called if the run thread has exited
      */
-    void moduleStopped();
+    void moduleStopped(boolean hadTimeout);
     void matrixShutDown();
     JsonObject getNextOutMessage();
     void onMatrixAcceptedConnection(int width, int height);

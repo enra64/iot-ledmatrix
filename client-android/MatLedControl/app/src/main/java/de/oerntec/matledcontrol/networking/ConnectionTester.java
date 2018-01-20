@@ -30,6 +30,7 @@ public class ConnectionTester {
                         } catch (InterruptedException ignored) {
                         }
                     } else {
+                        // not a time out if the kill flag was set
                         if (!killFlag)
                             connection.onTimeout();
                         break;

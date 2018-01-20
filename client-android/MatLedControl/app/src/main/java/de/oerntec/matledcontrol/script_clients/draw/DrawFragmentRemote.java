@@ -51,9 +51,11 @@ public class DrawFragmentRemote extends Fragment implements MatrixListener, View
         colorButton.setOnClickListener(this);
 
         mDrawingView = (GridDrawingView) v.findViewById(R.id.fragment_draw_drawing_view);
+
+        mDrawingView.setGridChangeListener(this);
+
         LedMatrix currentMatrix = mMessageSender.getCurrentMatrix();
         mDrawingView.setGridSize(currentMatrix.width, currentMatrix.height);
-        mDrawingView.setGridChangeListener(this);
 
         mColorView = v.findViewById(R.id.fragment_draw_current_color_view);
         mColorView.setBackgroundColor(mDrawingView.getColor());
