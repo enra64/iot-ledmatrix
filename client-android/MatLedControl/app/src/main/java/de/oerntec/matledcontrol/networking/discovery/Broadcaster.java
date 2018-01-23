@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.TimerTask;
 
+import de.oerntec.matledcontrol.BuildConfig;
 import de.oerntec.matledcontrol.ExceptionListener;
 
 /**
@@ -73,7 +74,8 @@ class Broadcaster extends TimerTask {
             mThisDevice.addProperty("discovery_port", mSocket.getLocalPort());
             socket.setBroadcast(true);
         } catch (SocketException e) {
-            Log.w("broadcaster", "could not setBroadcast(true)");
+            if (BuildConfig.DEBUG)
+                Log.w("broadcaster", "could not setBroadcast(true)");
             mExceptionListener.onException(this, e, "could not setSocket()");
         }
     }

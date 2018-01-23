@@ -50,7 +50,8 @@ public class ConstantConnectionModule extends Thread implements ConstantConnecti
             if (nextOutMessage != null)
                 zmqSocket.send(nextOutMessage.toString());
         } catch (ArrayIndexOutOfBoundsException | ClosedSelectorException e) {
-            if (BuildConfig.DEBUG) Log.w("zmatrixcomm", "could not send " + nextOutMessage, e);
+            if (BuildConfig.DEBUG)
+                Log.w("zmatrixcomm", "could not send " + nextOutMessage, e);
             continueRunning = false;
             return;
         }
@@ -59,7 +60,8 @@ public class ConstantConnectionModule extends Thread implements ConstantConnecti
             if (mConnectionTester.requirePing())
                 zmqSocket.send(pingMessage);
         } catch (ArrayIndexOutOfBoundsException | ClosedSelectorException e) {
-            if (BuildConfig.DEBUG) Log.w("zmatrixcomm", "could not send connection test", e);
+            if (BuildConfig.DEBUG)
+                Log.w("zmatrixcomm", "could not send connection test", e);
             continueRunning = false;
         }
     }

@@ -73,6 +73,7 @@ import java.util.List;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import de.oerntec.matledcontrol.BuildConfig;
 import de.oerntec.matledcontrol.R;
 import de.oerntec.matledcontrol.networking.communication.MatrixListener;
 
@@ -382,7 +383,7 @@ public class Camera2BasicFragmentRemote extends Fragment implements View.OnClick
      * @return The optimal {@code Size}, or an arbitrary one if none were big enough
      */
     private static Size chooseOptimalSize(Size[] choices, int textureViewWidth,
-            int textureViewHeight, int maxWidth, int maxHeight, Size aspectRatio) {
+                                          int textureViewHeight, int maxWidth, int maxHeight, Size aspectRatio) {
 
         // Collect the supported resolutions that are at least as big as the preview Surface
         List<Size> bigEnough = new ArrayList<>();
@@ -394,7 +395,7 @@ public class Camera2BasicFragmentRemote extends Fragment implements View.OnClick
             if (option.getWidth() <= maxWidth && option.getHeight() <= maxHeight &&
                     option.getHeight() == option.getWidth() * h / w) {
                 if (option.getWidth() >= textureViewWidth &&
-                    option.getHeight() >= textureViewHeight) {
+                        option.getHeight() >= textureViewHeight) {
                     bigEnough.add(option);
                 } else {
                     notBigEnough.add(option);
@@ -409,7 +410,8 @@ public class Camera2BasicFragmentRemote extends Fragment implements View.OnClick
         } else if (notBigEnough.size() > 0) {
             return Collections.max(notBigEnough, new CompareSizesByArea());
         } else {
-            Log.e(TAG, "Couldn't find suitable preview size");
+            if (BuildConfig.DEBUG)
+                Log.e(TAG, "Couldn't find suitable preview size");
             return choices[0];
         }
     }
@@ -528,7 +530,8 @@ public class Camera2BasicFragmentRemote extends Fragment implements View.OnClick
                         }
                         break;
                     default:
-                        Log.e(TAG, "Display rotation invalid: " + displayRotation);
+                        if (BuildConfig.DEBUG)
+                            Log.e(TAG, "Display rotation invalid: " + displayRotation);
                 }
 
                 Point displaySize = new Point();
@@ -819,7 +822,8 @@ public class Camera2BasicFragmentRemote extends Fragment implements View.OnClick
                                                @NonNull CaptureRequest request,
                                                @NonNull TotalCaptureResult result) {
                     showToast("Saved: " + mFile);
-                    Log.d(TAG, mFile.toString());
+                    if (BuildConfig.DEBUG)
+                        Log.d(TAG, mFile.toString());
                     unlockFocus();
                 }
             };

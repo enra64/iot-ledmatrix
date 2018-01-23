@@ -86,7 +86,8 @@ public class DiscoveryFragmentRemote extends Fragment implements OnDiscoveryList
 
     /**
      * Use this factory to create a new {@link DiscoveryFragmentRemote}.
-     * @param deviceName name of this device
+     *
+     * @param deviceName    name of this device
      * @param discoveryPort the discovery dataPort the server is listening on
      * @return new instance of {@link DiscoveryFragmentRemote}
      */
@@ -154,7 +155,7 @@ public class DiscoveryFragmentRemote extends Fragment implements OnDiscoveryList
         // only start new discovery if not running yet
         if (mDiscovery == null || !mDiscovery.isRunning()) {
             // avoid starting the discovery before being attached or being created
-            if (mExceptionListener != null && mDiscoveryProgressBar != null){
+            if (mExceptionListener != null && mDiscoveryProgressBar != null) {
                 // create a new discovery thread, if this one already completed
                 if (mDiscovery == null || mDiscovery.hasRun()) {
 
@@ -193,12 +194,13 @@ public class DiscoveryFragmentRemote extends Fragment implements OnDiscoveryList
 
     /**
      * Called by the ServerList in DiscoveryClient when a new server has responded
+     *
      * @param matrices list of currently found matrices
      */
     @Override
     public void onServerListUpdated(final List<LedMatrix> matrices) {
         // since this is called from a separate thread, we must use runOnUiThread to update the lits
-        if (getActivity() != null){
+        if (getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -228,7 +230,8 @@ public class DiscoveryFragmentRemote extends Fragment implements OnDiscoveryList
 
     @Override
     public void onMessage(JsonObject data) {
-        Log.w("discoveryfragment", "received unexpected message: " + data.toString());
+        if (BuildConfig.DEBUG)
+            Log.w("discoveryfragment", "received unexpected message: " + data.toString());
     }
 
     /**
@@ -244,13 +247,14 @@ public class DiscoveryFragmentRemote extends Fragment implements OnDiscoveryList
     interface DiscoveryFragmentInteractionListener {
         /**
          * Called when the user tapped on a server
+         *
          * @param server identification of the clicked server
          */
         void onDiscoveredMatrixClicked(LedMatrix server);
     }
 
-    public void refreshMatrices(){
-        if(mAvailableMatrices.getAdapter() != null)
+    public void refreshMatrices() {
+        if (mAvailableMatrices.getAdapter() != null)
             ((DiscoveryAdapter) mAvailableMatrices.getAdapter()).notifyDataSetChanged();
     }
 
@@ -271,9 +275,9 @@ public class DiscoveryFragmentRemote extends Fragment implements OnDiscoveryList
 
             final LedMatrix matrix = getItem(position);
 
-            if(matrix != null){
+            if (matrix != null) {
                 ((TextView) hmm.findViewById(R.id.large_text)).setText(matrix.name);
-                ((TextView) hmm.findViewById(R.id.small_text)).setText(String.format(Locale.getDefault(),"%dx%d", matrix.width, matrix.height));
+                ((TextView) hmm.findViewById(R.id.small_text)).setText(String.format(Locale.getDefault(), "%dx%d", matrix.width, matrix.height));
 
                 Button button = (Button) hmm.findViewById(R.id.button);
 
