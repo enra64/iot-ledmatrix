@@ -35,7 +35,7 @@
     <string name="choose_color">choose color</string>
     <string name="send_text">send text</string>
     <string name="font_size">Font size</string>
-    <string-array name="available_wakeup_durations">
+    <string-array translatable="false" name="available_wakeup_durations">
         <item>15min</item>
         <item>30min</item>
         <item>45min</item>
