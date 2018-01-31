@@ -14,14 +14,72 @@ import java.util.concurrent.ArrayBlockingQueue;
 import de.oerntec.matledcontrol.networking.discovery.LedMatrix;
 
 public class ConstantConnection implements Connection, ConstantConnectionModuleListener {
+    private static final int[] BACKOFF_MULTIPLIERS = new int[] { 1, 1, 2, 3, 5, 8, 13 };
+
+    /**
+     * The LedMatrix we want to connect to
+     */
     private LedMatrix matrix;
+
+    /**
+     * This {@link MatrixListener} instance is used to react to common matrix data events
+     */
     private MatrixListener matrixListener;
+
+    /**
+     * The connectionstatuslistener we want to inform about significant connection state changes
+     */
     private ConnectionStatusListener connectionStatusListener;
-    private ConstantConnectionModuleInterface module;
+
+    /**
+     * The constant connection module currently in use
+     */
+    private ConstantConnectionModule module;
+
+    /**
+     * Queue for outgoing messages
+     */
     private Queue<JsonObject> outBox;
+
+    /**
+     * The ZMQ context
+     */
     private ZMQ.Context zmqContext;
+
+    /**
+     * The connection string that can be used to connect to the matrix
+     */
     private String connectionString;
+
+    /**
+     * The installation id of this app
+     */
     private String installationId;
+
+    /**
+     * True if the context has been terminated by this class
+     */
+    private boolean zmqContextTerminated = false;
+
+    /**
+     * Amount of cycling that should be tried before declaring the connection dead
+     */
+    private static final int MAXIMUM_CYCLE_COUNT = BACKOFF_MULTIPLIERS.length;
+
+    /**
+     * The millis() timestamp after which the next connection try may be made
+     */
+    private long nextConnectionTry = -1;
+
+    /**
+     * The millis() timestamp at which the last cycle has been initiated
+     */
+    private long lastConnectionInitialization = -1;
+
+    /**
+     * the number of tries we have now done to reconnect to the matrix
+     */
+    private int currentCycleIteration = 0;
 
     @Override
     public void initialize(LedMatrix matrix, MatrixListener listener, ConnectionStatusListener connectionStatusListener, @NonNull String installationId) {
@@ -70,6 +128,7 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
         new Handler().post(new Runnable() {
             @Override
             public void run() {
+                zmqContextTerminated = true;
                 zmqContext.close();
             }
         });
@@ -77,19 +136,37 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
 
     @Override
     public void moduleStopped(boolean hadTimeout) {
-        cycleModule();
+        if (currentCycleIteration < MAXIMUM_CYCLE_COUNT)
+            cycleModule();
+        else {
+            connectionStatusListener.onConnectionRetryLimitReached(matrix);
+            closeConnection();
+        }
     }
 
     private void cycleModule() {
         if (module != null)
             module.endConnection();
-        module = new ConstantConnectionModule();
-        module.start(connectionString, zmqContext, this, installationId);
+
+        if (zmqContextTerminated)
+            return;
+
+        if (System.currentTimeMillis() > nextConnectionTry) {
+            // allow the next try only after some time (50ms * BACKOFF...)
+            nextConnectionTry = System.currentTimeMillis() + (50 * BACKOFF_MULTIPLIERS[currentCycleIteration]);
+
+            // make the next try wait a little longer
+            currentCycleIteration++;
+
+            // try to connect
+            module = new ConstantConnectionModuleImpl();
+            module.start(connectionString, zmqContext, this, installationId);
+        }
     }
 
     @Override
     public void matrixShutDown() {
-        connectionStatusListener.onMatrixDisconnected(matrix);
+        connectionStatusListener.onMatrixShutDown(matrix);
     }
 
     @Override

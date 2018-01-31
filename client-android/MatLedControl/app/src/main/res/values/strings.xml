@@ -64,6 +64,8 @@
     <string name="connected_to">\"Connected to \"</string>
     <string name="lost_connection">" has stopped"</string>
     <string name="wake_up_light">Wake up light</string>
+    <string name="multiple_retries_failed">Multiple tries to re-establish the connection to the matrix have failed. Please upgrade your wifi-setup :(</string>
+    <string name="connection_failed">Connection failed</string>
     <string-array name="randomization_intervals">
         <item>Hourly</item>
         <item>Daily</item>

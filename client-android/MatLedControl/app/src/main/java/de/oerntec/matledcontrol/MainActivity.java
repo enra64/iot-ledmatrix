@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity
                 toolbar,
                 R.string.navigation_drawer_open,
                 R.string.navigation_drawer_close);
+        //noinspection deprecation
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -246,6 +247,9 @@ public class MainActivity extends AppCompatActivity
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                if (isFinishing())
+                    return;
+
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle(R.string.error_occurreden);
                 builder.setMessage(info);
@@ -389,7 +393,7 @@ public class MainActivity extends AppCompatActivity
      * @param matrix the matrix that went offline
      */
     @Override
-    public void onMatrixDisconnected(final LedMatrix matrix) {
+    public void onMatrixShutDown(final LedMatrix matrix) {
         mCurrentMatrix = null;
 
         if (mConnection != null)
@@ -401,6 +405,34 @@ public class MainActivity extends AppCompatActivity
             public void run() {
                 if (matrix != null)
                     Toast.makeText(MainActivity.this, matrix.name + getString(R.string.lost_connection), Toast.LENGTH_SHORT).show();
+                //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
+                getSupportActionBar().setSubtitle(null);
+                loadFragment(R.id.device_discovery);
+            }
+        });
+    }
+
+    /**
+     * Called when the limit for connection retries has been reached
+     *
+     * @param matrix the matrix that we are trying to connect to
+     */
+    @Override
+    public void onConnectionRetryLimitReached(final LedMatrix matrix) {
+        mCurrentMatrix = null;
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (isFinishing())
+                    return;
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.connection_failed);
+                builder.setMessage(R.string.multiple_retries_failed);
+                builder.setPositiveButton(R.string.ok, null);
+                builder.show();
+
                 //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
                 getSupportActionBar().setSubtitle(null);
                 loadFragment(R.id.device_discovery);

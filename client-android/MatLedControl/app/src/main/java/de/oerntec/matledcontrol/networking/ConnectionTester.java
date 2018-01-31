@@ -1,14 +1,14 @@
 package de.oerntec.matledcontrol.networking;
 
-import de.oerntec.matledcontrol.networking.communication.ConstantConnectionModule;
+import de.oerntec.matledcontrol.networking.communication.ConstantConnectionModuleImpl;
 
 public class ConnectionTester {
 
-    private final ConstantConnectionModule connection;
+    private final ConstantConnectionModuleImpl connection;
     private final int interval;
     private boolean alive, killFlag, requirePing;
 
-    public ConnectionTester(ConstantConnectionModule connection, int interval) {
+    public ConnectionTester(ConstantConnectionModuleImpl connection, int interval) {
         this.connection = connection;
         this.interval = interval;
         alive = true;

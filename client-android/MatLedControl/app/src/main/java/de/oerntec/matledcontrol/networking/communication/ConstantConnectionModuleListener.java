@@ -3,12 +3,11 @@ package de.oerntec.matledcontrol.networking.communication;
 import com.google.gson.JsonObject;
 
 /**
- * Created by arne on 13.01.18.
+ * The listener for classes that want to react to state changes of a connection module
  */
-
 public interface ConstantConnectionModuleListener {
     /**
-     * Called if the run thread has exited
+     * Called if the run thread of the module has exited
      */
     void moduleStopped(boolean hadTimeout);
     void matrixShutDown();

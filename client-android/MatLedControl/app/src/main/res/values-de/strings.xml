@@ -62,4 +62,6 @@
     <string name="connected_to">\"Verbunden mit \"</string>
     <string name="lost_connection">" hat sich beendet"</string>
     <string name="wake_up_light">Wecklampe</string>
+    <string name="multiple_retries_failed">Mehrfache Versuche die Verbindung zur Matrix wiederherzustellen sind fehlgeschlagen. Bitte verbessere die Verbindung :(</string>
+    <string name="connection_failed">Verbindung zusammengebrochen</string>
 </resources>
