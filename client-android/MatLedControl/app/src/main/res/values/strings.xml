@@ -61,7 +61,7 @@
     <string name="about">About</string>
     <string name="about_text">Developed by enra64 and gSilas on github.\\n\\nThanks to Pavel Sikun for his VintageChroma library under the Apache v2 license!\\n\\nThanks to Josef Raska for his Console library, also under Apache v2.  See http://www.apache.org/licenses/LICENSE-2.0.</string>
     <string name="send_feedback">Send feedback</string>
-    <string name="connected_to">\"Connected to \"</string>
+    <string name="connected_to">Connected to</string>
     <string name="lost_connection">" has stopped"</string>
     <string name="wake_up_light">Wake up light</string>
     <string name="multiple_retries_failed">Multiple tries to re-establish the connection to the matrix have failed. Please upgrade your wifi-setup :(</string>

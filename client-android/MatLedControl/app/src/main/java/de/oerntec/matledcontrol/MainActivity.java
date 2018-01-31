@@ -373,7 +373,7 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run() {
                     //noinspection ConstantConditions // a SupportActionBar should be set, see onCreate
-                    getSupportActionBar().setSubtitle(getString(R.string.connected_to) + matrix.name);
+                    getSupportActionBar().setSubtitle(getString(R.string.connected_to) + " " + matrix.name);
                     if (mCurrentScriptFragment instanceof DiscoveryFragmentRemote)
                         ((DiscoveryFragmentRemote) mCurrentScriptFragment).refreshMatrices();
                 }

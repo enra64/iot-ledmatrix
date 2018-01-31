@@ -59,7 +59,7 @@
     <string name="about">Infos</string>
     <string name="about_text">Entwickelt von enra64 und gSilas auf github.\n\nDanke an Pavel Sikun für seine VintageChrome-Library!\n\nDanke an Josef Raska für seine Library Console!\n\nBeide Bibliotheken wurden unter der Apache v2-Lizenz (verfügbar unter http://www.apache.org/licenses/LICENSE-2.0) veröffentlicht.</string>
     <string name="send_feedback">Feedback senden</string>
-    <string name="connected_to">\"Verbunden mit \"</string>
+    <string name="connected_to">Verbunden mit</string>
     <string name="lost_connection">" hat sich beendet"</string>
     <string name="wake_up_light">Wecklampe</string>
     <string name="multiple_retries_failed">Mehrfache Versuche die Verbindung zur Matrix wiederherzustellen sind fehlgeschlagen. Bitte verbessere die Verbindung :(</string>
