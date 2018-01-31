@@ -113,13 +113,6 @@ public class ManualRemoteScriptLoadFragment extends Fragment implements MatrixLi
         });
     }
 
-    private void requestScript(String script) {
-        JsonObject msg = new JsonObject();
-        msg.addProperty("command", "script_load_request");
-        msg.addProperty("requested_script", script);
-        mMessageSender.sendScriptData(msg);
-    }
-
     private class ScriptAdapter extends ArrayAdapter<String> {
 
         ScriptAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<String> objects) {
