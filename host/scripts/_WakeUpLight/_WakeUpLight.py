@@ -63,7 +63,9 @@ class _WakeUpLight(CustomScript):
         if "command" in json and json["command"] == "wakeuplight_set_time":
             self.timezone = pytz.timezone(json["wake_timezone"])
             self.wake_time = datetime.now(tz=self.timezone).replace(hour=json["wake_hour"], minute=json["wake_minute"])
-            self.wake_time += timedelta(days=1)
+            now = datetime.now(tz=self.timezone) + timedelta(minutes=self.time_delta)
+            if self.wake_time.time() < now.time():
+                self.wake_time += timedelta(days=1)
             # self.wake_time = datetime.now(tz=self.timezone).replace(hour=22,minute=40)
             self.blend_in_duration = timedelta(minutes=json["blend_duration"])
             self.lower_color_temperature = json["lower_color_temperature"]
