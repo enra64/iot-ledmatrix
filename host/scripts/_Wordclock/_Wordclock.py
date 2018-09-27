@@ -1,6 +1,5 @@
-from datetime import datetime, timezone, timedelta
 import logging
-from typing import List
+from datetime import datetime
 
 from Canvas import Canvas
 from CustomScript import CustomScript
@@ -18,8 +17,8 @@ class _Wordclock(CustomScript):
 
         # config_file_path = "assets/arnes_wordclock_config.json"
         # config_file_path = "assets/config_ledmatrix_arnes_wordclock_lines_filled_with_other_letters.json"
-        # config_file_path = "assets/merets_wordclock_config.json"
-        config_file_path = "assets/susannes_wordclock_config.json"
+        config_file_path = "assets/merets_wordclock_config.json"
+        # config_file_path = "assets/susannes_wordclock_config.json"
         self.color_config_path = "wordclock_color_config.json"
         self.logger.info("using {} and {} as config".format(config_file_path, self.color_config_path))
         self.enable = True

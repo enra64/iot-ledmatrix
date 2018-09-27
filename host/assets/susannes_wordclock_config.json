@@ -1,4 +1,10 @@
-{"display_25_as_to_half": true, "is_half_past_not_half_to": false, "has_specific_minutes_word": false, "small_minute_type": "MINUTE_SMALL_POINT", "lines": 10, "config": [
+{
+  "display_25_as_to_half": true,
+  "is_half_past_not_half_to": false,
+  "has_specific_minutes_word": false,
+  "small_minute_type": "MINUTE_SMALL_BAR",
+  "lines": 10,
+  "config": [
 
 
     {"word": "ESIST", "rect": {"width": 8, "y": 0}, "category": "OTHER", "info": "itis"},

@@ -15,6 +15,7 @@ class WordType(Enum):
     minute_big = 1
     hour = 2
     minute_small_bar = 3
+    minute_small_point = 4
 
 
 class Word:
@@ -53,6 +54,7 @@ class WordLogic:
         self.display_25_as_to_half = self.config["display_25_as_to_half"]
         self.has_specific_minutes_word = self.config["has_specific_minutes_word"]
         self.is_half_past_not_half_to = self.config["is_half_past_not_half_to"]
+        self.small_minute_type = self.config["small_minute_type"]
         self.words = []
 
         self.__parse_words()
@@ -94,7 +96,11 @@ class WordLogic:
         rounded_minutes = int(5 * (now_time.minute // 5))
 
         result = [word.rectangle for word in self.__get_applicable_words(rounded_minutes, now_time.hour)]
-        result.extend(self.__get_minute_bar_rectangles(canvas, now_time, rounded_minutes))
+
+        if self.small_minute_type == "MINUTE_SMALL_BAR":
+            result.extend(self.__get_minute_bar_rectangles(canvas, now_time))
+        else:
+            result.extend(self.__get_minute_small_point_rectangles(canvas, now_time, rounded_minutes))
         return result
 
     def __get_other(self, info) -> List[Word]:
@@ -188,7 +194,7 @@ class WordLogic:
 
         return result
 
-    def __get_minute_bar_rectangles(self, canvas: Canvas, now_time: datetime, rounded_minutes) -> List[Rect]:
+    def __get_minute_bar_rectangles(self, canvas: Canvas, now_time: datetime) -> List[Rect]:
         """
         Get rectangles describing the minute bar.
 
@@ -196,7 +202,6 @@ class WordLogic:
 
         :param canvas:
         :param now_time:
-        :param rounded_minutes:
         :return:
         """
         result = []
@@ -239,3 +244,37 @@ class WordLogic:
             Rect(begin_full_activation_bar + fully_activated_length, rect.y, 1, rect.height, not_fully_activated_color))
 
         return result
+
+    def __get_minute_small_point_rectangles(self, canvas: Canvas, now_time: datetime, rounded_minutes) -> List[Rect]:
+        """
+        Get rectangles describing the minute bar.
+
+        The idea for reading the minute bar is: The bar displays the percentage to the next five-minute-block.
+
+        :param canvas: the canvas to use for configuration information
+        :param now_time: current time to get the small minute points for
+        :param rounded_minutes:
+        :return:
+        """
+        resulting_rectangles = []
+
+        # get MINUTE_SMALL_POINT rectangles
+        minute_points = {minute: self.__get_words(WordType.minute_small_point, minute)[0].rectangle for minute in
+                         range(4)}
+
+        if now_time.minute % 5 == 1:
+            resulting_rectangles.append(minute_points[0])
+        if now_time.minute % 5 == 2:
+            resulting_rectangles.append(minute_points[1])
+        if now_time.minute % 5 == 3:
+            resulting_rectangles.append(minute_points[2])
+        if now_time.minute % 5 == 4:
+            resulting_rectangles.append(minute_points[3])
+
+        for i in range(1, 5):
+            if now_time.minute % 5 == i:
+                resulting_rectangles.append(minute_points[i - 1])
+
+        # resulting_rectangles = [self.__get_words(WordType.minute_small_point, i)[0].rectangle for i in range(1, 5) if now_time.minute % 5 == i]
+
+        return resulting_rectangles
