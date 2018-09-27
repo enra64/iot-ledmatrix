@@ -1,14 +1,13 @@
 import inspect
 import time
 
-from DiscoveryServer import DiscoveryServer
 from Canvas import Canvas
-from matrix_serial import MatrixSerial
+from DiscoveryServer import DiscoveryServer
 from ScriptHandler import ScriptHandler
-from helpers.Color import Color
-
 # begin serial test
 from Server import Server
+from helpers.Color import Color
+from matrix_serial import MatrixSerial
 
 
 def red_display_test(serial: MatrixSerial):
@@ -156,7 +155,7 @@ def test_gui_canvas_display_by_line():
         from MatrixGraphicalDisplay import MatrixGraphicalDisplay
 
         c = Canvas(15, 10, 0)
-        gui = MatrixGraphicalDisplay(15, 10)
+        gui = MatrixGraphicalDisplay(15, 10, 0)
         blue = Color(0, 0, 255)
 
         for i in range(c.width - 1, 0-1 + (c.width - c.height), -1):
@@ -164,6 +163,26 @@ def test_gui_canvas_display_by_line():
             gui.update_with_canvas(c)
 
         time.sleep(.4)
+
+    except ImportError:
+        print("could not import tkinter, probably")
+
+
+def test_gui_canvas_display_pixel_counter_up():
+    print(inspect.currentframe().f_code.co_name)
+    print("should print blue line from pixel 0 to 41")
+    try:
+        from MatrixGraphicalDisplay import MatrixGraphicalDisplay
+
+        c = Canvas(42, 1, 0)
+        gui = MatrixGraphicalDisplay(42, 1, 0, test_gui_canvas_display_by_line)
+        blue = Color(0, 0, 255)
+
+        for i in range(42):
+            c.draw_pixel(i, 0, blue)
+            gui.update_with_canvas(c)
+
+            time.sleep(0.6)
 
     except ImportError:
         print("could not import tkinter, probably")
