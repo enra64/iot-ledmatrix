@@ -4,4 +4,4 @@ freetype-py
 pyzmq
 numpy
 typing
-tkinter[gui]
+#tkinter[gui]
