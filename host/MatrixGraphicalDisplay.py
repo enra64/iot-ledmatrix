@@ -1,12 +1,11 @@
 import logging
 import threading
-from tkinter import Tk, Scale, Button
 from tkinter import Canvas as TkCanvas
+from tkinter import Tk, Scale, Button
 from typing import Callable
 
-from helpers.Color import Color
-
 import Canvas
+from helpers.Color import Color
 from helpers.custom_atexit import CustomAtExit
 
 
@@ -30,14 +29,13 @@ class MatrixGraphicalDisplay:
         self.tk_root = Tk()
         self.tk_root.geometry("{}x{}".format(self.width, self.height + 150))
         self.tk_root.title = "Matrix test window"
-        self.tk_canvas = TkCanvas(self.tk_root)
+        self.tk_canvas = TkCanvas(self.tk_root, width=self.width, height=self.height)
         self.tk_canvas.pack()
         self.tk_fps_slider = Scale(self.tk_root, orient="horizontal", from_=1, to=120)
         self.tk_fps_slider.set(24)
         self.tk_fps_slider.pack()
         self.tk_restart_script_button = Button(self.tk_root, text="Restart current script", command=restart_current_script_function)
         self.tk_restart_script_button.pack()
-
 
         self.tk_root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
