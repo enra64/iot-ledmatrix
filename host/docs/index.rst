@@ -38,6 +38,14 @@ custom scripts
 --------------
 Custom scripts enable you to easily create new features for the matrix. They are discussed in detail here: :ref:`custom_script_label`
 
+how to get it running on your raspberry pi
+------------------------------------------
+
+1) update apt: `sudo apt update`
+2) get some required packages: `sudo apt install git python3-pip python3-venv`
+3) download the code using git clone for easy updating: `git clone https://github.com/enra64/iot-ledmatrix.git`
+4) create a python3 venv: python3 -m venv ./host-venv
+
 android code
 ============
 The android app included in client-android makes working with the matrix really easy. It supports some administration features, and it is the basis for interactive scripts.
