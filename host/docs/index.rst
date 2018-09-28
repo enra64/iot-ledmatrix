@@ -44,7 +44,9 @@ how to get it running on your raspberry pi
 1) update apt: `sudo apt update`
 2) get some required packages: `sudo apt install git python3-pip python3-venv`
 3) download the code using git clone for easy updating: `git clone https://github.com/enra64/iot-ledmatrix.git`
-4) create a python3 venv: python3 -m venv ./host-venv
+4) create a python3 venv: `python3 -m venv ./host-venv`
+5) activate the venv: `source host-venv/bin/activate`
+6) install the required packages within the venv: `pip install -r iot-ledmatrix/host/requirements.txt`
 
 android code
 ============
