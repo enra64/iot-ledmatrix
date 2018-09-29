@@ -47,6 +47,22 @@ how to get it running on your raspberry pi
 4) create a python3 venv: `python3 -m venv ./host-venv`
 5) activate the venv: `source host-venv/bin/activate`
 6) install the required packages within the venv: `pip install -r iot-ledmatrix/host/requirements.txt`
+7) for autostart: add a systemd unit: sudo nano /lib/systemd/system/ledmatrix.service
+8) adapt the following template to your need:
+   ::
+       [Unit]
+       Description=My Sample Service
+       After=multi-user.target
+       After=network-online.target
+       Wants=network-online.target
+
+       [Service]
+       Type=simple
+       ExecStart=/home/pi/host-venv/bin/python /home/pi/iot-ledmatrix/host/main.py --name="My Wordclock" --width=42 --height=1 --start-script=_Wordclock
+
+       [Install]
+       WantedBy=multi-user.target
+9) enable & start the service to see your ledmatrix working: `sudo systemctl enable ledmatrix.service && sudo systemctl start ledmatrix.service`
 
 android code
 ============
