@@ -48,7 +48,7 @@ how to get it running on your raspberry pi
 5) activate the venv: `source host-venv/bin/activate`
 6) install the required packages within the venv: `pip install -r iot-ledmatrix/host/requirements.txt`
 7) for autostart: add a systemd unit: sudo nano /lib/systemd/system/ledmatrix.service
-8) adapt the following template to your need:
+8) adapt the following template to your need (command line options):
    ::
        [Unit]
        Description=My Sample Service
@@ -63,6 +63,8 @@ how to get it running on your raspberry pi
        [Install]
        WantedBy=multi-user.target
 9) enable & start the service to see your ledmatrix working: `sudo systemctl enable ledmatrix.service && sudo systemctl start ledmatrix.service`
+
+Note: If you are using /dev/ttyAMA0 (serial0) for the Arduino you have to remove this serial port from /boot/cmdline.txt as the Pi will print its boot messages to this port.
 
 android code
 ============
