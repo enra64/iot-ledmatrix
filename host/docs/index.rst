@@ -38,6 +38,34 @@ custom scripts
 --------------
 Custom scripts enable you to easily create new features for the matrix. They are discussed in detail here: :ref:`custom_script_label`
 
+how to get it running on your raspberry pi
+------------------------------------------
+
+1) update apt: `sudo apt update`
+2) get some required packages: `sudo apt install git python3-pip python3-venv`
+3) download the code using git clone for easy updating: `git clone https://github.com/enra64/iot-ledmatrix.git`
+4) create a python3 venv: `python3 -m venv ./host-venv`
+5) activate the venv: `source host-venv/bin/activate`
+6) install the required packages within the venv: `pip install -r iot-ledmatrix/host/requirements.txt`
+7) for autostart: add a systemd unit: sudo nano /lib/systemd/system/ledmatrix.service
+8) adapt the following template to your need (command line options):
+   ::
+       [Unit]
+       Description=My Sample Service
+       After=multi-user.target
+       After=network-online.target
+       Wants=network-online.target
+
+       [Service]
+       Type=simple
+       ExecStart=/home/pi/host-venv/bin/python /home/pi/iot-ledmatrix/host/main.py --name="My Wordclock" --width=42 --height=1 --start-script=_Wordclock
+
+       [Install]
+       WantedBy=multi-user.target
+9) enable & start the service to see your ledmatrix working: `sudo systemctl enable ledmatrix.service && sudo systemctl start ledmatrix.service`
+
+Note: If you are using /dev/ttyAMA0 (serial0) for the Arduino you have to remove this serial port from /boot/cmdline.txt as the Pi will print its boot messages to this port.
+
 android code
 ============
 The android app included in client-android makes working with the matrix really easy. It supports some administration features, and it is the basis for interactive scripts.
