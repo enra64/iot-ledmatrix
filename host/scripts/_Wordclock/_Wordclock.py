@@ -4,6 +4,7 @@ from datetime import datetime
 from Canvas import Canvas
 from CustomScript import CustomScript
 from scripts._Wordclock import ColorLogic
+from scripts._Wordclock.PirSensor import PirSensor
 from scripts._Wordclock.Settings import Settings
 from scripts._Wordclock.WordLogic import WordLogic
 
@@ -35,15 +36,25 @@ class _Wordclock(CustomScript):
 
             self.set_frame_rate(1)
 
+        self.pir = None
+        if self.settings.enable_pir():
+            self.pir = PirSensor()
+
     def __get_current_time(self) -> datetime:
         """Helper function for getting the correct time"""
         #return datetime.strptime("11:30", '%H:%M')
         return datetime.now()
 
+    def __check_pir_recommends_enabling(self):
+        if not self.settings.enable_pir():
+            return True
+        else:
+            return self.pir.is_something_visible()
+
     def update(self, canvas):
         time = self.__get_current_time()
 
-        self.enable = self.settings.is_time_within_limit(time.hour)
+        self.enable = self.settings.is_time_within_limit(time.hour) and self.__check_pir_recommends_enabling()
 
         if self.settings.should_randomize_colors(time):
             ColorLogic.randomize_colors(self.word_logic.get_all_words(), self.color_config_path)

@@ -1,9 +1,7 @@
 import json
 import logging
-
-from typing import Dict
-
 from datetime import datetime
+from typing import Dict
 
 
 class Settings:
@@ -38,6 +36,11 @@ class Settings:
             return time >= self.settings["display_time_start_h"] or time < self.settings["display_time_stop_h"]
         else:
             return self.settings["display_time_start_h"] <= time < self.settings["display_time_stop_h"]
+
+    def enable_pir(self) -> bool:
+        if not self.settings["enable_pir"]:
+            return False
+        return self.settings["enable_pir"]
 
     def get_current_interval(self, time: datetime):
         interval_setting = self.settings["randomization_interval"]

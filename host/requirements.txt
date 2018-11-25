@@ -5,3 +5,4 @@ pyzmq
 numpy
 typing
 #tkinter[gui]
+RPi.GPIO
