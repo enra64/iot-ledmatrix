@@ -130,7 +130,7 @@ class CustomScript:
         """
         Change the frame rate with which the script will be updated
 
-        :param frame_rate: the target frame rate. must be 0 <= f <= 60, in Hz 
+        :param frame_rate: the target frame rate. must be 0 < = f < = 60, in Hz
         :return: nothing
         """
         self.__set_frame_rate(frame_rate)

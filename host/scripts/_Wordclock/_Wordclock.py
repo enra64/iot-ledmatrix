@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from Canvas import Canvas
 from CustomScript import CustomScript
@@ -40,10 +40,12 @@ class _Wordclock(CustomScript):
         if self.settings.enable_pir():
             self.pir = PirSensor()
 
+        self.delta = 0
+
     def __get_current_time(self) -> datetime:
         """Helper function for getting the correct time"""
         #return datetime.strptime("11:30", '%H:%M')
-        return datetime.now()
+        return datetime.now() + timedelta(minutes=self.delta)
 
     def __check_pir_recommends_enabling(self):
         if not self.settings.enable_pir():
@@ -59,6 +61,8 @@ class _Wordclock(CustomScript):
         if self.settings.should_randomize_colors(time):
             ColorLogic.randomize_colors(self.word_logic.get_all_words(), self.color_config_path)
             self.__send_config()
+
+        self.delta += 2
 
         if self.enable:
             self.rectangles = self.word_logic.get_current_rectangles(time, canvas)
