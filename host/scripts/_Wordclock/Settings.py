@@ -38,9 +38,7 @@ class Settings:
             return self.settings["display_time_start_h"] <= time < self.settings["display_time_stop_h"]
 
     def enable_pir(self) -> bool:
-        if not self.settings["enable_pir"]:
-            return False
-        return self.settings["enable_pir"]
+        return self.settings.get("enable_pir", False)
 
     def get_current_interval(self, time: datetime):
         interval_setting = self.settings["randomization_interval"]
