@@ -3,21 +3,19 @@ import RPi.GPIO as GPIO
 
 class PirSensor:
     def __init__(self):
-        self.__sensor_pin = 23
-        self.__pir_output_high = True
+        self.__sensor_pin = 14
+        self.__pin_high = True
         self.__initizalize_gpio()
 
     def __initizalize_gpio(self):
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.__sensor_pin, GPIO.IN)
-        GPIO.add_event_detect(self.__sensor_pin, GPIO.RISING, callback=self.__pir_on)
-        GPIO.add_event_detect(self.__sensor_pin, GPIO.FALLING, callback=self.__pir_off)
+        GPIO.add_event_detect(self.__sensor_pin, GPIO.BOTH, callback=self.__pir_event)
 
-    def __pir_on(self) -> None:
-        self.__pir_output_high = True
-
-    def __pir_off(self) -> None:
-        self.__pir_output_high = False
+    def __pir_event(self, channel):
+        sensor_value = GPIO.input(self.__sensor_pin)
+        print("event! input=" + str(sensor_value))
+        self.__pin_high = sensor_value == GPIO.HIGH
 
     def is_something_visible(self) -> bool:
-        return self.__pir_output_high
+        return self.__pin_high
