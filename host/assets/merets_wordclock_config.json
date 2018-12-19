@@ -1,6 +1,8 @@
 {
   "display_25_as_to_half": false,
   "is_half_past_not_half_to": false,
+  "enable_pir": true,
+  "pir_sensor_pin_BCM": 14,
   "has_specific_minutes_word": true,
   "small_minute_type": "MINUTE_SMALL_POINT",
   "lines": 10,
