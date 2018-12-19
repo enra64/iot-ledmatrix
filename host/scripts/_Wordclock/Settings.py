@@ -12,6 +12,7 @@ class Settings:
         except FileNotFoundError:
             self.settings = {
                 "limit_display_time": True,
+                "enable_pir": False,
                 "display_time_start_h": 6,
                 "display_time_stop_h": 2,
                 "randomization_enabled": True,
@@ -39,6 +40,12 @@ class Settings:
 
     def enable_pir(self) -> bool:
         return self.settings.get("enable_pir", False)
+
+    def get_pir_sensor_pin(self) -> int:
+        if not self.enable_pir():
+            return -1
+        else:
+            return self.settings.get("pir_sensor_pin_BCM", -2)
 
     def get_current_interval(self, time: datetime):
         interval_setting = self.settings["randomization_interval"]

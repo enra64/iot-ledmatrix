@@ -38,7 +38,7 @@ class _Wordclock(CustomScript):
 
         self.pir = None
         if self.settings.enable_pir():
-            self.pir = PirSensor()
+            self.pir = PirSensor(self.settings.get_pir_sensor_pin())
 
     def __get_current_time(self) -> datetime:
         """Helper function for getting the correct time"""
