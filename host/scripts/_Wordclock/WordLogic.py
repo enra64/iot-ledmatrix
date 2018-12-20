@@ -157,17 +157,22 @@ class WordLogic:
         result.extend(self.__get_minute(5))
         result.extend(self.__get_hour((hours + 1) % 12))
 
-    def __before_half(self, result, minutes, hours):
-        result.extend(self.__get_minute(minutes))
-        if not (minutes == 15 or minutes == 30) and self.has_specific_minutes_word:
+    def __current_time_has_explicit_minutes_word(self, rounded_minutes):
+        return not (rounded_minutes == 15 or rounded_minutes == 30 or rounded_minutes == 45)
+
+    def __before_half(self, result, rounded_minutes, hours):
+        # includes quarter
+        result.extend(self.__get_minute(rounded_minutes))
+        if self.has_specific_minutes_word and self.__current_time_has_explicit_minutes_word(rounded_minutes):
             result.extend(self.__get_other("minutes"))
         result.extend(self.__get_other("past"))
         result.extend(self.__get_hour(hours % 12))
 
-    def __after_half(self, result, minutes, hours):
-        result.extend(self.__get_minute(60 - minutes))
+    def __after_half(self, result, rounded_minutes, hours):
+        # includes quarter
+        result.extend(self.__get_minute(60 - rounded_minutes))
         # avoid printing
-        if minutes != 15 and self.has_specific_minutes_word:
+        if self.has_specific_minutes_word and self.__current_time_has_explicit_minutes_word(rounded_minutes):
             result.extend(self.__get_other("minutes"))
         result.extend(self.__get_other("to"))
         result.extend(self.__get_hour((hours + 1) % 12))
