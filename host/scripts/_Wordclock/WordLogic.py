@@ -262,17 +262,8 @@ class WordLogic:
         minute_points = {minute: self.__get_words(WordType.minute_small_point, minute)[0].rectangle for minute in
                          range(4)}
 
-        if now_time.minute % 5 == 1:
-            resulting_rectangles.append(minute_points[0])
-        if now_time.minute % 5 == 2:
-            resulting_rectangles.append(minute_points[1])
-        if now_time.minute % 5 == 3:
-            resulting_rectangles.append(minute_points[2])
-        if now_time.minute % 5 == 4:
-            resulting_rectangles.append(minute_points[3])
-
         for i in range(1, 5):
-            if now_time.minute % 5 == i:
+            if i <= now_time.minute % 5:
                 resulting_rectangles.append(minute_points[i - 1])
 
         # resulting_rectangles = [self.__get_words(WordType.minute_small_point, i)[0].rectangle for i in range(1, 5) if now_time.minute % 5 == i]
