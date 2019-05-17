@@ -1,10 +1,11 @@
+import json
 import logging
 from datetime import datetime
+from json import JSONDecodeError
 
 from Canvas import Canvas
 from CustomScript import CustomScript
 from scripts._Wordclock import ColorLogic
-from scripts._Wordclock.PirSensor import PirSensor
 from scripts._Wordclock.Settings import Settings
 from scripts._Wordclock.WordLogic import WordLogic
 
@@ -16,10 +17,8 @@ class _Wordclock(CustomScript):
                          set_frame_rate, get_connected_clients)
         self.logger = logging.getLogger("script:wordclock")
 
-        # config_file_path = "assets/arnes_wordclock_config.json"
-        # config_file_path = "assets/config_ledmatrix_arnes_wordclock_lines_filled_with_other_letters.json"
-        config_file_path = "assets/merets_wordclock_config.json"
-        # config_file_path = "assets/susannes_wordclock_config.json"
+        config_file_path = self.find_word_config_file("assets/wordclock_config_selector.json")
+
         self.color_config_path = "wordclock_color_config.json"
         self.logger.info("using {} and {} as config".format(config_file_path, self.color_config_path))
         self.enable = True
@@ -38,7 +37,17 @@ class _Wordclock(CustomScript):
 
         self.pir = None
         if self.settings.enable_pir():
+            from scripts._Wordclock.PirSensor import PirSensor
             self.pir = PirSensor(self.settings.get_pir_sensor_pin())
+
+    def find_word_config_file(self, wordclock_config_file: str):
+        try:
+            with open(wordclock_config_file, "r", encoding="utf-8") as in_file:
+                return json.load(in_file)["wordclock_config_file"]
+        except FileNotFoundError:
+            self.logger.info("no wordclock config location found in {}. you must create it!".format(wordclock_config_file))
+        except JSONDecodeError:
+            self.logger.error("bad wordclock config location {}!".format(wordclock_config_file))
 
     def __get_current_time(self) -> datetime:
         """Helper function for getting the correct time"""
