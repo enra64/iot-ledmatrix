@@ -55,6 +55,7 @@ def print_help():
     print("--rotation=                      set matrix rotation amount. clockwise. valid are 0/90/180/270.")
     print("--keepalive                      restart crashed CustomScripts")
 
+
 if __name__ == "__main__":
     # change working directory to main.py location to avoid confusion with scripts folder
     abspath = os.path.abspath(__file__)
@@ -163,16 +164,19 @@ if __name__ == "__main__":
         matrix_port = guess_arduino()
 
         if matrix_port is None:
-            logging.warning("port was not specified, and arduino was not disabled, but the port guesser did not find a port. ABORT!")
+            logging.warning(
+                "port was not specified, and arduino was not disabled, but the port guesser did not find a port. ABORT!")
             sys.exit(1)
 
     logger = logging.getLogger("main")
 
     # set logging level
     if log_to_file:
-        logging.basicConfig(filename=log_location, level=log_level, datefmt='%d.%m.%Y@%H:%M:%S', format='%(asctime)s: %(levelname)s: %(message)s')
+        logging.basicConfig(filename=log_location, level=log_level, datefmt='%d.%m.%Y@%H:%M:%S',
+                            format='%(asctime)s: %(levelname)s: %(message)s')
     else:
-        logging.basicConfig(level=log_level, datefmt='%d.%m.%Y@%H:%M:%S', format='%(asctime)s: %(levelname)s: %(message)s')
+        logging.basicConfig(level=log_level, datefmt='%d.%m.%Y@%H:%M:%S',
+                            format='%(asctime)s: %(levelname)s: %(message)s')
     if run:
         manager = Manager(
             matrix_port,
@@ -206,4 +210,3 @@ if __name__ == "__main__":
 
             # will also stop the manager
             CustomAtExit().trigger()
-

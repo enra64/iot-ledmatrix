@@ -80,21 +80,13 @@ class _Wordclock(CustomScript):
                 canvas.draw_rectangle(rectangle)
 
     def __send_config(self):
+        color_config = ColorLogic.get_color_config(self.word_logic.get_all_words())
         self.send_object_to_all(
             {
                 "message_type": "wordclock_configuration",
                 "config": self.word_logic.get_config()["config"],
-                "lines": self.word_logic.get_config()["lines"]
-            })
-        color_config = ColorLogic.get_color_config(self.word_logic.get_all_words())
-        self.send_object_to_all(
-            {
-                "message_type": "wordclock_color_configuration",
-                "color_config": color_config
-            })
-        self.send_object_to_all(
-            {
-                "message_type": "wordclock_settings",
+                "lines": self.word_logic.get_config()["lines"],
+                "color_config": color_config,
                 "settings": self.settings.get_configuration_dict()
             })
 

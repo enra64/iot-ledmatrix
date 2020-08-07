@@ -41,6 +41,10 @@ class WordLogic:
     def __init__(self, config_file_path):
         self.logger = logging.getLogger("script:wordclock:logic")
 
+        if not config_file_path:
+            self.logger.error("Wordclock configuration file path is None!")
+            raise TypeError("config_file_path is None")
+
         try:
             with open(config_file_path, "r", encoding="utf-8") as config_file:
                 self.config = json.load(config_file)
