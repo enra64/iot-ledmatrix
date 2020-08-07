@@ -6,7 +6,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
-import org.zeromq.ZMQ;
+import org.zeromq.SocketType;
+import org.zeromq.ZContext;
 import org.zeromq.ZMQException;
 
 import java.nio.channels.ClosedSelectorException;
@@ -18,25 +19,23 @@ import zmq.ZError;
 
 public class ConstantConnectionModuleImpl extends Thread implements ConstantConnectionModule {
     private org.zeromq.ZMQ.Socket zmqSocket;
-    private ZMQ.Context zmqContext;
+    private ZContext zmqContext;
     private ConnectionTester mConnectionTester = new ConnectionTester(this, 750);
     private boolean continueRunning = true;
     private String connectionString;
     private ConstantConnectionModuleListener constantConnectionModuleListener;
     private static final int ZMQ_CONTEXT_TERMINATED = 156384765;
     private String pingMessage;
-    private JsonParser jsonParser = new JsonParser();
     private boolean hadTimeout = false;
 
     @Override
     public void run() {
-        zmqSocket = zmqContext.socket(zmq.ZMQ.ZMQ_DEALER);
+        zmqSocket = zmqContext.createSocket(SocketType.DEALER);
         zmqSocket.connect(connectionString);
         zmqSocket.setReceiveTimeOut(100);
 
         while (continueRunning) {
-            if (continueRunning)
-                listenToMatrix();
+            listenToMatrix();
             if (continueRunning)
                 listenToApp();
         }
@@ -75,7 +74,7 @@ public class ConstantConnectionModuleImpl extends Thread implements ConstantConn
             if (received == null)
                 return;
 
-            JsonObject receivedJson = jsonParser.parse(received).getAsJsonObject();
+            JsonObject receivedJson = JsonParser.parseString(received).getAsJsonObject();
 
             String messageType = receivedJson.get("message_type").getAsString();
 
@@ -126,7 +125,7 @@ public class ConstantConnectionModuleImpl extends Thread implements ConstantConn
     }
 
     @Override
-    public void start(String connectionString, org.zeromq.ZMQ.Context context, ConstantConnectionModuleListener constantConnectionModuleListener, String installationId) {
+    public void start(String connectionString, ZContext context, ConstantConnectionModuleListener constantConnectionModuleListener, String installationId) {
         this.connectionString = connectionString;
         this.constantConnectionModuleListener = constantConnectionModuleListener;
         this.zmqContext = context;

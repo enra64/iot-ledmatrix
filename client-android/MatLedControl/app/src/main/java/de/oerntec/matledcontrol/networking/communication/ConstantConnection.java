@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 
 import com.google.gson.JsonObject;
 
+import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
 import java.util.Queue;
@@ -44,7 +45,7 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
     /**
      * The ZMQ context
      */
-    private ZMQ.Context zmqContext;
+    private ZContext zmqContext;
 
     /**
      * The connection string that can be used to connect to the matrix
@@ -88,7 +89,7 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
         this.installationId = installationId;
         this.connectionStatusListener = connectionStatusListener;
         outBox = new ArrayBlockingQueue<>(200);
-        zmqContext = org.zeromq.ZMQ.context(1);
+        zmqContext = new ZContext(1);
         connectionString = "tcp://" + matrix.address + ":" + matrix.dataPort;
         cycleModule();
 
@@ -125,12 +126,9 @@ public class ConstantConnection implements Connection, ConstantConnectionModuleL
     @Override
     public void destroy() {
         closeConnection();
-        new Handler().post(new Runnable() {
-            @Override
-            public void run() {
-                zmqContextTerminated = true;
-                zmqContext.close();
-            }
+        new Handler().post(() -> {
+            zmqContextTerminated = true;
+            zmqContext.close();
         });
     }
 

@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.ColorInt;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -99,8 +98,9 @@ public class WordclockFragmentRemote extends Fragment implements MatrixListener,
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onResume() {
+        super.onResume();
+        Context context = this.getContext();
         if (context instanceof MessageSender) {
             mMessageSender = (MessageSender) context;
 
@@ -108,7 +108,7 @@ public class WordclockFragmentRemote extends Fragment implements MatrixListener,
             com.addProperty("command", "retry sending wordclock config");
             mMessageSender.sendScriptData(com);
         } else {
-            throw new RuntimeException(context.toString()
+            throw new RuntimeException((context != null ? context.toString() : "???")
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -133,13 +133,10 @@ public class WordclockFragmentRemote extends Fragment implements MatrixListener,
     private void loadWordColors(final JsonObject data) {
         String messageType = data.get("message_type").getAsString();
 
-        if (getActivity() != null && "wordclock_color_configuration".equals(messageType))
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mDrawingView.setColors(data);
-                    mLoadingScreen.setVisibility(GONE);
-                }
+        if (getActivity() != null && "wordclock_configuration".equals(messageType))
+            getActivity().runOnUiThread(() -> {
+                mDrawingView.setColors(data);
+                mLoadingScreen.setVisibility(GONE);
             });
     }
 
@@ -147,12 +144,9 @@ public class WordclockFragmentRemote extends Fragment implements MatrixListener,
         String messageType = lines.get("message_type").getAsString();
 
         if (getActivity() != null && "wordclock_configuration".equals(messageType))
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mDrawingView.setLines(lines);
-                    mLoadingScreen.setVisibility(GONE);
-                }
+            getActivity().runOnUiThread(() -> {
+                mDrawingView.setLines(lines);
+                mLoadingScreen.setVisibility(GONE);
             });
     }
 
@@ -162,12 +156,9 @@ public class WordclockFragmentRemote extends Fragment implements MatrixListener,
                 .initialColor(mCurrentChosenColor)
                 .colorMode(RGB)
                 .indicatorMode(IndicatorMode.HEX)
-                .onColorSelected(new OnColorSelectedListener() {
-                    @Override
-                    public void onColorSelected(@ColorInt int color) {
-                        mDrawingView.setColor(color);
-                        mColorView.setBackgroundColor(color);
-                    }
+                .onColorSelected(color -> {
+                    mDrawingView.setColor(color);
+                    mColorView.setBackgroundColor(color);
                 })
                 .create()
                 .show(getChildFragmentManager(), "ChromaDialog");

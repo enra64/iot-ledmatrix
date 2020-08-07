@@ -67,8 +67,9 @@ public class WordclockSettingsFragmentRemote extends Fragment implements MatrixL
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
+    public void onResume() {
+        super.onResume();
+        Context context = this.getContext();
         if (context instanceof MessageSender) {
             mMessageSender = (MessageSender) context;
 
@@ -76,7 +77,7 @@ public class WordclockSettingsFragmentRemote extends Fragment implements MatrixL
             com.addProperty("command", "retry sending wordclock config");
             mMessageSender.sendScriptData(com);
         } else {
-            throw new RuntimeException(context.toString()
+            throw new RuntimeException((context != null ? context.toString() : "???")
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -121,24 +122,22 @@ public class WordclockSettingsFragmentRemote extends Fragment implements MatrixL
     private void fromJson(final JsonObject data) {
         String messageType = data.get("message_type").getAsString();
 
-        if (getActivity() != null && "wordclock_settings".equals(messageType))
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    JsonObject settings = data.get("settings").getAsJsonObject();
-                    boolean timeLimitsEnabled = settings.get("limit_display_time").getAsBoolean();
-                    int enableAt = settings.get("display_time_start_h").getAsInt();
-                    int disableAt = settings.get("display_time_stop_h").getAsInt();
-                    boolean enableRandomization = settings.get("randomization_enabled").getAsBoolean();
-                    int randomizationInterval = settings.get("randomization_interval").getAsInt();
+        if (getActivity() != null && "wordclock_configuration".equals(messageType))
+            getActivity().runOnUiThread(() -> {
+                JsonObject settings = data.get("settings").getAsJsonObject();
+                boolean timeLimitsEnabled = settings.get("limit_display_time").getAsBoolean();
+                int enableAt = settings.get("display_time_start_h").getAsInt();
+                int disableAt = settings.get("display_time_stop_h").getAsInt();
+                boolean enableRandomization = settings.get("randomization_enabled").getAsBoolean();
+                int randomizationInterval = settings.get("randomization_interval").getAsInt();
 
-                    WordclockSettingsFragmentRemote.this.timeLimitsEnabled.setChecked(timeLimitsEnabled);
-                    setViewAndChildrenEnabled(timeSettingsLayout, timeLimitsEnabled);
-                    WordclockSettingsFragmentRemote.this.timeSettingsEnableAt.setProgress(enableAt);
-                    WordclockSettingsFragmentRemote.this.timeSettingsDisableAt.setProgress(disableAt);
-                    WordclockSettingsFragmentRemote.this.randomizationEnabled.setChecked(enableRandomization);
-                    WordclockSettingsFragmentRemote.this.randomizationSpinner.setSelection(randomizationInterval);
-                }
+                WordclockSettingsFragmentRemote.this.timeLimitsEnabled.setChecked(timeLimitsEnabled);
+                setViewAndChildrenEnabled(timeSettingsLayout, timeLimitsEnabled);
+                WordclockSettingsFragmentRemote.this.timeSettingsEnableAt.setProgress(enableAt);
+                WordclockSettingsFragmentRemote.this.timeSettingsDisableAt.setProgress(disableAt);
+                updateTimeLimitDisplay();
+                WordclockSettingsFragmentRemote.this.randomizationEnabled.setChecked(enableRandomization);
+                WordclockSettingsFragmentRemote.this.randomizationSpinner.setSelection(randomizationInterval);
             });
     }
 
