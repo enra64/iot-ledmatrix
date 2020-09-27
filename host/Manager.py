@@ -7,6 +7,7 @@ from zmq import ZMQError
 from Canvas import Canvas
 from DiscoveryServer import DiscoveryServer
 from Server import Server
+from ZeroconfDiscoveryServer import ZeroconfDiscoveryServer
 from helpers.custom_atexit import CustomAtExit
 from matrix_serial import MatrixSerial, MatrixReadException
 from ScriptHandler import ScriptHandler
@@ -123,6 +124,14 @@ class Manager:
             server_name,
             matrix_height=matrix_height,
             matrix_width=matrix_width)
+
+        # the zeroconf discovery server is the future discovery system
+        self.zeroconf_discovery_server = ZeroconfDiscoveryServer(
+            server_name,
+            data_port,
+            matrix_width=matrix_width,
+            matrix_height=matrix_height
+        )
 
         # the server communicates with the clients
         self.server = Server(
