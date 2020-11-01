@@ -45,6 +45,7 @@ def print_help():
     print("--height=                        define vertical number of leds in matrix")
     print("--data-port=                     set the data port the ledmatrix server will use")
     print("--discovery-port=                set the discovery port the led matrix discovery server will use")
+    print("--disable-discovery              disable internal discovery methods in case you want to use other means")
     print("--loglevel=                      set python logging loglevel")
     print("--disable-arduino-connection     disable arduino connection. mostly useful for debugging without an arduino")
     print("--logfile=                       set log file location")
@@ -81,6 +82,7 @@ if __name__ == "__main__":
                 "disable-arduino-connection",
                 "errors-to-console",
                 "logfile=",
+                "disable-discovery",
                 "start-script=",
                 "enable-gui",
                 "rotation=",
@@ -108,6 +110,7 @@ if __name__ == "__main__":
     enable_graphical_display = False
     matrix_rotation = 0
     keepalive = False
+    disable_discovery = False
 
     if len(options) > 0:
         for option, argument in options:
@@ -141,6 +144,8 @@ if __name__ == "__main__":
                 matrix_data_port = int(argument)
             elif option == "--discovery-port":
                 matrix_discovery_port = int(argument)
+            elif option == "--disable-discovery":
+                disable_discovery = True
             elif option == "--loglevel":
                 log_level = getattr(logging, argument.upper(), None)
             elif option == "--disable-arduino-connection":
@@ -186,6 +191,7 @@ if __name__ == "__main__":
             matrix_data_port,
             matrix_name,
             matrix_discovery_port,
+            disable_discovery,
             matrix_connect_to_arduino,
             enable_graphical_display,
             matrix_rotation,

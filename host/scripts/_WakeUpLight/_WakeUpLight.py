@@ -1,4 +1,6 @@
 import logging
+from typing import Optional
+
 import pytz
 from pyparsing import col
 
@@ -19,6 +21,9 @@ class _WakeUpLight(CustomScript):
         self.set_frame_rate(.1)
 
         # initialize required class variables
+        self._clear_properties()
+
+    def _clear_properties(self):
         self.current_color = Color(0, 0, 0)  # type: Color
         self.timezone = None  # pytz.timezone("Europe/Berlin")
         self.wake_time = None  # datetime.now(tz=self.timezone).replace(hour=20, minute=10)  # type: datetime
@@ -26,7 +31,7 @@ class _WakeUpLight(CustomScript):
         self.time_delta = 0  # type: int
         self.lower_color_temperature = 1800  # type: int
         self.upper_color_temperature = 2800  # type: int
-        self.test_color_temperature = None  # type: int
+        self.test_color_temperature = None  # type: Optional[int]
         self.enable_color_temp_test = False  # type: bool
 
     def update(self, canvas):
@@ -66,7 +71,7 @@ class _WakeUpLight(CustomScript):
             now = datetime.now(tz=self.timezone) + timedelta(minutes=self.time_delta)
             if self.wake_time.time() < now.time():
                 self.wake_time += timedelta(days=1)
-            # self.wake_time = datetime.now(tz=self.timezone).replace(hour=22,minute=40)
+
             self.blend_in_duration = timedelta(minutes=json["blend_duration"])
             self.lower_color_temperature = json["lower_color_temperature"]
             self.upper_color_temperature = json["upper_color_temperature"]
@@ -74,6 +79,17 @@ class _WakeUpLight(CustomScript):
                 self.set_frame_rate(1)
                 self.enable_color_temp_test = False
             self.logger.info("{} with {}min".format(self.wake_time, self.blend_in_duration))
+            self.send_object({
+                'message_type': 'wakeuplight_ack',
+                'msg_identifier': f"set:{json['wake_hour']}:{json['wake_minute']}"
+            }, source_id)
+        elif "command" in json and json["command"] == "clear_wakeup_time":
+            self._clear_properties()
+            self.send_object({
+                'message_type': 'wakeuplight_ack',
+                'msg_identifier': "clear:"
+            }, source_id)
+            self.logger.info("Cleared wakeup time")
         elif "command" in json and json["command"] == "test_color_temperature":
             self.test_color_temperature = json["color_temperature"]
             self.enable_color_temp_test = True

@@ -40,14 +40,20 @@ class Manager:
 
     def join(self):
         """join all started threads"""
-        self.discovery_server.join()
+        if not self.disable_discovery:
+            self.discovery_server.join()
         self.server.join()
         self.script_handler.join()
 
     def start(self):
         """starts all required modules"""
         self.matrix_serial.connect()
-        self.discovery_server.start()
+        if self.disable_discovery:
+            self.logger.info("Skipping discovery start")
+        else:
+            self.discovery_server.start()
+            self.zeroconf_discovery_server.start_advertising()
+
         try:
             self.server.start()
             self.logger.info("manager started threads")
@@ -55,15 +61,18 @@ class Manager:
             self.logger.warning("ZMQError occurred: {}".format(e.strerror))
 
     def stop(self):
-        "gracefully stop all modules"
+        """gracefully stop all modules"""
         self.script_handler.stop_current_script()
         self.matrix_serial.stop()
-        self.discovery_server.stop()
+        if not self.disable_discovery:
+            self.discovery_server.stop()
+            self.zeroconf_discovery_server.stop_advertising()
         self.server.stop()
         if self.gui is not None:
             self.gui.destroy()
             self.gui = None
         self.logger.info("shut down")
+        self.join()
         sys.exit(0)
 
     def load_script(self, script):
@@ -76,9 +85,10 @@ class Manager:
             arduino_baud,
             matrix_width,
             matrix_height,
-            data_port,
-            server_name,
-            discovery_port,
+            data_port: int,
+            server_name: str,
+            discovery_port: int,
+            disable_discovery: bool,
             enable_arduino_connection: bool,
             enable_graphical_display: bool,
             matrix_rotation: int,
@@ -161,13 +171,15 @@ class Manager:
         self.server.on_client_connected = self.script_handler.on_client_connected
         self.server.on_client_disconnected = self.script_handler.on_client_disconnected
 
+        self.disable_discovery = disable_discovery
         self.enable_graphical_display = enable_graphical_display
 
         self.gui = None
         if self.enable_graphical_display:
             try:
                 from MatrixGraphicalDisplay import MatrixGraphicalDisplay
-                self.gui = MatrixGraphicalDisplay(matrix_width, matrix_height, matrix_rotation, self.script_handler.restart_current_script)
+                self.gui = MatrixGraphicalDisplay(matrix_width, matrix_height, matrix_rotation,
+                                                  self.script_handler.restart_current_script)
             except ImportError as e:
                 self.logger.warning("failing to import GUI, disabling it ({})".format(str(e)))
                 self.enable_graphical_display = False
