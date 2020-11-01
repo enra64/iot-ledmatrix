@@ -81,7 +81,7 @@ class _WakeUpLight(CustomScript):
             self.logger.info("{} with {}min".format(self.wake_time, self.blend_in_duration))
             self.send_object({
                 'message_type': 'wakeuplight_ack',
-                'msg_identifier': f"set:{json['wake_hour']}:{json['wake_minute']}"
+                'msg_identifier': "set:{}:{}".format(json['wake_hour'], json['wake_minute'])
             }, source_id)
         elif "command" in json and json["command"] == "clear_wakeup_time":
             self._clear_properties()

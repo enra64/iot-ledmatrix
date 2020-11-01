@@ -1,6 +1,6 @@
 import logging
 
-from zeroconf import ServiceInfo, Zeroconf, IPVersion, InterfaceChoice
+from zeroconf import ServiceInfo, Zeroconf, IPVersion
 
 
 class ZeroconfDiscoveryServer:
@@ -19,7 +19,12 @@ class ZeroconfDiscoveryServer:
         self.logger.info("ZeroConf Advertiser initialized")
 
     def _generate_name(self, name, width, height):
-        return f"{name}:{width}:{height}.{self.service_type}"
+        return "{}:{}:{}.{}".format(
+            name,
+            width,
+            height,
+            self.service_type
+        )
 
     def start_advertising(self):
         self.zeroconf.register_service(self.led_matrix_service_info)
