@@ -8,6 +8,7 @@ import Canvas
 from CustomScript import CustomScript
 from datetime import datetime, timedelta
 
+from helpers.Button import Button
 from helpers.Color import Color
 
 
@@ -19,6 +20,8 @@ class _WakeUpLight(CustomScript):
         # setup
         self.logger = logging.getLogger("script:wakeuplight")
         self.set_frame_rate(.1)
+        self._force_switch = Button(17, bouncetime=100)
+        self._force_switch.register()
 
         # initialize required class variables
         self._clear_properties()
@@ -38,6 +41,9 @@ class _WakeUpLight(CustomScript):
         if self.enable_color_temp_test:
             self.current_color = Color.from_temperature(self.test_color_temperature, 1)
             return
+
+        if self._force_switch.is_high():
+            self.current_color = Color.from_temperature(4000, 1)
 
         if self.wake_time is None or self.blend_in_duration is None:
             return
