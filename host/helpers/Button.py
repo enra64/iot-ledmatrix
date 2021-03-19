@@ -1,6 +1,5 @@
-import RPi.GPIO as GPIO
 import threading
-
+import RPi.GPIO as GPIO
 
 # noinspection PyUnresolvedReferencess
 class Button(threading.Thread):

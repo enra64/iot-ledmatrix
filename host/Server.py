@@ -2,11 +2,9 @@ import json
 import os
 import threading
 import logging
-import traceback
 
 import zmq
 
-from helpers.Button import Button
 from helpers.custom_atexit import CustomAtExit
 
 
@@ -50,6 +48,7 @@ class Server:
         self._shutdown_button = None
         if shutdown_pin is not None:
             try:
+                from helpers.Button import Button
                 self._shutdown_button = Button(shutdown_pin)
                 self._shutdown_button.register()
             except Exception as e:
