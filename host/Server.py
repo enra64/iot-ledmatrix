@@ -1,7 +1,13 @@
 import json
+import os
 import threading
 import logging
+import traceback
+
 import zmq
+
+from helpers.Button import Button
+from helpers.custom_atexit import CustomAtExit
 
 
 class Server:
@@ -14,7 +20,9 @@ class Server:
             script_load_request_handler,
             script_data_handler,
             matrix_dimensions,
-            local_data_port: int = 54122):
+            local_data_port: int = 54122,
+            shutdown_pin: int = None
+    ):
         self.logger = logging.getLogger("ledmatrix.server")
 
         # local data port
@@ -38,11 +46,22 @@ class Server:
         # storage of approved clients
         self.approved_clients = {}
 
+        # wait for shutdown events by button
+        self._shutdown_button = None
+        if shutdown_pin is not None:
+            try:
+                self._shutdown_button = Button(shutdown_pin)
+                self._shutdown_button.register()
+            except Exception as e:
+                self.logger.error("Could not register for shutdown pin", e)
+
         # zmq socket creation
         context = zmq.Context.instance()
+        # noinspection PyUnresolvedReferences
         self.socket = context.socket(zmq.ROUTER)
 
         # wait max 10ms before shutting down
+        # noinspection PyUnresolvedReferences
         self.socket.setsockopt(zmq.LINGER, 10)
 
         self.logger = logging.getLogger("server")
@@ -168,6 +187,8 @@ class Server:
             message_type = msg_decoded_json['message_type']
             installation_id = msg_decoded_json['id']
 
+            self._shutdown_button_check()
+
             # special handling for connection requests, because those are accepted by non-approved clients
             if message_type == "connection_request":
                 self.handle_connection_request(msg_decoded_json, client_id, installation_id)
@@ -180,6 +201,14 @@ class Server:
                     'connection_test': self.handle_connection_test,
                     'shutdown_notification': self.on_client_shutdown
                 }.get(message_type)(msg_decoded_json, installation_id)
+
+    def _shutdown_button_check(self):
+        if self._shutdown_button is not None:
+            if self._shutdown_button.is_high():
+                self.logger.info("Shutdown button has been pressed")
+                CustomAtExit().trigger()
+                os.system('/sbin/sudo /sbin/shutdown now')
+                self.logger.info("/sbin/sudo /sbin/shutdown has now been called")
 
     def start(self):
         """Start listening for messages"""

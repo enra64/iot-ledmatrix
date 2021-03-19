@@ -1,6 +1,7 @@
 import logging
 
 import sys
+from typing import Union
 
 from zmq import ZMQError
 
@@ -92,7 +93,9 @@ class Manager:
             enable_arduino_connection: bool,
             enable_graphical_display: bool,
             matrix_rotation: int,
-            keepalive: bool):
+            keepalive: bool,
+            shutdown_pin: Union[int, None]
+    ):
         """
         Initializes instances of: MatrixSerial, BroadcastReceiver, Server, Canvas and ScriptHandler. Registers 
         manager.stop for a shutdown hook.
@@ -148,7 +151,9 @@ class Manager:
             self.script_load_request_handler,
             self.script_data_handler,
             (matrix_width, matrix_height),
-            data_port)
+            data_port,
+            shutdown_pin
+        )
 
         # canvas instance whose back buffer is sent to the arduino
         self.canvas = Canvas(

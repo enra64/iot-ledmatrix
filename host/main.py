@@ -55,6 +55,7 @@ def print_help():
           "debugging only")
     print("--rotation=                      set matrix rotation amount. clockwise. valid are 0/90/180/270.")
     print("--keepalive                      restart crashed CustomScripts")
+    print("--shutdown-pin=                  set a BCM pin number that will shut down the RPi on a rising edge")
 
 
 if __name__ == "__main__":
@@ -86,7 +87,8 @@ if __name__ == "__main__":
                 "start-script=",
                 "enable-gui",
                 "rotation=",
-                "keepalive"
+                "keepalive",
+                "shutdown-pin="
             ]
         )
     except getopt.GetoptError:
@@ -111,6 +113,7 @@ if __name__ == "__main__":
     matrix_rotation = 0
     keepalive = False
     disable_discovery = False
+    shutdown_pin = None
 
     if len(options) > 0:
         for option, argument in options:
@@ -134,6 +137,8 @@ if __name__ == "__main__":
                         print(port)
             elif option == "--set-arduino-port":
                 matrix_port = argument
+            elif option == "--shutdown-pin":
+                shutdown_pin = argument
             elif option == "--name":
                 matrix_name = argument
             elif option == "--width":
@@ -195,7 +200,8 @@ if __name__ == "__main__":
             matrix_connect_to_arduino,
             enable_graphical_display,
             matrix_rotation,
-            keepalive
+            keepalive,
+            shutdown_pin
         )
         try:
             manager.start()

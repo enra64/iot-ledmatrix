@@ -16,9 +16,9 @@ class PirSensor:
         """
         self.__sensor_pin = sensor_pin
         self.__pin_high = True
-        self.__initizalize_gpio()
+        self.__initialize_gpio()
 
-    def __initizalize_gpio(self) -> None:
+    def __initialize_gpio(self) -> None:
         """
         Initialize the GPIO pin used for reading the sensor pin
 
