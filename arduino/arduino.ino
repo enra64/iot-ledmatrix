@@ -1,13 +1,13 @@
 #include <FastLED.h>
 
-#define NUM_LEDS_CURRENT 100//160
-#define DATA_PIN 11
+#define NUM_LEDS_CURRENT 80//160
+#define DATA_PIN 6
 
 CRGBArray<NUM_LEDS_CURRENT> leds;
 
 uint8_t comBuffer[64];
 
-enum msg {INCORRECT_OPEN_SEQUENCE, NO_DATA_FINISH_SYMBOL, WAITING_FOR_OPENING_SEQUENCE, OK_OPEN_SEQUENCE};
+enum msg {INCORRECT_OPEN_SEQUENCE, INITIAL, WAITING_FOR_OPENING_SEQUENCE, WAIT_FOR_SERIAL, OK_OPEN_SEQUENCE};
 
 void show_msg(msg e){
     leds.fill_solid(CRGB::Black);
@@ -15,15 +15,20 @@ void show_msg(msg e){
     switch(e){
         case INCORRECT_OPEN_SEQUENCE:
             leds[0] = CRGB::Red;
+            leds[1] = CRGB::Red;
             halt = true;
             break;
-        case NO_DATA_FINISH_SYMBOL:
+        case INITIAL:
             leds[0] = CRGB::Blue;
-            halt = true;
+            break;
+        case WAIT_FOR_SERIAL:
+            leds[0] = CRGB::Blue;
+            leds[1] = CRGB::Blue;
             break;
         case WAITING_FOR_OPENING_SEQUENCE:
             leds[0] = CRGB::Blue;
             leds[1] = CRGB::Blue;
+            leds[2] = CRGB::Blue;
             break;
         case OK_OPEN_SEQUENCE:
             leds[0] = CRGB::Green;
@@ -31,28 +36,28 @@ void show_msg(msg e){
             break;
     }
     FastLED.show(); 
-
-    // endless loop if unrecoverable error
-    while(halt) 
-      FastLED.delay(2000);
+    FastLED.delay(2000);
 }
 
 void setup() {
+    show_msg(INITIAL);
     // add leds
     FastLED.addLeds<WS2812B, DATA_PIN, GRB>(leds, NUM_LEDS_CURRENT);
     
     // begin serial communication
     Serial.begin(115200);
 
-    show_msg(WAITING_FOR_OPENING_SEQUENCE);
+    show_msg(WAIT_FOR_SERIAL);
 
     // wait for start code
     while(!Serial.available());
 
+    show_msg(WAITING_FOR_OPENING_SEQUENCE);
+    
     // check opening string
-    if(Serial.readString() != "hello"){
+    while(Serial.readString() != "hello"){
        show_msg(INCORRECT_OPEN_SEQUENCE);
-       Serial.write("unknown");
+       Serial.write("INCORRECT_OPEN_SEQUENCE");
     }
     else {
         // respond
@@ -69,7 +74,5 @@ void loop() {
     // acknowledge read
     Serial.write('k');
     FastLED.show();
-    
   }
-  
 }

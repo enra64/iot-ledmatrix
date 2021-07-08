@@ -65,7 +65,7 @@ class MatrixSerial:
         if connect and enable_arduino_connection:
             self.connect()
 
-    def connect(self, timeout: float = 2):
+    def connect(self, timeout: float = 4):
         """
         connect to the arduino given the current configuration
 
