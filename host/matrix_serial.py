@@ -82,7 +82,7 @@ class MatrixSerial:
 
         self.was_connected = True
 
-        self.logger.info("beginning arduino connection attempt to " + self.interface)
+        self.logger.info(f"beginning arduino connection attempt to {self.interface} which has {self.get_led_count()} LEDs")
 
         # begin serial connection
         self.serial = serial.Serial(self.interface, self.baud, timeout=timeout)

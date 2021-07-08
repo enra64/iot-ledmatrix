@@ -5,7 +5,8 @@ pyzmq
 numpy
 typing
 #tkinter[gui]
-freetype
+# freetype
 RPi.GPIO
 zeroconf
 pytz
+pyserial
