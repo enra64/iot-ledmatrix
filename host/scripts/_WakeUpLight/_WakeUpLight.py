@@ -12,8 +12,6 @@ from helpers.Color import Color
 
 
 class _WakeUpLight(CustomScript):
-
-
     def __init__(self, canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
                  set_frame_rate, get_connected_clients):
         super().__init__(canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
@@ -23,7 +21,7 @@ class _WakeUpLight(CustomScript):
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         self.set_frame_rate(5)
-
+        self._was_forced = False
         self._clear_properties()
         self.logger.info("Started")
 
@@ -47,6 +45,11 @@ class _WakeUpLight(CustomScript):
         self.logger.debug(f"Wakeuplight force-on is {force_switch}")
         if force_switch:
             self.current_color = Color.from_temperature(3000, .75)
+            self._was_forced = True
+            return
+        elif self._was_forced and not force_switch:
+            self._was_forced = False
+            self.current_color = Color(0, 0, 0)
             return
 
         if self.wake_time is None or self.blend_in_duration is None:
