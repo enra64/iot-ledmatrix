@@ -20,7 +20,7 @@ class _WakeUpLight(CustomScript):
                          set_frame_rate, get_connected_clients)
         # setup
         self.logger = logging.getLogger("script:wakeuplight")
-        self.set_frame_rate(.1)
+        self.set_frame_rate(5)
         self._force_switch = Button(17, bouncetime=100)
         self._force_switch.register()
 
@@ -45,7 +45,7 @@ class _WakeUpLight(CustomScript):
 
         if self._force_switch.is_high():
             self.logger.debug("Wakeuplight force-on is true")
-            self.current_color = Color.from_temperature(4000, 1)
+            self.current_color = Color.from_temperature(3000, .8)
             return
 
         if self.wake_time is None or self.blend_in_duration is None:
