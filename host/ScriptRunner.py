@@ -126,9 +126,6 @@ class ScriptRunner:
         assert 0 <= frame_rate <= 60, "Frame rate out of bounds."
         self.frame_period = 1 / frame_rate
 
-    def restart_script(self):
-        pass
-
     def __init__(self,
                  script: str,
                  canvas: Canvas,
@@ -178,16 +175,17 @@ class ScriptRunner:
         except SyntaxError:
             self.logger.warning("parsing " + script + " produced a SyntaxError\n" + traceback.format_exc())
         else:  # if import produced no syntax error
+            self.logger.debug(f"Successfully imported {script}")
             try:
-                self.restart_script = partial(start_script, script_name=script, source_id="scriptrunner restart")
+                # "restart self" helper
+                restart_script_function = partial(start_script, script_name=script, source_id="self restart")
                 # call custom script constructor
                 self.script = getattr(script_module, script)(
                     canvas,
                     send_object,
                     send_object_to_all,
                     start_script,
-                    # "restart self" helper, simply set script name to this scripts name
-                    partial(start_script, script_name=script, source_id="self restart"),
+                    restart_script_function,
                     self.set_frame_period,
                     self.set_frame_rate,
                     get_connected_clients
@@ -208,5 +206,6 @@ class ScriptRunner:
                         canvas,
                         draw_cycle_finished_callback
                     ),
-                    name="CUSTOM SCRIPT RUNNER FOR \"" + script + "\"")
+                    name="CUSTOM SCRIPT RUNNER FOR \"" + script + "\""
+                )
                 self.ok = True
