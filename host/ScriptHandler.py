@@ -44,6 +44,7 @@ class ScriptHandler:
         :param source_id: reason for why this script is being started
         :param script_name: the name of _both_ the script and the class implementing the callback functions
         """
+        self.logger.debug(f"Attempting to start {script_name} due to {source_id}")
         if self.is_script_running:
             self.stop_current_script()
         self.is_script_running = False
