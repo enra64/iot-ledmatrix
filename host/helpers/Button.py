@@ -17,6 +17,7 @@ class Button(threading.Thread):
         self._bounce_time = float(bouncetime) / 1000
 
         GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self._pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         self._last_pin_value = GPIO.input(self._pin)
         self._lock = threading.Lock()
 
