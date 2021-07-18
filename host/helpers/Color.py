@@ -120,6 +120,7 @@ class Color():
     def from_temperature(cls, temperature: float, brightness: float):
         """
         Create a new color from temperature and brightness
+
         :param temperature: temperature, given in kelvin from 1000 to 40,000
         :param brightness: brightness of the leds, from 0 to 1
         :return: configured color instance

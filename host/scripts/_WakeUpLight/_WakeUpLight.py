@@ -12,6 +12,8 @@ from helpers.Color import Color
 
 
 class _WakeUpLight(CustomScript):
+
+
     def __init__(self, canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
                  set_frame_rate, get_connected_clients):
         super().__init__(canvas, send_object, send_object_to_all, start_script, restart_self, set_frame_period,
@@ -22,7 +24,6 @@ class _WakeUpLight(CustomScript):
         self._force_switch = Button(17, bouncetime=100)
         self._force_switch.register()
 
-        # initialize required class variables
         self._clear_properties()
         self.logger.info("Started")
 
@@ -43,6 +44,7 @@ class _WakeUpLight(CustomScript):
             return
 
         if self._force_switch.is_high():
+            self.logger.debug("Wakeuplight force-on is true")
             self.current_color = Color.from_temperature(4000, 1)
             return
 
@@ -50,7 +52,7 @@ class _WakeUpLight(CustomScript):
             return
 
         now = datetime.now(tz=self.timezone) + timedelta(minutes=self.time_delta)
-        #self.time_delta += 1
+        # self.time_delta += 1
         if self.wake_time - self.blend_in_duration <= now <= self.wake_time + self.blend_in_duration:
             # blend-in phase
             light_percentage = 1
@@ -58,9 +60,9 @@ class _WakeUpLight(CustomScript):
                 light_percentage = 1 - ((self.wake_time - now).total_seconds() / self.blend_in_duration.total_seconds())
 
             # convert to uint8
-            color_temp = self.lower_color_temperature + (self.upper_color_temperature - self.lower_color_temperature) * light_percentage
+            color_temp = self.lower_color_temperature + (
+                        self.upper_color_temperature - self.lower_color_temperature) * light_percentage
             color_value = Color.from_temperature(color_temp, light_percentage)
-            color_value.set_value(light_percentage)
 
             self.logger.info("{} at {}".format(color_value, now))
             # apply
