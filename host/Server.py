@@ -51,6 +51,7 @@ class Server:
                 from helpers.Button import Button
                 self._shutdown_button = Button(shutdown_pin)
                 self._shutdown_button.register()
+                self.logger.info(f"Registered shutdown pin {shutdown_pin}")
             except Exception as e:
                 self.logger.error("Could not register for shutdown pin", e)
 

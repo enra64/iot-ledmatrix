@@ -57,17 +57,19 @@ class ScriptHandler:
                 self.send_object_to_all,
                 self.start_script,
                 self.get_client_list,
-                self.script_runner_crashed)
+                self.script_runner_crashed
+            )
 
         # don't start the new script if CustomAtExit was triggered
         if self.current_script_runner.ok and not CustomAtExit().is_shutdown_initiated():
             # no warning to user necessary here, as the script handler already logs a lot of information
-            self.logger.info("START: " + script_name)
+            self.logger.info(f"START OK: {script_name}")
             self.current_script_runner.start()
             self.is_script_running = True
         elif not CustomAtExit().is_shutdown_initiated():
-            self.logger.warning("START FAILED: " + script_name)
-
+            self.logger.warning(f"START FAILED: {script_name}")
+        else:
+            self.logger.warning(f"Not starting {script_name} - shutdown was initiated")
 
     def script_runner_crashed(self, script_name: str) -> bool:
         if not self.keepalive:
