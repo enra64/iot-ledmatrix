@@ -6,8 +6,8 @@ import pytz
 import Canvas
 from CustomScript import CustomScript
 from datetime import datetime, timedelta
+import RPi.GPIO as GPIO
 
-from helpers.Button import Button
 from helpers.Color import Color
 
 
@@ -20,9 +20,9 @@ class _WakeUpLight(CustomScript):
                          set_frame_rate, get_connected_clients)
         # setup
         self.logger = logging.getLogger("script:wakeuplight")
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         self.set_frame_rate(5)
-        self._force_switch = Button(17, bouncetime=100)
-        self._force_switch.register()
 
         self._clear_properties()
         self.logger.info("Started")
@@ -43,9 +43,10 @@ class _WakeUpLight(CustomScript):
             self.current_color = Color.from_temperature(self.test_color_temperature, 1)
             return
 
-        self.logger.debug(f"Wakeuplight force-on is {self._force_switch.is_high()}")
-        if self._force_switch.is_high():
-            self.current_color = Color.from_temperature(2800, .75)
+        force_switch = GPIO.input(17) == GPIO.HIGH
+        self.logger.debug(f"Wakeuplight force-on is {force_switch}")
+        if force_switch:
+            self.current_color = Color.from_temperature(3000, .75)
             return
 
         if self.wake_time is None or self.blend_in_duration is None:

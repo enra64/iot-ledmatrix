@@ -93,8 +93,7 @@ class Manager:
             enable_arduino_connection: bool,
             enable_graphical_display: bool,
             matrix_rotation: int,
-            keepalive: bool,
-            shutdown_pin: Union[int, None]
+            keepalive: bool
     ):
         """
         Initializes instances of: MatrixSerial, BroadcastReceiver, Server, Canvas and ScriptHandler. Registers 
@@ -151,8 +150,7 @@ class Manager:
             self.script_load_request_handler,
             self.script_data_handler,
             (matrix_width, matrix_height),
-            data_port,
-            shutdown_pin
+            data_port
         )
 
         # canvas instance whose back buffer is sent to the arduino

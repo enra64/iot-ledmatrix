@@ -113,7 +113,6 @@ if __name__ == "__main__":
     matrix_rotation = 0
     keepalive = False
     disable_discovery = False
-    shutdown_pin = None
 
     if len(options) > 0:
         for option, argument in options:
@@ -137,8 +136,6 @@ if __name__ == "__main__":
                         print(port)
             elif option == "--set-arduino-port":
                 matrix_port = argument
-            elif option == "--shutdown-pin":
-                shutdown_pin = argument
             elif option == "--name":
                 matrix_name = argument
             elif option == "--width":
@@ -200,8 +197,7 @@ if __name__ == "__main__":
             matrix_connect_to_arduino,
             enable_graphical_display,
             matrix_rotation,
-            keepalive,
-            shutdown_pin
+            keepalive
         )
         try:
             manager.start()
