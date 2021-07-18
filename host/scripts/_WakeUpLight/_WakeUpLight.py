@@ -25,6 +25,7 @@ class _WakeUpLight(CustomScript):
 
         # initialize required class variables
         self._clear_properties()
+        self.logger.info("Started")
 
     def _clear_properties(self):
         self.current_color = Color(0, 0, 0)  # type: Color

@@ -46,6 +46,7 @@ class ScriptHandler:
         """
         if self.is_script_running:
             self.stop_current_script()
+        self.is_script_running = False
 
         self.current_script_runner = \
             ScriptRunner(
@@ -64,6 +65,9 @@ class ScriptHandler:
             self.logger.info("START: " + script_name)
             self.current_script_runner.start()
             self.is_script_running = True
+        elif not CustomAtExit().is_shutdown_initiated():
+            self.logger.warning("START FAILED: " + script_name)
+
 
     def script_runner_crashed(self, script_name: str) -> bool:
         if not self.keepalive:
