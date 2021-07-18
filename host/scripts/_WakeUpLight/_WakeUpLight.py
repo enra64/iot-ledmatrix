@@ -43,9 +43,9 @@ class _WakeUpLight(CustomScript):
             self.current_color = Color.from_temperature(self.test_color_temperature, 1)
             return
 
+        self.logger.debug(f"Wakeuplight force-on is {self._force_switch.is_high()}")
         if self._force_switch.is_high():
-            self.logger.debug("Wakeuplight force-on is true")
-            self.current_color = Color.from_temperature(3000, .8)
+            self.current_color = Color.from_temperature(2800, .75)
             return
 
         if self.wake_time is None or self.blend_in_duration is None:

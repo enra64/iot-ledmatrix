@@ -8,7 +8,7 @@ class Button(threading.Thread):
 
     """
 
-    def __init__(self, pin, func=None, edge='both', bouncetime=200):
+    def __init__(self, pin, func=None, edge='both', bouncetime=50):
         super().__init__(daemon=True)
 
         self._edge = edge
