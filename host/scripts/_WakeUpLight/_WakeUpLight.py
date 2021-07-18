@@ -2,7 +2,6 @@ import logging
 from typing import Optional
 
 import pytz
-from pyparsing import col
 
 import Canvas
 from CustomScript import CustomScript
