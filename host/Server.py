@@ -47,6 +47,8 @@ class Server:
         context = zmq.Context.instance()
         # noinspection PyUnresolvedReferences
         self.socket = context.socket(zmq.ROUTER)
+        # noinspection PyUnresolvedReferences
+        self.socket.setsockopt(zmq.IPV6, True)
 
         # wait max 10ms before shutting down
         # noinspection PyUnresolvedReferences
