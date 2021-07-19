@@ -175,7 +175,7 @@ class ScriptRunner:
         except SyntaxError:
             self.logger.warning("parsing " + script + " produced a SyntaxError\n" + traceback.format_exc())
         else:  # if import produced no syntax error
-            self.logger.debug(f"Successfully imported {script}")
+            self.logger.debug("Successfully imported {}".format(script))
             try:
                 # "restart self" helper
                 restart_script_function = partial(start_script, script_name=script, source_id="self restart")

@@ -48,7 +48,7 @@ class ScriptHandler:
             self.stop_current_script()
         self.is_script_running = False
 
-        self.logger.debug(f"Attempting to start {script_name} due to {source_id}")
+        self.logger.debug("Attempting to start {} due to {}".format(script_name, source_id))
         self.current_script_runner = \
             ScriptRunner(
                 script_name,
@@ -64,13 +64,13 @@ class ScriptHandler:
         # don't start the new script if CustomAtExit was triggered
         if self.current_script_runner.ok and not CustomAtExit().is_shutdown_initiated():
             # no warning to user necessary here, as the script handler already logs a lot of information
-            self.logger.info(f"START OK: {script_name}")
+            self.logger.info("START OK: {}".format(script_name))
             self.current_script_runner.start()
             self.is_script_running = True
         elif not CustomAtExit().is_shutdown_initiated():
-            self.logger.warning(f"START FAILED: {script_name}")
+            self.logger.warning("START FAILED: {}".format(script_name))
         else:
-            self.logger.warning(f"Not starting {script_name} - shutdown was initiated")
+            self.logger.warning("Not starting {} - shutdown was already initiated".format(script_name))
 
     def script_runner_crashed(self, script_name: str) -> bool:
         if not self.keepalive:

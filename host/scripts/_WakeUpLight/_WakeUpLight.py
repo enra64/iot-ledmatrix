@@ -42,7 +42,7 @@ class _WakeUpLight(CustomScript):
             return
 
         force_switch = GPIO.input(17) == GPIO.HIGH
-        self.logger.debug(f"Wakeuplight force-on is {force_switch}")
+        self.logger.debug("Wakeuplight force-on is {}".format(force_switch))
         if force_switch:
             self.current_color = Color.from_temperature(3000, .75)
             self._was_forced = True

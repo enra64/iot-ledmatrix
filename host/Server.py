@@ -172,7 +172,7 @@ class Server:
         while not self.abort.is_set():
             # wait for incoming request
             client_id, message = self.socket.recv_multipart()
-            self.logger.debug(f"Received message: {message.decode()}")
+            self.logger.debug("Received message: " + message.decode())
 
             msg_decoded_json = json.loads(message.decode())
             message_type = msg_decoded_json['message_type']
