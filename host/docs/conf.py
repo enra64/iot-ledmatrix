@@ -54,7 +54,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'iot-ledmatrix'
-copyright = '2017, enra64, gSilas'
+copyright = '2021, enra64, gSilas'
 author = 'enra64, gSilas'
 
 # The version info for the project you're documenting, acts as replacement for
