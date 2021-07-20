@@ -137,6 +137,7 @@ class ScriptRunner:
                  script_runner_crashed: Callable[[str], bool]):
         # get me some logger
         self.logger = logging.getLogger("scriptrunner")
+        self.logger.debug("Loading {}".format(script))
 
         # default to 30ms frame period
         self.default_frame_period = 0.030
@@ -172,8 +173,8 @@ class ScriptRunner:
             else:
                 self.logger.error(script + " not found, aborting")
                 return
-        except SyntaxError:
-            self.logger.warning("parsing " + script + " produced a SyntaxError\n" + traceback.format_exc())
+        except Exception:
+            self.logger.warning("parsing " + script + " produced an error\n" + traceback.format_exc())
         else:  # if import produced no syntax error
             self.logger.debug("Successfully imported {}".format(script))
             try:
