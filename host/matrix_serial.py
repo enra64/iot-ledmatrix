@@ -110,7 +110,6 @@ class MatrixSerial:
 
     def get_led_count(self) -> int:
         """ Query the number of leds this serial connection is configured for """
-        # btw: // enforces integer division
         return len(self.buffer) // 3
 
     def get_buffer_length(self) -> int:

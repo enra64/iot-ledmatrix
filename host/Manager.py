@@ -127,7 +127,8 @@ class Manager:
             matrix_width * matrix_height,
             arduino_baud,
             connect=False,  # we shall connect in start()
-            enable_arduino_connection=enable_arduino_connection)
+            enable_arduino_connection=enable_arduino_connection
+        )
 
         # the discovery server manages everything related to server discovery for clients
         self.discovery_server = DiscoveryServer(
@@ -135,7 +136,8 @@ class Manager:
             data_port,
             server_name,
             matrix_height=matrix_height,
-            matrix_width=matrix_width)
+            matrix_width=matrix_width
+        )
 
         # the zeroconf discovery server is the future discovery system
         self.zeroconf_discovery_server = ZeroconfDiscoveryServer(

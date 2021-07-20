@@ -194,7 +194,7 @@ class Server:
     def start(self):
         """Start listening for messages"""
         self.socket.bind("tcp://*:" + str(self.local_data_port))
-        self.receiver_thread = threading.Thread(target=self.__wait, name="zero_server")
+        self.receiver_thread = threading.Thread(target=self.__wait, name="zmq_server")
         self.receiver_thread.start()
 
     def stop(self):
