@@ -49,17 +49,20 @@ class ScriptHandler:
         self.is_script_running = False
 
         self.logger.debug("Attempting to start {} due to {}".format(script_name, source_id))
-        self.current_script_runner = \
-            ScriptRunner(
-                script_name,
-                self.canvas,
-                self.draw_cycle_finished_callback,
-                self.send_object,
-                self.send_object_to_all,
-                self.start_script,
-                self.get_client_list,
-                self.script_runner_crashed
-            )
+        try:
+            self.current_script_runner = \
+                ScriptRunner(
+                    script_name,
+                    self.canvas,
+                    self.draw_cycle_finished_callback,
+                    self.send_object,
+                    self.send_object_to_all,
+                    self.start_script,
+                    self.get_client_list,
+                    self.script_runner_crashed
+                )
+        except Exception as e:
+            self.logger.error("Failed to start {}".format(script_name), e)
 
         # don't start the new script if CustomAtExit was triggered
         if self.current_script_runner.ok and not CustomAtExit().is_shutdown_initiated():
