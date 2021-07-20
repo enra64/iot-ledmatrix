@@ -1,7 +1,7 @@
 .. iot-ledmatrix documentation master file, created by
-   sphinx-quickstart on Tue Mar 28 19:35:56 2017.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+sphinx-quickstart on Tue Mar 28 19:35:56 2017.
+You can adapt this file completely to your liking, but it should at least
+contain the root `toctree` directive.
 
 Welcome to iot-ledmatrix's documentation!
 =========================================
@@ -44,27 +44,43 @@ how to get it running on your raspberry pi
 #. get some required packages: :code:`sudo apt update && sudo apt install git python3-pip`
 #. download the code using git clone for easy updating: :code:`git clone https://github.com/enra64/iot-ledmatrix.git`
 #. install the required packages within the venv: :code:`pip install -r iot-ledmatrix/host/requirements.txt`
+#. set up avahi to advertise your matrix in the local network: :code:`sudo nano /etc/avahi/services/ledmatrix.service`::
+
+      <?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+      <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+
+      <service-group>
+
+        <name replace-wildcards="no">My Matrix:10:8</name>
+
+        <service>
+          <type>_iot-ledmatrix._tcp</type>
+          <port>55124</port>
+        </service>
+
+      </service-group>
+
 #. run with python3: :code:`/usr/bin/python3 /home/pi/iot-ledmatrix/host/main.py --name="My Matrix" --width=10 --height=8 --logfile=/home/pi/matrix.log --keepalive --loglevel=DEBUG  >> /home/pi/output_matrix.log`
 #. for autostart: add a systemd unit and create a startup script:
 
    #. :code:`nano /home/pi/start_wakeuplight_systemd.sh`, adapt the following template::
 
-         #!/bin/bash
-         /usr/bin/git -C /home/pi/iot-ledmatrix pull >> /home/pi/git_pull_log
-         /usr/bin/python3 /home/pi/iot-ledmatrix/host/main.py --name="My Matrix" --width=10 --height=8 --logfile=/home/pi/matrix.log --keepalive --loglevel=DEBUG  >> /home/pi/output_matrix.log
+      #!/bin/bash
+      /usr/bin/git -C /home/pi/iot-ledmatrix pull >> /home/pi/git_pull_log
+      /usr/bin/python3 /home/pi/iot-ledmatrix/host/main.py --name="My Matrix" --width=10 --height=8 --logfile=/home/pi/matrix.log --keepalive --loglevel=DEBUG  >> /home/pi/output_matrix.log
    #. :code:`sudo nano /etc/systemd/system/ledmatrix.service`, adapt the following template to your need (command line options)::
 
-            [Unit]
-            Description=My custom service
-            Requires=network.target
-            [Service]
-            Type=idle
-            User=root
-            ExecStart=/usr/bin/bash /home/pi/start_wakeuplight_systemd.sh
-            Restart=no
+         [Unit]
+         Description=My custom service
+         Requires=network.target
+         [Service]
+         Type=idle
+         User=root
+         ExecStart=/usr/bin/bash /home/pi/start_wakeuplight_systemd.sh
+         Restart=no
 
-            [Install]
-            WantedBy=multi-user.target
+         [Install]
+         WantedBy=multi-user.target
    #. enable & start the service to see your ledmatrix working: :code:`sudo systemctl enable ledmatrix.service && sudo systemctl start ledmatrix.service`
 
 Note: If you are using :code:`/dev/ttyAMA0` (serial0) for the Arduino you may have to remove this serial port from /boot/cmdline.txt as the Pi will print its boot messages to this port.
