@@ -61,27 +61,27 @@ how to get it running on your raspberry pi
       </service-group>
 
 #. run with python3: :code:`/usr/bin/python3 /home/pi/iot-ledmatrix/host/main.py --name="My Matrix" --width=10 --height=8 --logfile=/home/pi/matrix.log --keepalive --loglevel=DEBUG  >> /home/pi/output_matrix.log`
-#. for autostart: add a systemd unit and create a startup script:
+#. For autostart: add a systemd unit and create a startup script:
+    #. :code:`nano /home/pi/start_wakeuplight_systemd.sh`, adapt the following template::
 
-   #. :code:`nano /home/pi/start_wakeuplight_systemd.sh`, adapt the following template::
+        #!/bin/bash
+        /usr/bin/git -C /home/pi/iot-ledmatrix pull >> /home/pi/git_pull_log
+        /usr/bin/python3 /home/pi/iot-ledmatrix/host/main.py --name="My Matrix" --width=10 --height=8 --logfile=/home/pi/matrix.log --keepalive --loglevel=DEBUG  >> /home/pi/output_matrix.log
 
-      #!/bin/bash
-      /usr/bin/git -C /home/pi/iot-ledmatrix pull >> /home/pi/git_pull_log
-      /usr/bin/python3 /home/pi/iot-ledmatrix/host/main.py --name="My Matrix" --width=10 --height=8 --logfile=/home/pi/matrix.log --keepalive --loglevel=DEBUG  >> /home/pi/output_matrix.log
-   #. :code:`sudo nano /etc/systemd/system/ledmatrix.service`, adapt the following template to your need (command line options)::
+    #. :code:`sudo nano /etc/systemd/system/ledmatrix.service`, adapt the following template to your need (command line options)::
 
-         [Unit]
-         Description=My custom service
-         Requires=network.target
-         [Service]
-         Type=idle
-         User=root
-         ExecStart=/usr/bin/bash /home/pi/start_wakeuplight_systemd.sh
-         Restart=no
+        [Unit]
+        Description=My custom service
+        Requires=network.target
+        [Service]
+        Type=idle
+        User=root
+        ExecStart=/usr/bin/bash /home/pi/start_wakeuplight_systemd.sh
+        Restart=no
 
-         [Install]
-         WantedBy=multi-user.target
-   #. enable & start the service to see your ledmatrix working: :code:`sudo systemctl enable ledmatrix.service && sudo systemctl start ledmatrix.service`
+        [Install]
+        WantedBy=multi-user.target
+        #. enable & start the service to see your ledmatrix working: :code:`sudo systemctl enable ledmatrix.service && sudo systemctl start ledmatrix.service`
 
 Note: If you are using :code:`/dev/ttyAMA0` (serial0) for the Arduino you may have to remove this serial port from /boot/cmdline.txt as the Pi will print its boot messages to this port.
 
