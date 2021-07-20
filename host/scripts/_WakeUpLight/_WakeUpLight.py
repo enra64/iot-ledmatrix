@@ -18,8 +18,11 @@ class _WakeUpLight(CustomScript):
                          set_frame_rate, get_connected_clients)
         # setup
         self.logger = logging.getLogger("script:wakeuplight")
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        try:
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        except:
+            self.logger.warning("Couldn't setup force pin 17")
         self.set_frame_rate(5)
         self._was_forced = False
         self._clear_properties()
@@ -41,7 +44,10 @@ class _WakeUpLight(CustomScript):
             self.current_color = Color.from_temperature(self.test_color_temperature, 1)
             return
 
-        force_switch = GPIO.input(17) == GPIO.HIGH
+        try:
+            force_switch = GPIO.input(17) == GPIO.HIGH
+        except:
+            force_switch = False
         # self.logger.debug("Wakeuplight force-on is {}".format(force_switch))
         if force_switch:
             self.current_color = Color.from_temperature(3000, .75)

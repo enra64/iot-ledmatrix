@@ -180,10 +180,10 @@ if __name__ == "__main__":
     # set logging level
     if log_to_file:
         logging.basicConfig(filename=log_location, level=log_level, datefmt='%d.%m.%Y@%H:%M:%S',
-                            format='%(asctime)s: %(levelname)s: %(message)s')
+                            format='%(asctime)s: %(levelname)s: %(name)s: %(message)s')
     else:
         logging.basicConfig(level=log_level, datefmt='%d.%m.%Y@%H:%M:%S',
-                            format='%(asctime)s: %(levelname)s: %(message)s')
+                            format='%(asctime)s: %(levelname)s: %(name)s: %(message)s')
     if run:
         manager = Manager(
             matrix_port,
