@@ -41,9 +41,9 @@ Custom scripts enable you to easily create new features for the matrix. They are
 how to get it running on your raspberry pi
 ------------------------------------------
 
-#. get some required packages: :code:`sudo apt update && sudo apt install git python3-pip`
+#. get some required packages: :code:`sudo apt update && sudo apt install git python3-pip `
 #. download the code using git clone for easy updating: :code:`git clone https://github.com/enra64/iot-ledmatrix.git`
-#. install the required packages within the venv: :code:`pip install -r iot-ledmatrix/host/requirements.txt`
+#. install the required packages: :code:`sudo pip3 install -r iot-ledmatrix/host/requirements.txt`
 #. set up avahi to advertise your matrix in the local network: :code:`sudo nano /etc/avahi/services/ledmatrix.service`::
 
       <?xml version="1.0" standalone='no'?><!--*-nxml-*-->
@@ -71,7 +71,7 @@ how to get it running on your raspberry pi
     #. :code:`sudo nano /etc/systemd/system/ledmatrix.service`, adapt the following template to your need (command line options)::
 
         [Unit]
-        Description=My custom service
+        Description=My iot-ledmatrix
         Requires=network.target
         [Service]
         Type=idle
@@ -81,7 +81,8 @@ how to get it running on your raspberry pi
 
         [Install]
         WantedBy=multi-user.target
-        #. enable & start the service to see your ledmatrix working: :code:`sudo systemctl enable ledmatrix.service && sudo systemctl start ledmatrix.service`
+
+    #. enable & start the service to see your ledmatrix working :code:`sudo systemctl enable ledmatrix.service && sudo systemctl start ledmatrix.service`
 
 Note: If you are using :code:`/dev/ttyAMA0` (serial0) for the Arduino you may have to remove this serial port from /boot/cmdline.txt as the Pi will print its boot messages to this port.
 

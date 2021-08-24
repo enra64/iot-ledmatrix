@@ -1,13 +1,9 @@
 import logging
-from typing import Optional
 
-import pytz
+import RPi.GPIO as GPIO
 
 import Canvas
 from CustomScript import CustomScript
-from datetime import datetime, timedelta
-import RPi.GPIO as GPIO
-
 from helpers.Color import Color
 
 

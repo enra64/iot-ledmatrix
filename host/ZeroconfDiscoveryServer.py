@@ -1,6 +1,6 @@
 import logging
 
-from zeroconf import ServiceInfo, Zeroconf, IPVersion
+from zeroconf import ServiceInfo, Zeroconf, IPVersion, NonUniqueNameException
 
 
 class ZeroconfDiscoveryServer:
@@ -27,8 +27,11 @@ class ZeroconfDiscoveryServer:
         )
 
     def start_advertising(self):
-        self.zeroconf.register_service(self.led_matrix_service_info)
-        self.logger.info("ZeroConf Advertiser start")
+        try:
+            self.zeroconf.register_service(self.led_matrix_service_info)
+            self.logger.info("ZeroConf Advertiser start")
+        except NonUniqueNameException as e:
+            self.logger.error(e)
 
     def stop_advertising(self):
         self.zeroconf.unregister_service(self.led_matrix_service_info)

@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from datetime import datetime
 from json import JSONDecodeError
 
@@ -22,6 +23,7 @@ class _Wordclock(CustomScript):
         self.color_config_path = "wordclock_color_config.json"
         self.logger.info("using {} and {} as config".format(config_file_path, self.color_config_path))
         self.enable = True
+        self.last_visible_on_pir = None
 
         try:
             self.word_logic = WordLogic(config_file_path)
@@ -58,7 +60,11 @@ class _Wordclock(CustomScript):
         if not self.settings.enable_pir():
             return True
         else:
-            return self.pir.is_something_visible()
+            pir_visible = self.pir.is_something_visible()
+            if pir_visible:
+                self.last_visible_on_pir = time.time()
+
+            return time.time() - self.last_visible_on_pir <= 120
 
     def update(self, canvas):
         time = self.__get_current_time()
